@@ -1,0 +1,74 @@
+.hero-banner-section {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0b1c0e;
+  line-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-banner-container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero-banner-video {
+  width: 100%;
+  display: block;
+}
+
+/* Desktops and Laptops: fills the screen height below the navbar */
+@media (min-width: 1024px) {
+  .hero-banner-section,
+  .hero-banner-container {
+    height: calc(100vh - var(--nav-height, 74px));
+    height: calc(100dvh - var(--nav-height, 74px));
+    max-height: calc(100dvh - var(--nav-height, 74px));
+  }
+
+  .hero-banner-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .hero-banner-section,
+  .hero-banner-container {
+    height: calc(100vh - var(--nav-height, 74px));
+    height: calc(100dvh - var(--nav-height, 74px));
+    max-height: calc(100dvh - var(--nav-height, 74px));
+  }
+
+  .hero-banner-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+/* Mobile Screens */
+@media (max-width: 767px) {
+  .hero-banner-section,
+  .hero-banner-container {
+    height: auto;
+  }
+
+  .hero-banner-video {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+

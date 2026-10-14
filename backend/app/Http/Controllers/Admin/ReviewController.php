@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\ProductReview;
+use App\Models\Testimonial;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+class ReviewController extends Controller
+{
+    public function index(Request $request)
+    {
+        $this->markMenuSeen('reviews');
+
+        $type = $request->get('type', 'product');
+
+        $productReviews = ProductReview::with('product')
+            ->when($request->filled('status') && $type === 'product', fn ($query) => $query->where('status', $request->status))
+            ->latest()
+            ->paginate(12, ['*'], 'product_page')
+            ->withQueryString();
+
+        $testimonials = Testimonial::query()
+            ->when($request->filled('status') && $type === 'testimonial', fn ($query) => $query->where('status', $request->status))
+            ->latest()
+            ->paginate(12, ['*'], 'testimonial_page')
+            ->withQueryString();
+
+        return view('admin.reviews.index', compact('productReviews', 'testimonials', 'type'));
+    }
+
+    public function updateProductReview(Request $request, ProductReview $review)
+    {
+        $data = $request->validate([
+            'status' => 'required|in:active,pending,hidden',
+        ]);
+
+        $review->update($data);
+
+        return redirect()->route('admin.reviews.index', ['type' => 'product'])->with('success', 'Product review updated successfully.');
+    }
+
+    public function updateTestimonial(Request $request, Testimonial $testimonial)
+    {
+        $data = $request->validate([
+            'status' => 'required|in:active,approved,pending,rejected,inactive',
+        ]);
+
+        $testimonial->update($data);
+
+        $actionText = match ($data['status']) {
+            'active', 'approved' => 'approved and published to homepage',
+            'rejected' => 'rejected and hidden from homepage',
+            'pending' => 'marked as pending',
+            default => 'updated',
+        };
+
+        return redirect()->route('admin.reviews.index', ['type' => 'testimonial'])->with('success', "Testimonial {$actionText} successfully.");
+    }
+
+    public function destroyTestimonial(Testimonial $testimonial)
+    {
+        $testimonial->delete();
+
+        return redirect()->route('admin.reviews.index', ['type' => 'testimonial'])->with('success', 'Testimonial deleted successfully.');
+    }
+
+    private function markMenuSeen(string $section): void
+    {
+        if (auth()->check()) {
+            Cache::forever('admin_menu_seen_' . $section . '_' . auth()->id(), now()->toDateTimeString());
+        }
+    }
+}

@@ -1,0 +1,59 @@
+import { apiClient, getAuthToken } from './client';
+
+const LOCAL_KEY = 'prakruti_family_pack';
+
+export const getLocalFamilyPack = () => {
+  try {
+    const saved = localStorage.getItem(LOCAL_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const saveLocalFamilyPack = (pack) => {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify({
+    ...pack,
+    saved_at: new Date().toISOString(),
+  }));
+};
+
+export const familyPacksApi = {
+  getLatest: async () => {
+    if (!getAuthToken()) {
+      return { success: true, data: null, requiresLogin: true };
+    }
+
+    const res = await apiClient('/family-packs/latest');
+    if (res.success && res.data) saveLocalFamilyPack(res.data);
+    return res;
+  },
+
+  calculate: async (payload) => {
+    return apiClient('/family-packs/calculate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  save: async (payload) => {
+    if (!getAuthToken()) {
+      return {
+        success: false,
+        status: 401,
+        requiresLogin: true,
+        message: 'Please login or register to save your family pack.',
+      };
+    }
+
+    const res = await apiClient('/family-packs', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (res.success && res.data) saveLocalFamilyPack(res.data);
+
+    return res;
+  },
+};
+
