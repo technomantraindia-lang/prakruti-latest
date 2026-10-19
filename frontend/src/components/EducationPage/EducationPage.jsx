@@ -281,156 +281,11 @@ const FALLBACK_AWARENESS_ALERTS = [
   }
 ]
 
-const FALLBACK_GUIDELINES = [
-  {
-    id: 1,
-    title: 'ICMR-NIN Dietary Guidelines for Indians (2024)',
-    organization: 'ICMR - National Institute of Nutrition',
-    category: 'icmr_nin',
-    category_label: 'ICMR-NIN',
-    published_year: '2024',
-    file_size: '12.4 MB',
-    description: 'Official comprehensive dietary guidelines for all age groups, macro/micronutrient allowances, and prevention of lifestyle disorders.',
-    external_url: 'https://nin.res.in/RDA_Full_Report_2024.html',
-    download_url: 'https://nin.res.in/RDA_Full_Report_2024.html'
-  },
-  {
-    id: 2,
-    title: 'WHO Guideline: Sodium Intake for Adults and Children',
-    organization: 'World Health Organization (WHO)',
-    category: 'who',
-    category_label: 'WHO Guidelines',
-    published_year: '2023',
-    file_size: '2.8 MB',
-    description: 'Evidence-based global recommendations to reduce sodium intake below 2g/day (approx 5g salt) to prevent hypertension and cardiovascular risks.',
-    external_url: 'https://www.who.int/news-room/fact-sheets/detail/sodium-reduction',
-    download_url: 'https://www.who.int/news-room/fact-sheets/detail/sodium-reduction'
-  },
-  {
-    id: 3,
-    title: 'WHO Guideline: Sugars Intake for Adults and Children',
-    organization: 'World Health Organization (WHO)',
-    category: 'who',
-    category_label: 'WHO Guidelines',
-    published_year: '2022',
-    file_size: '3.1 MB',
-    description: 'Recommendations to restrict free sugars to under 10% (ideally under 5%) of total daily energy to control dental caries and metabolic disorders.',
-    external_url: 'https://www.who.int/publications/i/item/9789241549028',
-    download_url: 'https://www.who.int/publications/i/item/9789241549028'
-  },
-  {
-    id: 4,
-    title: 'WHO Guideline: Total Fat Intake for Prevention of Unhealthy Weight Gain',
-    organization: 'World Health Organization (WHO)',
-    category: 'who',
-    category_label: 'WHO Guidelines',
-    published_year: '2023',
-    file_size: '4.5 MB',
-    description: 'Scientific overview on essential fatty acids, eliminating industrial trans fats, and balancing saturated vs polyunsaturated/monounsaturated fats.',
-    external_url: 'https://www.who.int/westernpacific/publications/i/item/9789240073630',
-    download_url: 'https://www.who.int/westernpacific/publications/i/item/9789240073630'
-  },
-  {
-    id: 5,
-    title: 'WHO Guideline: Carbohydrate Intake for Adults and Children',
-    organization: 'World Health Organization (WHO)',
-    category: 'who',
-    category_label: 'WHO Guidelines',
-    published_year: '2023',
-    file_size: '3.8 MB',
-    description: 'Guidance emphasizing dietary fiber from whole grains, legumes, vegetables, and whole fruits over refined flours and ultra-processed carbohydrates.',
-    external_url: 'https://www.who.int/publications/i/item/9789240073593',
-    download_url: 'https://www.who.int/publications/i/item/9789240073593'
-  },
-  {
-    id: 6,
-    title: 'FSSAI Food Safety & Adulteration Testing Quick Manual (DART)',
-    organization: 'Food Safety and Standards Authority of India (FSSAI)',
-    category: 'fssai',
-    category_label: 'FSSAI Standards',
-    published_year: '2023',
-    file_size: '6.2 MB',
-    description: 'Detect Adulteration with Rapid Test (DART) handbook for testing milk, edible oils, spices, pulses, and honey using household methods.',
-    external_url: 'https://www.fssai.gov.in',
-    download_url: 'https://www.fssai.gov.in'
-  },
-  {
-    id: 7,
-    title: 'Prakruti Zero-Adulteration & Cold-Pressed Blueprint',
-    organization: 'Prakruti Corporation',
-    category: 'prakruti',
-    category_label: 'Prakruti Research',
-    published_year: '2024',
-    file_size: '1.9 MB',
-    description: 'Comprehensive whitepaper on traditional A2 Vedic Bilona ghee processing, wood-pressed extraction temperatures under 40°C, and vacuum preservation.',
-    external_url: null,
-    download_url: null
-  }
-]
-
 export default function EducationPage({ onShopClick, onNavigate }) {
   const [activeTiming, setActiveTiming] = useState('morning')
   const [openMythIdx, setOpenMythIdx] = useState(null)
   const [searchMyth, setSearchMyth] = useState('')
   const [aiRedirectFeedback, setAiRedirectFeedback] = useState('')
-
-  // PDF Guidelines states
-  const [guidelines, setGuidelines] = useState([])
-  const [guidelinesLoading, setGuidelinesLoading] = useState(true)
-  const [selectedGuidelineCategory, setSelectedGuidelineCategory] = useState('all')
-  const [searchGuideline, setSearchGuideline] = useState('')
-
-  useEffect(() => {
-    let isMounted = true
-    const fetchGuidelines = async () => {
-      try {
-        const res = await apiClient('/guidelines')
-        if (isMounted) {
-          if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-            setGuidelines(res.data)
-          } else {
-            setGuidelines(FALLBACK_GUIDELINES)
-          }
-        }
-      } catch (err) {
-        console.warn('Could not fetch guidelines from API, using fallback data:', err)
-        if (isMounted) {
-          setGuidelines(FALLBACK_GUIDELINES)
-        }
-      } finally {
-        if (isMounted) {
-          setGuidelinesLoading(false)
-        }
-      }
-    }
-    fetchGuidelines()
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  const filteredGuidelines = useMemo(() => {
-    return guidelines.filter((g) => {
-      const matchesCategory =
-        selectedGuidelineCategory === 'all' ||
-        g.category === selectedGuidelineCategory ||
-        (selectedGuidelineCategory === 'who' && (g.category === 'who' || g.organization?.includes('WHO'))) ||
-        (selectedGuidelineCategory === 'icmr_nin' && (g.category === 'icmr_nin' || g.organization?.includes('NIN') || g.organization?.includes('ICMR'))) ||
-        (selectedGuidelineCategory === 'fssai' && (g.category === 'fssai' || g.organization?.includes('FSSAI'))) ||
-        (selectedGuidelineCategory === 'prakruti' && (g.category === 'prakruti' || g.organization?.includes('Prakruti')))
-
-      if (!matchesCategory) return false
-
-      if (!searchGuideline.trim()) return true
-      const q = searchGuideline.toLowerCase()
-      return (
-        (g.title && g.title.toLowerCase().includes(q)) ||
-        (g.organization && g.organization.toLowerCase().includes(q)) ||
-        (g.description && g.description.toLowerCase().includes(q)) ||
-        (g.category_label && g.category_label.toLowerCase().includes(q))
-      )
-    })
-  }, [guidelines, selectedGuidelineCategory, searchGuideline])
 
   const handleSeeAnswer = (customQ) => {
     const rawQuestion = (typeof customQ === 'string' ? customQ : searchMyth).trim()
@@ -646,8 +501,20 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               Food is not just something we eat when we are hungry. It fuels our cells, repairs muscle, protects our heart, and builds lifelong immunity. Healthy eating is about balance, not deprivation.
             </p>
             <div className="edu-hero-ctas">
-              <a href="#pdf-guidelines-library" className="edu-btn-library">
-                📚 PDF Guidelines Library ↓
+              <a 
+                href="#pdf-guidelines-library" 
+                className="edu-btn-library"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigate) {
+                    onNavigate('guidelines');
+                  } else {
+                    window.location.hash = 'pdf-guidelines-library';
+                  }
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                📚 PDF Guidelines Library →
               </a>
               <a href="#healthy-eating" className="edu-btn-primary">
                 Explore Nutrition Guide ↓
@@ -1519,160 +1386,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
         </div>
       </section>
 
-      {/* 11. PDF Guidelines & Research Library Section */}
-      <section className="edu-section pdf-library-section" id="pdf-guidelines-library">
-        <div className="container">
-          <motion.div
-            className="section-header-center"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="library-kicker">OFFICIAL RESEARCH & SCIENCE ARCHIVE</span>
-            <h2 className="library-main-title">📚 PDF Guidelines & Research Library</h2>
-            <p className="library-desc">
-              Access verified dietary frameworks, WHO international nutrition manuals, ICMR-NIN RDA blueprints, and Prakruti cold-pressed research whitepapers directly in one place.
-            </p>
-
-            {/* Search and Category Filter */}
-            <div className="library-controls-wrap">
-              <div className="library-search-box">
-                <span className="library-search-icon">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search guidelines by keyword, organization, or title..."
-                  value={searchGuideline}
-                  onChange={(e) => setSearchGuideline(e.target.value)}
-                  className="library-search-input"
-                />
-                {searchGuideline && (
-                  <button
-                    type="button"
-                    className="library-search-clear"
-                    onClick={() => setSearchGuideline('')}
-                    title="Clear search"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-
-              <div className="library-category-pills">
-                {[
-                  { key: 'all', label: 'All Guidelines' },
-                  { key: 'who', label: 'WHO Global' },
-                  { key: 'icmr_nin', label: 'ICMR - NIN' },
-                  { key: 'fssai', label: 'FSSAI Safety' },
-                  { key: 'prakruti', label: 'Prakruti Research' }
-                ].map((cat) => (
-                  <button
-                    key={cat.key}
-                    type="button"
-                    className={`library-cat-pill ${selectedGuidelineCategory === cat.key ? 'active' : ''}`}
-                    onClick={() => setSelectedGuidelineCategory(cat.key)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {guidelinesLoading ? (
-            <div className="library-loading">
-              <div className="library-spinner" />
-              <p>Loading official dietary & nutrition archives...</p>
-            </div>
-          ) : filteredGuidelines.length === 0 ? (
-            <div className="library-empty">
-              <p>No guidelines found matching your filter criteria.</p>
-              <button
-                type="button"
-                className="library-reset-btn"
-                onClick={() => {
-                  setSelectedGuidelineCategory('all')
-                  setSearchGuideline('')
-                }}
-              >
-                Reset Filters
-              </button>
-            </div>
-          ) : (
-            <motion.div
-              className="library-grid"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.1 }}
-              variants={staggerContainer}
-            >
-              {filteredGuidelines.map((item) => {
-                const targetUrl = item.file_path
-                  ? `/storage/${item.file_path}`
-                  : item.external_url || item.download_url
-
-                return (
-                  <motion.div
-                    key={item.id}
-                    className="guideline-card"
-                    variants={fadeInUp}
-                    whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                  >
-                    <div className="guideline-card-header">
-                      <div className="guideline-meta-tags">
-                        <span className={`guideline-badge badge-${item.category || 'general'}`}>
-                          {item.organization || item.category_label || 'Official'}
-                        </span>
-                        {item.published_year && (
-                          <span className="guideline-year-badge">{item.published_year}</span>
-                        )}
-                      </div>
-                      {item.file_size && (
-                        <span className="guideline-size-badge">📦 {item.file_size}</span>
-                      )}
-                    </div>
-
-                    <div className="guideline-card-body">
-                      <div className="guideline-icon-title">
-                        <span className="guideline-pdf-icon">📄</span>
-                        <h3 className="guideline-card-title">{item.title}</h3>
-                      </div>
-                      <p className="guideline-card-desc">{item.description}</p>
-                    </div>
-
-                    <div className="guideline-card-footer">
-                      {targetUrl ? (
-                        <a
-                          href={targetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="guideline-download-btn"
-                        >
-                          {item.file_path ? '📥 Download PDF' : '🌐 View Official Report ↗'}
-                        </a>
-                      ) : (
-                        <span className="guideline-available-soon">Archived Report</span>
-                      )}
-
-                      {item.external_url && item.file_path && (
-                        <a
-                          href={item.external_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="guideline-web-link"
-                          title="Open official web source"
-                        >
-                          Source ↗
-                        </a>
-                      )}
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          )}
-        </div>
-      </section>
 
       {/* 11. BMI Calculator & Expert Guidance with Smooth Animation */}
       <section className="quiz-section wellness-tools-section" id="bmi-calculator">

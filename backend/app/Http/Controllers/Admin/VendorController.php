@@ -135,10 +135,12 @@ class VendorController extends Controller
             return back()->with('error', 'Cannot delete vendor because existing inward stock or purchase bills are linked.');
         }
 
+        $vendorName = $vendor->display_name;
+        $vendor->vendorProducts()->delete();
         $vendor->delete();
 
         return redirect()->route('admin.vendors.index')
-            ->with('success', 'Vendor deleted successfully.');
+            ->with('success', "Vendor '{$vendorName}' deleted successfully.");
     }
 
     public function storeProductMapping(Request $request, Vendor $vendor)

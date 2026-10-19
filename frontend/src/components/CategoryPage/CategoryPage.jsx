@@ -307,6 +307,11 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
                         const discountPercent = origPrice > product.price 
                           ? Math.round(((origPrice - product.price) / origPrice) * 100)
                           : 0;
+                        const isOutOfStock = Boolean(
+                          product.is_out_of_stock ||
+                          (product.available_stock !== undefined && product.available_stock <= 0) ||
+                          product.stock_status === 'out_of_stock'
+                        );
 
                         return (
                           <div 
@@ -319,8 +324,12 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
                                 {product.types?.includes('Organic') && (
                                   <span className="organic-tag">🌿 Organic</span>
                                 )}
-                                {discountPercent > 0 && (
-                                  <span className="discount-tag">-{discountPercent}%</span>
+                                {isOutOfStock ? (
+                                  <span className="out-of-stock-tag">Out of Stock</span>
+                                ) : (
+                                  discountPercent > 0 && (
+                                    <span className="discount-tag">-{discountPercent}%</span>
+                                  )
                                 )}
                               </div>
 
@@ -373,10 +382,11 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
                               </div>
 
                               <button 
-                                className="feed-add-cart-btn"
-                                disabled={addingId === product.id}
+                                className={`feed-add-cart-btn ${isOutOfStock ? 'btn-out-of-stock' : ''}`}
+                                disabled={isOutOfStock || addingId === product.id}
                                 onClick={async (e) => {
                                   e.stopPropagation();
+                                  if (isOutOfStock) return;
                                   setAddingId(product.id);
                                   try {
                                     await addToCart(product.id, 1);
@@ -387,7 +397,9 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
                                   }
                                 }}
                               >
-                                {addingId === product.id ? (
+                                {isOutOfStock ? (
+                                  <span>Out of Stock</span>
+                                ) : addingId === product.id ? (
                                   <span className="btn-loading-text">Adding...</span>
                                 ) : (
                                   <>

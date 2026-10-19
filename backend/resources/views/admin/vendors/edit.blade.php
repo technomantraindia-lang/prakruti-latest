@@ -1,9 +1,20 @@
 @extends('admin.layouts.app')
 @section('title', 'Edit Vendor')
 @section('content')
-<div class="mb-4">
-    <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-outline-secondary btn-sm mb-2"><i class="fas fa-arrow-left me-1"></i> Back to Vendor Details</a>
-    <h2>Edit Vendor: {{ $vendor->display_name }}</h2>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-outline-secondary btn-sm mb-2"><i class="fas fa-arrow-left me-1"></i> Back to Vendor Details</a>
+        <h2 class="mb-0">Edit Vendor: {{ $vendor->display_name }}</h2>
+    </div>
+    <div>
+        <form action="{{ route('admin.vendors.destroy', $vendor) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete vendor \'{{ addslashes($vendor->display_name) }}\'? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-1"></i> Delete Vendor
+            </button>
+        </form>
+    </div>
 </div>
 
 <form action="{{ route('admin.vendors.update', $vendor) }}" method="POST">

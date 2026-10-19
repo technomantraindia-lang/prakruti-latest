@@ -24,7 +24,7 @@
     $lowStockCount = \App\Models\Product::whereColumn('stock_qty', '<=', 'low_stock_qty')->count();
     $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count();
     $pendingInquiriesCount = \App\Models\Inquiry::where('status', 'pending')->count();
-    $newConsultationsCount = \Illuminate\Support\Facades\Schema::hasTable('consultation_requests') ? \App\Models\ConsultationRequest::where('status', 'new')->count() : 0;
+    $newConsultationsCount = \Illuminate\Support\Facades\Schema::hasTable('consultation_requests') ? \App\Models\ConsultationRequest::whereIn('status', ['new', 'not_sent'])->count() : 0;
     $pendingProductReviewsCount = \Illuminate\Support\Facades\Schema::hasTable('product_reviews') ? \App\Models\ProductReview::where('status', 'pending')->count() : 0;
     $pendingTestimonialsCount = \Illuminate\Support\Facades\Schema::hasTable('testimonials') ? \App\Models\Testimonial::where('status', 'pending')->count() : 0;
     $pendingReviewsCount = $pendingProductReviewsCount + $pendingTestimonialsCount;
@@ -56,7 +56,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Panel') - Prakruti Organic</title>
+    <title>@yield('title', 'Admin Panel') - Prakruti Corporation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -228,13 +228,13 @@
                                             </a>
                                         @endif
                                         @if($newConsultationsCount > 0)
-                                            <a href="{{ route('admin.consultations.index', ['status' => 'new']) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
-                                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <a href="{{ route('admin.consultations.index', ['status' => 'not_sent']) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
                                                     <i class="fas fa-user-md"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <div class="small fw-semibold text-dark">New Consultation Requests</div>
-                                                    <div class="text-muted small">You have {{ $newConsultationsCount }} new consultation request(s)</div>
+                                                    <div class="small fw-semibold text-dark">Unsent Consultation Requests</div>
+                                                    <div class="text-muted small">You have {{ $newConsultationsCount }} unsent consultation request(s)</div>
                                                 </div>
                                             </a>
                                         @endif
@@ -292,7 +292,7 @@
                     <!-- System Info Footer -->
                     <footer class="mt-5 pt-3 border-top text-muted d-flex flex-wrap justify-content-between align-items-center" style="font-size: 0.85rem;">
                         <div>
-                            &copy; {{ date('Y') }} <strong>Prakruti Organic Admin</strong>. All rights reserved.
+                            &copy; {{ date('Y') }} <strong>Prakruti Corporation Admin</strong>. All rights reserved.
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 d-flex align-items-center gap-1">

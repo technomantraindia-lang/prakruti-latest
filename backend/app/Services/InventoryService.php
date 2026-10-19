@@ -34,6 +34,22 @@ class InventoryService
             $model->stock_qty = $newStock;
             $model->save();
 
+            // Synchronize parent product and variations
+            if ($model instanceof ProductVariation) {
+                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
+                if ($parentProduct) {
+                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
+                    $parentProduct->stock_qty = max(0, $totalVariationStock);
+                    $parentProduct->save();
+                }
+            } elseif ($model instanceof Product) {
+                $firstVar = ProductVariation::where('product_id', $model->id)->where('status', 'active')->orderBy('id')->lockForUpdate()->first();
+                if ($firstVar) {
+                    $firstVar->stock_qty = (int) $firstVar->stock_qty + $qty;
+                    $firstVar->save();
+                }
+            }
+
             return $this->recordTransaction($model, 'purchase', $qty, $previousStock, $newStock, $reason, $reference, $byUser, $metadata);
         });
     }
@@ -53,14 +69,30 @@ class InventoryService
         return DB::transaction(function () use ($item, $qty, $reason, $reference, $byUser, $metadata) {
             $model = $this->lockItem($item);
             $previousStock = (int) $model->stock_qty;
-            $newStock = $previousStock - $qty;
+            $newStock = max(0, $previousStock - $qty);
 
-            if ($newStock < 0) {
+            if ($previousStock < $qty) {
                 throw new InvalidArgumentException("Insufficient stock for product #{$model->id}. Available physical stock is {$previousStock}, requested reduction is {$qty}.");
             }
 
             $model->stock_qty = $newStock;
             $model->save();
+
+            // Synchronize parent product and variations
+            if ($model instanceof ProductVariation) {
+                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
+                if ($parentProduct) {
+                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
+                    $parentProduct->stock_qty = max(0, $totalVariationStock);
+                    $parentProduct->save();
+                }
+            } elseif ($model instanceof Product) {
+                $firstVar = ProductVariation::where('product_id', $model->id)->where('status', 'active')->orderBy('id')->lockForUpdate()->first();
+                if ($firstVar) {
+                    $firstVar->stock_qty = max(0, (int) $firstVar->stock_qty - $qty);
+                    $firstVar->save();
+                }
+            }
 
             return $this->recordTransaction($model, 'sale', -$qty, $previousStock, $newStock, $reason, $reference, $byUser, $metadata);
         });
@@ -217,6 +249,16 @@ class InventoryService
 
             $model->stock_qty = $newQty;
             $model->save();
+
+            // Synchronize parent product and variations
+            if ($model instanceof ProductVariation) {
+                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
+                if ($parentProduct) {
+                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
+                    $parentProduct->stock_qty = max(0, $totalVariationStock);
+                    $parentProduct->save();
+                }
+            }
 
             return $this->recordTransaction($model, 'adjustment', $changeQty, $previousStock, $newQty, $reason, $reference, $byUser, $metadata);
         });

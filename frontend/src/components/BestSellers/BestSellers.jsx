@@ -71,6 +71,12 @@ function normalizeBestSeller(product) {
   const firstVariation = Array.isArray(product.variations) ? product.variations[0] : null
   const price = Number(product.price || firstVariation?.price || 0)
   const originalPrice = Number(product.originalPrice || product.regular_price || price)
+  const availableStock = product.available_stock !== undefined
+    ? Number(product.available_stock)
+    : (firstVariation?.available_stock !== undefined
+        ? Number(firstVariation.available_stock)
+        : Number(product.stock_qty || 0))
+  const isOutOfStock = Boolean(product.is_out_of_stock || availableStock <= 0 || product.stock_status === 'out_of_stock')
 
   return {
     ...product,
@@ -82,7 +88,9 @@ function normalizeBestSeller(product) {
     originalPrice: originalPrice > price ? originalPrice : null,
     price,
     image: product.image,
-    category: product.category || 'Organic'
+    category: product.category || 'Organic',
+    availableStock,
+    isOutOfStock,
   }
 }
 
@@ -250,6 +258,9 @@ const BestSellers = ({ onViewProduct, onViewAll }) => {
                         onClick={() => onViewProduct && onViewProduct(product.id)}
                       >
                         <div className="product-image-wrap">
+                          {product.isOutOfStock && (
+                            <span className="out-of-stock-badge">Out of Stock</span>
+                          )}
                           <img
                             src={product.image}
                             alt={product.displayName}
@@ -278,12 +289,13 @@ const BestSellers = ({ onViewProduct, onViewAll }) => {
                           </div>
 
                           <button
-                            className="add-to-cart-btn"
-                            aria-label={`Add ${product.displayName} to Cart`}
-                            disabled={addingId === product.id}
+                            className={`add-to-cart-btn ${product.isOutOfStock ? 'btn-out-of-stock' : ''}`}
+                            aria-label={product.isOutOfStock ? `${product.displayName} is Out of Stock` : `Add ${product.displayName} to Cart`}
+                            disabled={product.isOutOfStock || addingId === product.id}
                             tabIndex={isDuplicate ? -1 : undefined}
                             onClick={async (event) => {
                               event.stopPropagation()
+                              if (product.isOutOfStock) return
                               setAddingId(product.id)
                               try {
                                 await addToCart(product.id, 1, product.varId || null)
@@ -294,7 +306,7 @@ const BestSellers = ({ onViewProduct, onViewAll }) => {
                               }
                             }}
                           >
-                            {addingId === product.id ? 'Adding...' : '+ Add to Cart'}
+                            {product.isOutOfStock ? 'Out of Stock' : (addingId === product.id ? 'Adding...' : '+ Add to Cart')}
                           </button>
                         </div>
                       </div>

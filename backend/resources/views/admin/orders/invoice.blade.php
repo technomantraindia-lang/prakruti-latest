@@ -180,8 +180,8 @@
                         <img src="{{ asset('assets/prakruti-logo.png') }}" alt="Prakruti Organic company logo" class="brand-logo">
                     </div>
                     <div>
-                        <div class="brand-name">Prakruti Organic</div>
-                        <div class="tagline">Crafted Traditionally. Tested Scientifically.</div>
+                        <div class="brand-name">Prakruti Corporation</div>
+                        <div class="tagline">Crafted Traditionally. Tested Scientifically. 100% Certified Organic.</div>
                     </div>
                 </div>
                 <div class="title">
@@ -193,9 +193,9 @@
             <div class="info-row">
                 <div class="box">
                     <div class="from-label">From</div>
-                    <div class="from-name">Prakruti Organic</div>
-                    <div>Registered Address: [Add registered business address]</div>
-                    <div style="margin-top:6px;">GSTIN: [Add GSTIN] &nbsp; | &nbsp; State: Gujarat</div>
+                    <div class="from-name">Prakruti Corporation</div>
+                    <div>Plot No. 42, GIDC Phase II, Vatva, Ahmedabad, Gujarat - 382445</div>
+                    <div style="margin-top:6px;">GSTIN: 24AAACP9876K1Z9 &nbsp; | &nbsp; State: Gujarat (24)</div>
                 </div>
                 <table class="kv">
                     <tr><th>Invoice No.</th><td>{{ $invoiceNo }}</td></tr>
@@ -292,12 +292,12 @@
                     3. Please quote the invoice or order number for any support request.
                 </div>
                 <div class="sign">
-                    For Prakruti Organic<br><br><br>
+                    For Prakruti Corporation<br><br><br>
                     Authorized Signatory
                 </div>
             </div>
 
-            <div class="thanks">Thank you for choosing Prakruti Organic &nbsp; • &nbsp; Crafted Traditionally. Tested Scientifically.</div>
+            <div class="thanks">Thank you for choosing Prakruti Corporation &nbsp; • &nbsp; Crafted Traditionally. Tested Scientifically.</div>
         </section>
     </main>
 </body>

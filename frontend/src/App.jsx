@@ -25,6 +25,7 @@ import FamilyPackPage from './components/FamilyPackPage/FamilyPackPage'
 import AccountPage from './components/AccountPage/AccountPage'
 import LegalPage from './components/LegalPage/LegalPage'
 import DoctorConsultation from './components/DoctorConsultation/DoctorConsultation'
+import GuidelinesPage from './components/GuidelinesPage/GuidelinesPage'
 
 import { api, getStoredUser } from './services/api'
 import { CartProvider, useCart } from './context/CartContext'
@@ -89,6 +90,8 @@ function AppShell() {
         setCurrentPage('farm-gallery');
       } else if (hash === '#education') {
         setCurrentPage('education');
+      } else if (hash === '#guidelines' || hash === '#pdf-guidelines-library') {
+        setCurrentPage('guidelines');
       } else if (hash === '#family-pack') {
         setCurrentPage('family-pack');
       } else if (hash === '#privacy') {
@@ -301,6 +304,13 @@ function AppShell() {
           <EducationPage 
             onShopClick={() => handleNavigate('categories')}
             onNavigate={handleNavigate}
+          />
+        )}
+
+        {currentPage === 'guidelines' && (
+          <GuidelinesPage 
+            onBackToEducation={() => handleNavigate('education')}
+            onShopClick={() => handleNavigate('categories')}
           />
         )}
 

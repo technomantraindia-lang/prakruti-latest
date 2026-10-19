@@ -98,7 +98,7 @@ class ConsultationRequestApiController extends Controller
             'dietary_preference' => $request->dietary_preference,
             'preferred_time' => $request->preferred_time,
             'consent' => (bool) $request->boolean('consent'),
-            'status' => 'new',
+            'status' => 'not_sent',
         ]);
 
         return response()->json([

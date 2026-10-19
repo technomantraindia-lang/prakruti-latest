@@ -51,6 +51,14 @@ export function normalizeProduct(product) {
     ...(Array.isArray(product.images) ? product.images : []),
   ].filter(Boolean).filter((image, index, list) => list.indexOf(image) === index).slice(0, 7);
 
+  const availableStock = product.available_stock !== undefined
+    ? Number(product.available_stock)
+    : (variations.length > 0
+        ? variations.reduce((sum, v) => sum + (Number(v.available_stock) || 0), 0)
+        : Number(product.stock_qty || 0));
+  const stockStatus = product.stock_status || (availableStock > 0 ? 'in_stock' : 'out_of_stock');
+  const isOutOfStock = availableStock <= 0 || stockStatus === 'out_of_stock';
+
   return {
     ...local,
     ...product,
@@ -72,6 +80,9 @@ export function normalizeProduct(product) {
     nutritional_info: product.nutritional_info || local.nutritional_info || '',
     product_information: product.product_information || local.product_information || {},
     weight: product.weight ? String(product.weight) : (local.weight || ''),
+    stock_status: isOutOfStock ? 'out_of_stock' : 'in_stock',
+    available_stock: availableStock,
+    is_out_of_stock: isOutOfStock,
     variations,
   };
 }

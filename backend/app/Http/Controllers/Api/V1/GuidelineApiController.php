@@ -13,35 +13,26 @@ class GuidelineApiController extends Controller
     {
         $query = Guideline::query()->active();
 
-        if ($request->filled('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
-        }
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('organization', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        $guidelines = $query->orderBy('sort_order')
-            ->latest()
+        $guidelines = $query->latest()
             ->get()
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'title' => $item->title,
                     'slug' => $item->slug,
-                    'category' => $item->category,
-                    'category_label' => $item->category_label ?? ucfirst(str_replace('_', ' ', $item->category)),
-                    'organization' => $item->organization,
                     'description' => $item->description,
+                    'file_path' => $item->file_path,
                     'download_url' => $item->download_url,
                     'external_url' => $item->external_url,
                     'file_size' => $item->file_size ?? 'PDF Document',
-                    'published_year' => $item->published_year,
                     'download_count' => (int) $item->download_count,
                     'created_at' => $item->created_at?->toIso8601String(),
                 ];

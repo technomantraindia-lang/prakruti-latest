@@ -59,7 +59,7 @@ class InvoiceService
             }
 
             $itemsData[] = [
-                'product_name' => $product ? $product->name : 'Ayurvedic Product',
+                'product_name' => $product ? $product->name : 'Organic Product',
                 'variation_name' => $item->variation ? $item->variation->name : null,
                 'hsn_code' => $hsn,
                 'batch_number' => $item->batch_number,
@@ -93,6 +93,9 @@ class InvoiceService
         $grandTotal = round((float) $order->total_amount);
         $amountInWords = $this->numberToWordsIndian($grandTotal) . ' Rupees Only';
 
+        $logoPath = public_path('assets/prakruti-logo.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+
         return [
             'order' => $order,
             'items' => $itemsData,
@@ -101,6 +104,7 @@ class InvoiceService
             'stateCode' => $stateCode,
             'placeOfSupply' => ($order->shipping_state ?: 'Gujarat') . " ({$stateCode})",
             'amountInWords' => $amountInWords,
+            'logoBase64' => $logoBase64,
         ];
     }
 

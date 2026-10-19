@@ -26,3 +26,8 @@
 **/storage/framework/testing/*
 **/storage/framework/views/*
 **/bootstrap/cache/*.php
+
+# Browser saved pages and associated files in assets
+frontend/src/assets/images/**/*_files/
+frontend/src/assets/images/**/*.html
+

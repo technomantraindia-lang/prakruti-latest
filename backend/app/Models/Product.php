@@ -128,6 +128,15 @@ class Product extends Model
             return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
         }
 
+        $activeVars = $this->relationLoaded('variations')
+            ? $this->variations->where('status', 'active')
+            : $this->variations()->where('status', 'active')->get();
+
+        if ($activeVars->isNotEmpty()) {
+            $varStock = (int) $activeVars->sum('stock_qty');
+            return max($varStock - (int) ($this->reserved_stock ?? 0), 0);
+        }
+
         return max((int) $this->stock_qty - (int) ($this->reserved_stock ?? 0), 0);
     }
 

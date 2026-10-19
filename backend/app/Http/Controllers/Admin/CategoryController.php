@@ -9,6 +9,7 @@ use App\Services\ImageUploadService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -28,14 +29,22 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'gst_percentage' => 'nullable|numeric|min:0|max:100',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image',
+        ], [
+            'name.unique' => 'A category with this name already exists. Please choose a different name.',
         ]);
 
-        $data['slug'] = Str::slug($data['name']);
+        $slug = Str::slug($data['name']);
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Category::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+        $data['slug'] = $slug;
         $data['parent_id'] = null;
         if ($request->hasFile('image')) {
             $data['image'] = $this->uploader->upload($request->file('image'), 'categories');
@@ -54,14 +63,22 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')->ignore($category->id)],
             'description' => 'nullable|string',
             'gst_percentage' => 'nullable|numeric|min:0|max:100',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image',
+        ], [
+            'name.unique' => 'A category with this name already exists. Please choose a different name.',
         ]);
 
-        $data['slug'] = Str::slug($data['name']);
+        $slug = Str::slug($data['name']);
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+        $data['slug'] = $slug;
         $data['parent_id'] = null;
         if ($request->hasFile('image')) {
             $this->uploader->delete($category->image);

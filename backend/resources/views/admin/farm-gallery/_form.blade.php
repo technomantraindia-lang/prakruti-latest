@@ -93,13 +93,30 @@
             @error('video')<div class="invalid-feedback">{{ $message }}</div>@enderror
 
             @if(isset($item) && $item->videos->isNotEmpty())
-                <div class="mt-3 p-2 bg-white rounded border">
-                    <div class="small text-muted mb-1">Current Video:</div>
-                    <video src="{{ $item->videos->first()->video_url }}" controls class="rounded w-100" style="max-height: 140px; background: #000;"></video>
+                <div class="mt-3">
+                    <div class="small fw-bold text-dark mb-2">
+                        <i class="fas fa-play-circle text-primary me-1"></i> Current Attached Video{{ $item->videos->count() > 1 ? 's (' . $item->videos->count() . ')' : '' }}:
+                    </div>
+                    @foreach($item->videos as $vIdx => $v)
+                        <div class="p-2 mb-2 bg-white rounded border">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.72rem;">
+                                    Clip #{{ $vIdx + 1 }}: {{ $v->title ?: 'Video' }}
+                                </span>
+                                <a href="{{ $v->video_url }}" target="_blank" class="small text-decoration-none">
+                                    <i class="fas fa-external-link-alt fa-xs me-1"></i> Open
+                                </a>
+                            </div>
+                            <video src="{{ $v->video_url }}" controls preload="metadata" class="rounded w-100 mb-1" style="max-height: 150px; background: #000;"></video>
+                            <div class="text-muted" style="font-size: 0.72rem; word-break: break-all;">
+                                <i class="fas fa-file-video text-secondary me-1"></i>{{ basename($v->video) }}
+                            </div>
+                        </div>
+                    @endforeach
                     <div class="form-check mt-2">
                         <input class="form-check-input" type="checkbox" name="remove_video" value="1" id="removeVideoCheck">
                         <label class="form-check-label text-danger small fw-semibold" for="removeVideoCheck">
-                            Remove current video
+                            Remove attached video(s)
                         </label>
                     </div>
                 </div>

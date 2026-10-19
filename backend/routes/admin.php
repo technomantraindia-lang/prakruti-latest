@@ -133,6 +133,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/consultations', [ConsultationRequestController::class, 'index'])->name('consultations.index');
     Route::get('/consultations/{consultation}', [ConsultationRequestController::class, 'show'])->name('consultations.show');
     Route::put('/consultations/{consultation}', [ConsultationRequestController::class, 'update'])->name('consultations.update');
+    Route::post('/consultations/{consultation}/send-to-doctor', [ConsultationRequestController::class, 'sendToDoctor'])->name('consultations.sendToDoctor');
 
     // Frontend Reviews / Testimonials
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');

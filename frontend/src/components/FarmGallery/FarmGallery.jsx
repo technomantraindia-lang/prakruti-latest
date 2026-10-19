@@ -16,26 +16,7 @@ import gheeImg from '../../assets/images/bestseller_gir_ghee.jpg';
 import gheeVideo2 from '../../assets/videos_ghee/ghee_video_2.mp4';
 import gheeVideo3 from '../../assets/videos_ghee/ghee_video_3.mp4';
 
-import award1Img from '../../assets/images/PRAKGALLERY/AWARD1.jpeg';
-import award2Img from '../../assets/images/PRAKGALLERY/AWARD2.jpeg';
-import award3Img from '../../assets/images/PRAKGALLERY/AWARD3.png';
-import award4Img from '../../assets/images/PRAKGALLERY/AWARD4.png';
-import award5Img from '../../assets/images/PRAKGALLERY/AWARD5.png';
-import farmerImg from '../../assets/images/PRAKGALLERY/FAARMER.png';
-import farmerCommunityVideo from '../../assets/images/PRAKGALLERY/WhatsApp Video 2026-10-06 at 1.13.16 PM.mp4';
-import fieldVideo1 from '../../assets/images/PRAKGALLERY/WhatsApp Video 2026-10-06 at 1.13.28 PM.mp4';
-import fieldVideo2 from '../../assets/images/PRAKGALLERY/WhatsApp Video 2026-10-06 at 1.04.13 PM.mp4';
-import fieldVideo3 from '../../assets/images/PRAKGALLERY/FARMER CUTTIN2.mp4';
-import fieldVideo4 from '../../assets/images/PRAKGALLERY/FARMER CUTTING 4.mp4';
-import fieldVideo5 from '../../assets/images/PRAKGALLERY/FARMER CUTTING.mp4';
-import fieldVideo6 from '../../assets/images/PRAKGALLERY/FARMERCUTTIN3.mp4';
-import vegetablesImg from '../../assets/images/PRAKGALLERY/image.png';
-import vegetablesImg2 from '../../assets/images/PRAKGALLERY/WhatsApp Image 2026-10-06 at 1.12.32 PM.jpeg';
-import vegetablesImg3 from '../../assets/images/PRAKGALLERY/WhatsApp Image 2026-10-06 at 1.13.50 PM.jpeg';
-import vegetablesImg4 from '../../assets/images/PRAKGALLERY/WhatsApp Image 2026-10-06 at 1.13.50 PM (1).jpeg';
-import vegetablesImg5 from '../../assets/images/PRAKGALLERY/WhatsApp Image 2026-10-06 at 1.13.48 PM.jpeg';
-import vegetablesVideo1 from '../../assets/images/PRAKGALLERY/PNT.mp4';
-import vegetablesVideo2 from '../../assets/images/PRAKGALLERY/WhatsApp Video 2026-10-06 at 1.13.47 PM.mp4';
+
 
 const GALLERY_CATEGORIES = [
   { slug: 'farmer-community', label: 'Farmer & Community', icon: '🧑‍🌾' },
@@ -122,57 +103,9 @@ const fallbackGalleryItems = [
   }
 ];
 
-const createLocalImageItem = ({ id, category, title, image, tag, description }) => ({
-  id: `local-${id}`,
-  category,
-  title,
-  description,
-  image,
-  tag,
-  location: 'Prakruti Organic Community',
-  details: 'A real Prakruti sourcing, farming, community, or recognition moment shared from our gallery.',
-});
-
-const createLocalVideoItem = ({ id, category, title, video, image, tag, description }) => ({
-  id: `local-${id}`,
-  category,
-  title,
-  description,
-  image,
-  tag,
-  location: 'Prakruti Organic Community',
-  details: 'Watch this real Prakruti farming and community moment from our gallery.',
-  videos: [{ src: video, title: 'Play Gallery Video' }],
-});
-
-const LOCAL_GALLERY_ITEMS = [
-  createLocalImageItem({ id: 'event-1', category: 'events', title: 'Prakruti Organic Meet & Gathering', image: award1Img, tag: 'Community Event', description: 'A proud celebration and community gathering from the Prakruti journey.' }),
-  createLocalImageItem({ id: 'event-2', category: 'events', title: 'Prakruti Community Recognition Event', image: award2Img, tag: 'Community Event', description: 'Celebrating the people and partnerships behind our work.' }),
-  createLocalImageItem({ id: 'event-3', category: 'events', title: 'Honouring Organic Farming Excellence', image: award3Img, tag: 'Special Event', description: 'A special event celebrating purity, quality, and responsible sourcing.' }),
-  createLocalImageItem({ id: 'event-4', category: 'events', title: 'Farmer Community Gathering', image: award4Img, tag: 'Farmer Event', description: 'A memorable gathering with the farming community we work with.' }),
-  createLocalImageItem({ id: 'event-5', category: 'events', title: 'Prakruti Annual Event Celebration', image: award5Img, tag: 'Special Event', description: 'A memorable Prakruti event shared with our community.' }),
-
-  createLocalVideoItem({ id: 'farmer-community-video', category: 'farmer-community', title: 'Farmer Community in Action', video: farmerCommunityVideo, image: farmerImg, tag: 'Farmer Community', description: 'Meet the people and farming families behind every Prakruti staple.' }),
-  createLocalImageItem({ id: 'farmer-community-photo', category: 'farmer-community', title: 'Our Farming Community', image: farmerImg, tag: 'Farmer Community', description: 'A closer look at the farmers who make our sourcing transparent and personal.' }),
-
-  createLocalVideoItem({ id: 'field-video-1', category: 'fields-cultivation', title: 'Fields & Cultivation', video: fieldVideo1, image: speltWheatImg, tag: 'Fields & Soil', description: 'A visual story from our cultivated fields and organic soil.' }),
-  createLocalVideoItem({ id: 'field-video-2', category: 'fields-cultivation', title: 'Organic Farming Practices', video: fieldVideo2, image: speltWheatImg, tag: 'Fields & Soil', description: 'Traditional cultivation practices supporting healthy soil and crops.' }),
-  createLocalVideoItem({ id: 'field-video-3', category: 'fields-cultivation', title: 'Farmer Field Work', video: fieldVideo3, image: speltWheatImg, tag: 'Field Work', description: 'Farmers caring for crops through the growing season.' }),
-  createLocalVideoItem({ id: 'field-video-4', category: 'fields-cultivation', title: 'Harvest Preparation', video: fieldVideo4, image: speltWheatImg, tag: 'Field Work', description: 'Hands-on work from our natural farming operations.' }),
-  createLocalVideoItem({ id: 'field-video-5', category: 'fields-cultivation', title: 'Crop Care at the Farm', video: fieldVideo5, image: speltWheatImg, tag: 'Field Work', description: 'A behind-the-scenes look at crop care and cultivation.' }),
-  createLocalVideoItem({ id: 'field-video-6', category: 'fields-cultivation', title: 'From Soil to Harvest', video: fieldVideo6, image: speltWheatImg, tag: 'Fields & Soil', description: 'The careful work that brings farm-fresh produce to your home.' }),
-
-  createLocalImageItem({ id: 'vegetables-1', category: 'crops-vegetables', title: 'Fresh Vegetable Farming', image: vegetablesImg, tag: 'Crops & Vegetables', description: 'Fresh vegetables grown with care at the farm.' }),
-  createLocalImageItem({ id: 'vegetables-2', category: 'crops-vegetables', title: 'Farm-Fresh Produce', image: vegetablesImg2, tag: 'Crops & Vegetables', description: 'A closer look at fresh crops and produce from our farming community.' }),
-  createLocalImageItem({ id: 'vegetables-3', category: 'crops-vegetables', title: 'Harvested Organic Produce', image: vegetablesImg3, tag: 'Crops & Vegetables', description: 'Naturally grown produce prepared for the journey from farm to family.' }),
-  createLocalImageItem({ id: 'vegetables-4', category: 'crops-vegetables', title: 'Crops, Cows & Vegetables', image: vegetablesImg4, tag: 'Crops & Vegetables', description: 'A glimpse of the diverse, living farm ecosystem.' }),
-  createLocalImageItem({ id: 'vegetables-5', category: 'crops-vegetables', title: 'Natural Farm Harvest', image: vegetablesImg5, tag: 'Crops & Vegetables', description: 'Fresh harvest moments from the Prakruti farm story.' }),
-  createLocalVideoItem({ id: 'vegetables-video-1', category: 'crops-vegetables', title: 'Vegetable Farm Story', video: vegetablesVideo1, image: vegetablesImg, tag: 'Crops & Vegetables', description: 'See the care and attention behind our farm-grown vegetables.' }),
-  createLocalVideoItem({ id: 'vegetables-video-2', category: 'crops-vegetables', title: 'Fresh Produce in Motion', video: vegetablesVideo2, image: vegetablesImg2, tag: 'Crops & Vegetables', description: 'A moving look at crops, produce, and natural farming life.' }),
-];
-
 const FarmGallery = ({ onShopClick }) => {
-  const [galleryItems, setGalleryItems] = useState([...fallbackGalleryItems, ...LOCAL_GALLERY_ITEMS]);
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -180,13 +113,26 @@ const FarmGallery = ({ onShopClick }) => {
   useEffect(() => {
     let mounted = true;
 
-    apiClient('/farm-gallery').then((res) => {
-      if (!mounted || !res.success || !Array.isArray(res.data) || res.data.length === 0) {
-        return;
-      }
-
-      setGalleryItems([...res.data.map(normalizeGalleryItem), ...LOCAL_GALLERY_ITEMS]);
-    });
+    apiClient('/farm-gallery')
+      .then((res) => {
+        if (!mounted) return;
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setGalleryItems(res.data.map(normalizeGalleryItem));
+        } else {
+          setGalleryItems(fallbackGalleryItems.map(normalizeGalleryItem));
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load farm gallery from backend:', err);
+        if (mounted) {
+          setGalleryItems(fallbackGalleryItems.map(normalizeGalleryItem));
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      });
 
     return () => {
       mounted = false;

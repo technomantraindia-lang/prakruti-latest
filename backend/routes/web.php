@@ -43,10 +43,15 @@ Route::get('/media/{path}', function (string $path) {
 
     $candidates = [
         storage_path('app/public/' . $relativePath),
+        storage_path('app/public/farm-gallery/' . $relativePath),
+        storage_path('app/public/farm-gallery/prakgallery/' . basename($relativePath)),
         storage_path('app/public/food-awareness/' . $relativePath),
         storage_path('app/public/food-awareness/' . basename($relativePath)),
         base_path('../frontend/src/assets/images/' . $relativePath),
         base_path('../frontend/src/assets/images/' . basename($relativePath)),
+        base_path('../frontend/src/assets/images/Final packaging/' . $relativePath),
+        base_path('../frontend/src/assets/images/Final packaging/' . basename($relativePath)),
+        base_path('../frontend/src/assets/images/PRAKGALLERY/' . basename($relativePath)),
         base_path('../frontend/src/assets/videos_ghee/' . basename($relativePath)),
         public_path($relativePath),
         public_path('assets/' . basename($relativePath)),

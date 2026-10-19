@@ -16,15 +16,50 @@ class FarmGalleryController extends Controller
 {
     public function __construct(private ImageUploadService $uploader) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $items = FarmGalleryItem::with(['categoryInfo', 'videos'])
-            ->withCount('videos')
-            ->orderBy('sort_order')
-            ->latest()
-            ->paginate(15);
+        $query = FarmGalleryItem::with(['categoryInfo', 'videos'])
+            ->withCount('videos');
 
-        return view('admin.farm-gallery.index', compact('items'));
+        // Filter by media type
+        if ($request->input('media') === 'video') {
+            $query->has('videos');
+        } elseif ($request->input('media') === 'photo') {
+            $query->doesntHave('videos');
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('tag', 'like', "%{$search}%");
+            });
+        }
+
+        $totalCount = FarmGalleryItem::count();
+        $videoCount = FarmGalleryItem::has('videos')->count();
+        $photoOnlyCount = FarmGalleryItem::doesntHave('videos')->count();
+        $categories = FarmGalleryCategory::where('status', 'active')->orderBy('name')->get();
+
+        $items = $query->orderBy('sort_order')
+            ->latest()
+            ->paginate(50)
+            ->withQueryString();
+
+        return view('admin.farm-gallery.index', compact(
+            'items',
+            'totalCount',
+            'videoCount',
+            'photoOnlyCount',
+            'categories'
+        ));
     }
 
     public function create()

@@ -40,20 +40,17 @@ class PurchaseReturnController extends Controller
         }
 
         $returns = $query->paginate(15)->withQueryString();
-        $vendors = Vendor::where('status', 'active')->orderBy('name')->get();
+        $vendors = Vendor::where('is_active', true)->orderBy('name')->get();
 
         return view('admin.purchase_returns.index', compact('returns', 'vendors'));
     }
 
     public function create(Request $request)
     {
-        $vendors = Vendor::where('status', 'active')->orderBy('name')->get();
+        $vendors = Vendor::where('is_active', true)->orderBy('name')->get();
         $products = Product::where('status', 'active')->orderBy('name')->get();
         $batches = ProductBatch::with('product')
-            ->where(function ($q) {
-                $q->where('current_qty', '>', 0)
-                  ->orWhere('quarantined_qty', '>', 0);
-            })
+            ->where('current_qty', '>', 0)
             ->latest()
             ->get();
 

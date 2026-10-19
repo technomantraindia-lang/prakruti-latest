@@ -28,7 +28,7 @@ class OrderInvoiceMail extends Mailable
     {
         $invNum = $this->order->invoice_number ?: ('ORD-' . $this->order->id);
         return new Envelope(
-            subject: "Your Prakruti Ayurvedic Tax Invoice [{$invNum}] - Order Confirmation",
+            subject: "Your Prakruti Corporation Tax Invoice [{$invNum}] - Order Confirmation",
         );
     }
 

@@ -1,0 +1,429 @@
+/* ==========================================================================
+   GUIDELINES LIBRARY PAGE STYLES
+   ========================================================================== */
+
+.guidelines-page {
+  background-color: #fcfbf9;
+  color: #2b3329;
+  min-height: 80vh;
+  padding-bottom: 80px;
+}
+
+.guidelines-hero {
+  background: linear-gradient(145deg, #183e25 0%, #255b36 60%, #1c452b 100%);
+  color: #ffffff;
+  padding: 55px 0 65px;
+  position: relative;
+  overflow: hidden;
+}
+
+.guidelines-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.guidelines-breadcrumb {
+  margin-bottom: 24px;
+}
+
+.guidelines-back-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.guidelines-back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-3px);
+  color: #ffffff;
+}
+
+.guidelines-hero-content {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.guidelines-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: #f7e6a7;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.guidelines-hero-title {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: #ffffff;
+}
+
+.guidelines-hero-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: #e4ebe4;
+  margin-bottom: 32px;
+}
+
+/* Search Box */
+.guidelines-search-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.guidelines-search-box {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+}
+
+.guidelines-search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.guidelines-search-input {
+  width: 100%;
+  padding: 15px 45px 15px 50px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  color: #1e3321;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.guidelines-search-input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 12px 35px rgba(212, 175, 55, 0.25);
+}
+
+.guidelines-search-clear {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ebe5d8;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.guidelines-search-clear:hover {
+  background: #d8cebc;
+  color: #000;
+}
+
+/* Content Section */
+.guidelines-content-section {
+  padding: 55px 0 40px;
+}
+
+/* Grid & Cards */
+.guidelines-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.guideline-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 26px;
+  border: 1px solid #e9e0d1;
+  border-top: 4px solid #255b36;
+  box-shadow: 0 8px 24px rgba(27, 43, 26, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+}
+
+.guideline-card:hover {
+  border-color: #255b36;
+  box-shadow: 0 16px 36px rgba(37, 91, 54, 0.12);
+}
+
+.guideline-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.guideline-doc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fde8e8;
+  color: #d32f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  border: 1px solid #f9caca;
+}
+
+.guideline-size-tag {
+  background: #f4eee3;
+  color: #6d5f47;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid #e4d7c0;
+}
+
+.guideline-item-title {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a3821;
+  line-height: 1.38;
+  margin-bottom: 12px;
+}
+
+.guideline-item-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #536151;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.guideline-card-action {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #e9e0d1;
+}
+
+.guideline-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  background: #255b36;
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.22s ease;
+}
+
+.guideline-action-btn:hover {
+  background: #193e25;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 91, 54, 0.25);
+}
+
+.guideline-archived-tag {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background: #f4eee3;
+  color: #796d59;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+/* Loading & Empty States */
+.guidelines-loading-box,
+.guidelines-empty-box {
+  text-align: center;
+  padding: 60px 20px;
+  background: #ffffff;
+  border: 1.5px dashed #ded4c3;
+  border-radius: 20px;
+  max-width: 580px;
+  margin: 20px auto;
+}
+
+.guidelines-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #ebdcc5;
+  border-top-color: #255b36;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: gd-spin 0.8s linear infinite;
+}
+
+@keyframes gd-spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.guidelines-empty-box h3 {
+  font-size: 1.35rem;
+  color: #1a3821;
+  margin-bottom: 8px;
+}
+
+.guidelines-empty-box p {
+  color: #6d665a;
+  margin-bottom: 20px;
+}
+
+.guidelines-reset-btn {
+  background: #255b36;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guidelines-reset-btn:hover {
+  background: #193e25;
+}
+
+/* Footer CTA Card */
+.guidelines-footer-cta {
+  margin-top: 60px;
+}
+
+.guidelines-cta-card {
+  background: #ffffff;
+  border: 1.5px solid #ebdcc5;
+  border-radius: 24px;
+  padding: 38px 40px;
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+}
+
+.guidelines-cta-card h3 {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-size: 1.5rem;
+  color: #193e25;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.guidelines-cta-card p {
+  color: #556252;
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+.guidelines-cta-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-edu-link {
+  background: #ffffff;
+  color: #255b36;
+  border: 1.5px solid #255b36;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edu-link:hover {
+  background: #255b36;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn-shop-link {
+  background: #d4af37;
+  color: #1a3821;
+  border: 1.5px solid #c59b27;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-shop-link:hover {
+  background: #c59b27;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .guidelines-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .guidelines-grid {
+    grid-template-columns: 1fr;
+  }
+  .guidelines-cta-card {
+    padding: 28px 20px;
+  }
+  .guidelines-cta-btns {
+    flex-direction: column;
+  }
+  .btn-edu-link,
+  .btn-shop-link {
+    width: 100%;
+  }
+}

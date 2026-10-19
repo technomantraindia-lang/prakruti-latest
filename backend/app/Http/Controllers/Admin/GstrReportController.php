@@ -99,7 +99,7 @@ class GstrReportController extends Controller
                 if (!isset($hsnSummary[$hsn])) {
                     $hsnSummary[$hsn] = [
                         'hsn' => $hsn,
-                        'description' => $item->product_name ?: 'Ayurvedic Medicine',
+                        'description' => $item->product_name ?: 'Organic Products',
                         'uqc' => 'NOS',
                         'total_qty' => 0,
                         'total_taxable' => 0.0,

@@ -157,7 +157,15 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [product?.id, packageOptions]);
 
+  const isOutOfStock = Boolean(
+    (selectedPackage && selectedPackage.availableStock <= 0) ||
+    product?.is_out_of_stock ||
+    (product?.available_stock !== undefined && product.available_stock <= 0) ||
+    product?.stock_status === 'out_of_stock'
+  );
+
   const handleAddToCart = async () => {
+    if (isOutOfStock) return;
     setAdding(true);
     const res = await addToCart(product.id, quantity, selectedPackage?.variantId || null);
     setAdding(false);
@@ -168,6 +176,7 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
   };
 
   const handleBuyNow = async () => {
+    if (isOutOfStock) return;
     setAdding(true);
     const res = await addToCart(product.id, quantity, selectedPackage?.variantId || null);
     setAdding(false);
@@ -291,16 +300,16 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
                   <button 
                     key={option.key}
                     type="button"
-                    className={`size-select-btn ${packSize === option.key ? 'active' : ''}`}
+                    className={`size-select-btn ${packSize === option.key ? 'active' : ''} ${option.availableStock <= 0 ? 'pack-out-of-stock' : ''}`}
                     onClick={() => setPackSize(option.key)}
                   >
-                    <span>{option.label}</span>
+                    <span>{option.label} {option.availableStock <= 0 ? '(Out of Stock)' : ''}</span>
                     <small>{formatPrice(option.price)}</small>
                   </button>
                 ))}
               </div>
-              {selectedPackage?.availableStock <= 0 && (
-                <p className="pack-stock-warning">This package is currently out of stock.</p>
+              {isOutOfStock && (
+                <p className="pack-stock-warning">⚠️ This package is currently out of stock.</p>
               )}
             </div>
 
@@ -346,18 +355,18 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
 
               <button 
                 type="button" 
-                className={`btn add-to-cart-green-btn ${addedToCart ? 'success' : ''}`}
+                className={`btn add-to-cart-green-btn ${addedToCart ? 'success' : ''} ${isOutOfStock ? 'btn-out-of-stock' : ''}`}
                 onClick={handleAddToCart}
-                disabled={adding}
+                disabled={adding || isOutOfStock}
               >
-                {addedToCart ? '✨ Added to Cart!' : (adding ? 'Adding...' : '🛒 Add to Cart')}
+                {isOutOfStock ? 'Out of Stock' : (addedToCart ? '✨ Added to Cart!' : (adding ? 'Adding...' : '🛒 Add to Cart'))}
               </button>
 
               <button
                 type="button"
                 className="btn buy-now-white-btn"
                 onClick={handleBuyNow}
-                disabled={adding || selectedPackage?.availableStock <= 0}
+                disabled={adding || isOutOfStock}
               >
                 {adding ? 'Processing...' : '⚡ Buy Now'}
               </button>

@@ -525,11 +525,38 @@
   transition: var(--transition-smooth);
 }
 
-.buy-now-white-btn:hover {
+.buy-now-white-btn:hover:not(:disabled) {
   background-color: var(--color-primary-light);
   color: var(--color-white);
   border-color: var(--color-primary-light);
   transform: translateY(-2px);
+}
+
+.add-to-cart-green-btn.btn-out-of-stock,
+.add-to-cart-green-btn:disabled {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.buy-now-white-btn:disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+  cursor: not-allowed !important;
+  opacity: 0.8 !important;
+  transform: none !important;
+}
+
+.size-select-btn.pack-out-of-stock {
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+  background-color: #fff5f5 !important;
+  opacity: 0.85;
 }
 
 .wishlist-round-btn {

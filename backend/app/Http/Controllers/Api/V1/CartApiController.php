@@ -174,6 +174,12 @@ class CartApiController extends Controller
         }
 
         $stockQty = $variation ? (int) $variation->stock_qty : (int) $product->stock_qty;
+        if ($stockQty <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This product is currently out of stock.',
+            ], 422);
+        }
         if ($stockQty < $validated['qty']) {
             return response()->json([
                 'success' => false,

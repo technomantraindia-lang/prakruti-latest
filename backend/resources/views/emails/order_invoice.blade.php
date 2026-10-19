@@ -16,12 +16,12 @@
 <body>
     <div class="card">
         <div class="header">
-            <h1>Prakruti Ayurvedic</h1>
+            <h1>Prakruti Corporation</h1>
             <p style="margin: 4px 0 0; opacity: 0.9;">Order & Tax Invoice Confirmation</p>
         </div>
         <div class="content">
             <p>Dear <strong>{{ $order->shipping_name }}</strong>,</p>
-            <p>Thank you for choosing Prakruti Ayurvedic! Your order has been placed successfully and is being prepared with utmost care.</p>
+            <p>Thank you for choosing Prakruti Corporation! Your order has been placed successfully and is being prepared with utmost care.</p>
             
             <div class="highlight">
                 <p style="margin: 0 0 6px;"><strong>Invoice Number:</strong> {{ $order->invoice_number }}</p>
@@ -37,10 +37,10 @@
             
             <p>You can also download this invoice anytime from your account dashboard on our website.</p>
 
-            <p style="margin-top: 25px;">Warm regards,<br><strong>Team Prakruti Ayurvedic</strong><br>Ahmedabad, Gujarat</p>
+            <p style="margin-top: 25px;">Warm regards,<br><strong>Team Prakruti Corporation</strong><br>Ahmedabad, Gujarat</p>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} Prakruti Ayurvedic Pharmacy. All rights reserved.<br>
+            &copy; {{ date('Y') }} Prakruti Corporation. All rights reserved.<br>
             Plot No. 42, GIDC Phase II, Vatva, Ahmedabad, Gujarat - 382445
         </div>
     </div>

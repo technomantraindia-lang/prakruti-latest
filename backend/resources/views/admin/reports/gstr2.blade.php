@@ -52,7 +52,7 @@
             <div class="card shadow-sm border-left-success p-3 bg-white">
                 <div class="text-uppercase text-success fw-bold small">Total Taxable Purchases</div>
                 <div class="h3 mb-0 fw-bold mt-1 text-dark">₹{{ number_format($totTaxable, 2) }}</div>
-                <div class="text-muted small mt-1">Raw Materials & Finished Ayurvedic Goods</div>
+                <div class="text-muted small mt-1">Raw Materials & Finished Goods</div>
             </div>
         </div>
         <div class="col-md-3">

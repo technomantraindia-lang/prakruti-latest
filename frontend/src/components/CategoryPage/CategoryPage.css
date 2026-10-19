@@ -564,6 +564,19 @@
   box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
 }
 
+.out-of-stock-tag {
+  background: rgba(220, 38, 38, 0.95);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+}
+
 .product-feed-img {
   width: 100%;
   height: 100%;
@@ -753,6 +766,16 @@
 .feed-add-cart-btn:disabled {
   opacity: 0.75;
   cursor: not-allowed;
+}
+
+.feed-add-cart-btn.btn-out-of-stock {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .btn-loading-text {

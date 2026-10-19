@@ -71,4 +71,9 @@ class Vendor extends Model
     {
         return $this->company_name ? "{$this->company_name} ({$this->name})" : $this->name;
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

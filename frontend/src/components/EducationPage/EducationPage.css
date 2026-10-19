@@ -2292,15 +2292,113 @@
 }
 
 /* ==========================================================================
-   PDF GUIDELINES & RESEARCH LIBRARY SECTION
+   PDF GUIDELINES LIBRARY INVITATION SECTION
    ========================================================================== */
-.pdf-library-section {
-  background: linear-gradient(180deg, #ffffff 0%, #f9f6ef 50%, #ffffff 100%);
-  border-top: 1px solid #ebdcc5;
-  border-bottom: 1px solid #ebdcc5;
-  padding: 85px 0 95px;
-  position: relative;
+.edu-guidelines-invite-section {
+  padding: 60px 0;
+  background: #fbf8f2;
 }
+
+.edu-guidelines-invite-card {
+  background: linear-gradient(135deg, #183e25 0%, #255b36 100%);
+  border-radius: 28px;
+  padding: 48px 56px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  box-shadow: 0 16px 40px rgba(24, 62, 37, 0.16);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.edu-guidelines-invite-card::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.edu-guidelines-invite-content {
+  max-width: 650px;
+}
+
+.edu-guidelines-invite-badge {
+  display: inline-block;
+  background: rgba(212, 175, 55, 0.2);
+  color: #fce8a6;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.edu-guidelines-invite-title {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+.edu-guidelines-invite-desc {
+  font-size: 1.05rem;
+  color: #e4ebe4;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.edu-guidelines-invite-action {
+  flex-shrink: 0;
+}
+
+.edu-guidelines-visit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #d4af37;
+  color: #1a3821;
+  border: none;
+  font-size: 1.02rem;
+  font-weight: 800;
+  padding: 16px 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.35);
+  white-space: nowrap;
+}
+
+.edu-guidelines-visit-btn:hover {
+  background: #f0c950;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(212, 175, 55, 0.5);
+  color: #0d2012;
+}
+
+@media (max-width: 900px) {
+  .edu-guidelines-invite-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 36px 24px;
+  }
+  .edu-guidelines-visit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 .library-kicker {
   background: #e8f5e9;

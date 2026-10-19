@@ -39,7 +39,7 @@
             <div class="card shadow-sm border-left-success h-100 p-3 bg-white">
                 <div class="text-uppercase text-success fw-bold small">Total Sales Revenue</div>
                 <div class="h4 mb-0 fw-bold mt-1 text-dark">₹{{ number_format($totalRevenue, 2) }}</div>
-                <div class="text-muted small mt-1">Ayurvedic Sales & Shipping</div>
+                <div class="text-muted small mt-1">Product Sales & Shipping</div>
             </div>
         </div>
         <div class="col-md-3">

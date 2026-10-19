@@ -14,6 +14,13 @@
     <div class="d-flex gap-2">
         <a href="{{ route('admin.inward.create', ['vendor_id' => $vendor->id]) }}" class="btn btn-success"><i class="fas fa-boxes-packing me-1"></i> Inward Stock (GRN)</a>
         <a href="{{ route('admin.vendors.edit', $vendor) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i> Edit Details</a>
+        <form action="{{ route('admin.vendors.destroy', $vendor) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete vendor \'{{ addslashes($vendor->display_name) }}\'? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </form>
     </div>
 </div>
 

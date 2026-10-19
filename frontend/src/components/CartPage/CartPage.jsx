@@ -315,6 +315,11 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                         <p className={`item-weight-tag ${item.package || item.desc ? '' : 'missing'}`}>
                           {item.package || item.desc || 'Package size not selected'}
                         </p>
+                        {item.stock_qty !== undefined && item.stock_qty !== null && Number(item.stock_qty) <= 0 && (
+                          <span style={{ display: 'inline-block', backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, marginTop: '4px' }}>
+                            Out of Stock
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -664,14 +669,24 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                 </div>
 
                 {checkoutError && <p className="checkout-error-text">{checkoutError}</p>}
+                {cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0) && (
+                  <p className="checkout-error-text" style={{ color: '#b91c1c', backgroundColor: '#fee2e2', padding: '8px 12px', borderRadius: '6px', fontWeight: 600 }}>
+                    ⚠️ Your cart contains out-of-stock items. Please remove them to proceed with checkout.
+                  </p>
+                )}
 
                 {/* Checkout Trigger */}
                 <button 
                   type="button" 
                   className="btn btn-primary proceed-checkout-btn"
-                  disabled={isSubmittingOrder}
+                  disabled={isSubmittingOrder || cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0)}
                   onClick={async () => {
                     setCheckoutError('');
+                    const hasOutOfStock = cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0);
+                    if (hasOutOfStock) {
+                      setCheckoutError('Please remove out of stock items from your cart before proceeding.');
+                      return;
+                    }
                     if (!currentUser) {
                       setCheckoutError('Please login first to purchase your products.');
                       if (onLoginRequired) onLoginRequired();

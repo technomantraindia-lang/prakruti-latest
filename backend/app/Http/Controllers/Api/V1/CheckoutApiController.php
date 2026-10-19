@@ -74,6 +74,9 @@ class CheckoutApiController extends Controller
 
                 $stockItem = $variation ?: $product;
                 $availableStock = (int) $stockItem->stock_qty;
+                if ($availableStock <= 0) {
+                    throw new \Exception("Product '{$product->name}' is currently out of stock.");
+                }
                 if ($availableStock < $itemReq['qty']) {
                     throw new \Exception("Product '{$product->name}' does not have sufficient stock. Available: {$availableStock}.");
                 }

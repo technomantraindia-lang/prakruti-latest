@@ -274,7 +274,7 @@
       <!-- Footer -->
       <div class="footer-bar">
         <strong>Prakruti Corporation</strong><br>
-        Pure Ayurvedic &amp; Organic Food Products · Ahmedabad, Gujarat - 382445<br>
+        Pure Organic Food Products · Ahmedabad, Gujarat - 382445<br>
         This is an automated 30-day household replenishment service based on your family nutrition planner.<br>
         &copy; {{ date('Y') }} Prakruti Corporation. All rights reserved.
       </div>

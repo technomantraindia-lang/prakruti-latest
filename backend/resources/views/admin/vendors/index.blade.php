@@ -102,12 +102,16 @@
                             <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-outline-info" title="View details & products">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.inward.create', ['vendor_id' => $vendor->id]) }}" class="btn btn-outline-success" title="Inward stock from vendor">
-                                <i class="fas fa-boxes-packing"></i>
-                            </a>
                             <a href="{{ route('admin.vendors.edit', $vendor) }}" class="btn btn-outline-secondary" title="Edit vendor">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <form action="{{ route('admin.vendors.destroy', $vendor) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete vendor \'{{ addslashes($vendor->display_name) }}\'? This action cannot be undone.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger" title="Delete vendor">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
