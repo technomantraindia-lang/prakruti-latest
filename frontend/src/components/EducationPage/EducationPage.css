@@ -504,14 +504,14 @@
 }
 
 .meal-timing-section .section-kicker {
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  margin-bottom: 9px;
+  font-size: clamp(0.82rem, 1.1vw, 1rem);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
 }
 
 .meal-timing-section .section-header-center h2 {
-  font-size: clamp(2.45rem, 4.4vw, 3.8rem);
-  line-height: 1.1;
+  font-size: clamp(1.9rem, 3.1vw, 2.8rem);
+  line-height: 1.15;
 }
 
 .contrast-section {
