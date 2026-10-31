@@ -13,7 +13,7 @@ import breakfastImg from '../../assets/images/brakfast.png'
 import lunchImg from '../../assets/images/lunch.png'
 import snackImg from '../../assets/images/snacks.png'
 import dinnerImg from '../../assets/images/dinnner.png'
-import nutritionAiLogo from '../../assets/images/nutrtituonnnnn.png'
+import nutritionAiLogo from '../../assets/images/logo nutrituion.png'
 
 // Custom realistic cereal & protein pulse icon (reliable across all OS / devices)
 const ProteinCerealIcon = () => (
@@ -395,8 +395,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
     if (heightUnit === 'ft-in') {
       const ft = Number(feet)
       const inc = Number(inches)
-      if (!ft && !inc) {
-        nextErrors.height = 'Please enter your height.'
+      if (!Number.isFinite(ft) || !Number.isFinite(inc) || ft < 1 || ft > 12 || inc < 1 || inc > 12) {
+        nextErrors.height = 'Enter feet and inches between 1 and 12.'
       } else {
         computedHeightCm = ft * 30.48 + (inc || 0) * 2.54
       }
@@ -405,13 +405,13 @@ export default function EducationPage({ onShopClick, onNavigate }) {
     }
 
     const wt = Number(weightKg)
-    if (!wt || wt <= 20 || wt > 300) {
-      nextErrors.weight = 'Enter a valid weight between 20 and 300 kg.'
+    if (!Number.isFinite(wt) || wt < 1 || wt > 180) {
+      nextErrors.weight = 'Enter a valid weight between 1 and 180 kg.'
     }
 
     const ageNum = Number(age)
-    if (!ageNum || ageNum < 18 || ageNum > 110) {
-      nextErrors.age = 'Enter adult age between 18 and 110.'
+    if (!Number.isFinite(ageNum) || ageNum < 1 || ageNum > 100) {
+      nextErrors.age = 'Enter an age between 1 and 100 years.'
     }
 
     setErrors(nextErrors)
@@ -1491,12 +1491,16 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                     <div className="bmi-inline-inputs">
                       <input
                         type="number"
+                        min="1"
+                        max="12"
                         placeholder="Ft (e.g. 5)"
                         value={feet}
                         onChange={(e) => setFeet(e.target.value)}
                       />
                       <input
                         type="number"
+                        min="1"
+                        max="12"
                         placeholder="In (e.g. 7)"
                         value={inches}
                         onChange={(e) => setInches(e.target.value)}
@@ -1513,6 +1517,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   <input
                     id="bmi-weight"
                     type="number"
+                    min="1"
+                    max="180"
                     placeholder="e.g. 64"
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
@@ -1527,6 +1533,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   <input
                     id="bmi-age"
                     type="number"
+                    min="1"
+                    max="100"
                     placeholder="e.g. 32"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
