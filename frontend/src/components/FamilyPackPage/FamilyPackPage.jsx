@@ -151,7 +151,7 @@ function calculateBmi(member) {
   const heightM = (totalInches * 2.54) / 100.0;
   const weight = Number(member?.weightKg || 0);
 
-  if (heightM < 0.6 || weight < 5) return null;
+  if (ft < 1 || ft > 12 || inc < 1 || inc > 12 || weight < 1 || weight > 180 || heightM < 0.6) return null;
   return Number((weight / (heightM * heightM)).toFixed(1));
 }
 
@@ -262,12 +262,30 @@ function calculateHouseholdBasket(members, household) {
     !member.goal
   ));
 
+  const hasInvalidMeasurements = members.some((member) => {
+    const memberAge = Number(member.age);
+    const memberFeet = Number(member.heightFt);
+    const memberInches = Number(member.heightIn);
+    const memberWeight = Number(member.weightKg);
+    return memberAge < 1 || memberAge > 100 || memberFeet < 1 || memberFeet > 12 || memberInches < 1 || memberInches > 12 || memberWeight < 1 || memberWeight > 180;
+  });
+
   if (hasIncompleteProfile) {
     return {
       assessedMembers: [],
       dailyGrams: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
       monthlyKg: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
       interpretation: 'Complete the first member profile to generate a personalized household nutrition plan.',
+      safetyAlerts: [],
+    };
+  }
+
+  if (hasInvalidMeasurements) {
+    return {
+      assessedMembers: [],
+      dailyGrams: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
+      monthlyKg: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
+      interpretation: 'Use age 1–100 years, height 1–12 ft and 1–12 in, and weight 1–180 kg for each member.',
       safetyAlerts: [],
     };
   }
@@ -1034,7 +1052,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                         name={`member_age_${cardId}`}
                         type="number"
                         min="1"
-                        max="110"
+                        max="100"
                         value={member.age}
                         onChange={(e) => updateMember(member.id, 'age', Number(e.target.value), index)}
                       />
@@ -1048,7 +1066,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                           name={`member_height_ft_${cardId}`}
                           type="number"
                           min="1"
-                          max="7"
+                          max="12"
                           value={member.heightFt}
                           onChange={(e) => updateMember(member.id, 'heightFt', e.target.value, index)}
                           placeholder="ft"
@@ -1058,8 +1076,8 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                           id={`member_height_in_${cardId}`}
                           name={`member_height_in_${cardId}`}
                           type="number"
-                          min="0"
-                          max="11"
+                          min="1"
+                          max="12"
                           value={member.heightIn}
                           onChange={(e) => updateMember(member.id, 'heightIn', e.target.value, index)}
                           placeholder="in"
@@ -1073,8 +1091,8 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                         id={`member_weight_${cardId}`}
                         name={`member_weight_${cardId}`}
                         type="number"
-                        min="5"
-                        max="250"
+                        min="1"
+                        max="180"
                         value={member.weightKg}
                         onChange={(e) => updateMember(member.id, 'weightKg', e.target.value, index)}
                         placeholder="kg"

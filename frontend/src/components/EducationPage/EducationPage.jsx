@@ -1479,6 +1479,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                     <input
                       id="bmi-height"
                       type="number"
+                      min="50"
+                      max="260"
                       placeholder="e.g. 165"
                       value={heightCm}
                       onChange={(e) => setHeightCm(e.target.value)}
