@@ -54,7 +54,7 @@ const defaultTestimonials = [
     name: 'Karan Verma',
     location: 'Ahmedabad, Gujarat',
     rating: 5,
-    review: 'Their raw organic honey and whole spices have transformed our cooking. Pure flavours without any artificial additives or preservatives.',
+    review: 'Their raw organic spices have transformed our cooking. Pure flavours without any artificial additives or preservatives.',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
     video: null,
     source: 'Verified Buyer',

@@ -216,7 +216,7 @@ const LIFE_STAGES = [
 
 const BMI_PRODUCT_RECOMMENDATIONS = {
   Underweight: ['Organic Desi Khand & Jaggery', 'Cold Pressed Oils', 'Organic Pulses & Dals'],
-  'Normal weight': ['Wood Pressed Mustard Oil', 'Vedic Cow Bilona Ghee', 'Raw Natural Honey'],
+  'Normal weight': ['Wood Pressed Mustard Oil', 'Vedic Cow Bilona Ghee', 'Seasonal Fresh Fruits'],
   Overweight: ['Organic Millets', 'Low GI Brown Basmati', 'Unpolished Moong Dal'],
   Obesity: ['Flaxseeds & Chia Seeds', 'Cold Pressed Sesame Oil', 'Organic Spices & Turmeric']
 }
@@ -713,7 +713,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
       </section>
 
       {/* 5. When Should I Eat? Interactive Daily Rhythm with AnimatePresence */}
-      <section className="edu-section">
+      <section className="edu-section meal-timing-section">
         <div className="container">
           <motion.div
             className="section-header-center"
@@ -813,7 +813,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
         </div>
       </section>
 
-      {/* 6. Eat More Often vs Eat Less Often (Contrast Grid with Entrance Animation) */}
+      {/* 6. Eat More vs Eat Less (Contrast Grid with Entrance Animation) */}
       <section className="edu-section contrast-section">
         <div className="container">
           <motion.div
@@ -824,7 +824,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.6 }}
           >
             <span className="section-kicker">EVERYDAY HABITS</span>
-            <h2>What to Eat More Often vs What to Eat Less Often</h2>
+            <h2>What to Eat More vs What to Eat Less</h2>
             <p className="section-desc">
               Think about adding nourishing food before removing foods. It's not about "never eat this"—it's about "don't make this your daily habit."
             </p>
@@ -842,7 +842,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             >
               <div className="contrast-col-head head-green">
                 <span className="col-icon">🌿</span>
-                <h3>Eat More Often (Daily Staples)</h3>
+                <h3>Eat More (Daily Staples)</h3>
               </div>
               <div className="contrast-card-media-box">
                 <img
@@ -888,7 +888,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             >
               <div className="contrast-col-head head-amber">
                 <span className="col-icon">⚠️</span>
-                <h3>Eat Less Often (Occasional Treats)</h3>
+                <h3>Eat Less (Occasional Treats)</h3>
               </div>
               <div className="contrast-card-media-box">
                 <img
@@ -937,7 +937,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
       </section>
 
       {/* 7. Nutrition Deep Dives (Animated Boxes) */}
-      <section className="edu-section">
+      <section className="edu-section deep-dive-section">
         <div className="container">
           <motion.div
             className="section-header-center"
@@ -971,7 +971,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Salt: The Hidden Habit</h4>
               <p>WHO recommends adult salt intake below <strong>5 grams per day</strong> (approx. 2g sodium). Much of our salt doesn't come from the salt shaker, but from papad, namkeen, pickles, sauces, and packaged snacks. <em>Taste your food before sprinkling extra salt.</em></p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
 
             <motion.a
@@ -988,7 +987,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Sugar: Beyond the Chai Spoon</h4>
               <p>WHO recommends limiting free sugars to less than 10% of total energy. Beware of tea + biscuits + cold drinks + sweetened juices compounding together. Prefer whole fruits over juices and plain curd over sweetened flavored yogurts.</p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
 
             <motion.a
@@ -1005,7 +1003,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Oil & Ghee: Fat Is Not the Enemy</h4>
               <p>Your body needs healthy fats for cell membranes and hormone health. Instead of asking “which single oil is best?”, ask “am I using too much oil overall?”. Rotating cold-pressed oils and using a teaspoon of Vedic A2 bilona ghee fits a wholesome diet.</p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
 
             <motion.a
@@ -1022,7 +1019,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Protein: Everyday Plate First</h4>
               <p>Protein is vital for tissue repair and muscles, but you don't need expensive commercial powders. Everyday Indian plates with moong, chana, rajma, curd, paneer, and sprouted lentils provide rich, balanced amino acids naturally.</p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
 
             <motion.a
@@ -1039,7 +1035,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Carbohydrates Are Not the Enemy</h4>
               <p>Rice and roti are not bad by themselves. What matters is the type of carbohydrate and what you eat with it. Whole minimally processed grains (millets, whole wheat, brown rice) provide clean fuel for your brain and muscles.</p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
 
             <motion.a
@@ -1056,7 +1051,6 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               </div>
               <h4>Learn to Read the Food Label</h4>
               <p>The front of the box is advertising; the back label is reality. Always check the ingredients list and watch out for added sugars, palm oil, artificial flavors, and elevated sodium levels before buying packaged items.</p>
-              <span className="dd-link-action">Read Official Guideline <span className="dd-link-arrow">→</span></span>
             </motion.a>
           </motion.div>
         </div>

@@ -1452,7 +1452,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
             <div className="extras-search-wrap">
               <input
                 type="search"
-                placeholder="Search rice, spices, millets, honey..."
+                placeholder="Search rice, spices, millets, seeds..."
                 value={extraSearch}
                 onChange={(e) => setExtraSearch(e.target.value)}
               />
