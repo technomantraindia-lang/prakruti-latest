@@ -21,7 +21,7 @@ class GuidelineApiController extends Controller
             });
         }
 
-        $guidelines = $query->latest()
+        $guidelines = $query->orderBy('id', 'desc')
             ->get()
             ->map(function ($item) {
                 return [

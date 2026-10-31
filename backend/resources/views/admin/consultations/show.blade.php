@@ -63,6 +63,27 @@
                     <dt class="col-sm-4 text-muted">Patient Name</dt>
                     <dd class="col-sm-8 fw-bold fs-6 text-dark">{{ $consultation->name }}</dd>
 
+                    <dt class="col-sm-4 text-muted">Session Type</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge {{ $consultation->session_type === 'follow_up' ? 'bg-info text-dark' : 'bg-primary' }}">
+                            {{ $consultation->session_type === 'follow_up' ? 'Follow-up Session' : 'New Consultation' }} #{{ $consultation->session_number ?: 1 }}
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted">Payment</dt>
+                    <dd class="col-sm-8">
+                        <span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i>{{ strtoupper($consultation->payment_status ?: 'paid_demo') }}</span>
+                        <span class="text-muted ms-1">₹{{ number_format((float) ($consultation->payment_amount ?: 1500), 0) }}</span>
+                        @if($consultation->payment_method)
+                            <small class="d-block text-muted">{{ strtoupper($consultation->payment_method) }} · {{ strtoupper($consultation->payment_gateway ?: 'demo') }}</small>
+                        @endif
+                    </dd>
+
+                    @if($consultation->payment_transaction_id)
+                        <dt class="col-sm-4 text-muted">Transaction ID</dt>
+                        <dd class="col-sm-8 font-monospace small">{{ $consultation->payment_transaction_id }}</dd>
+                    @endif
+
                     <dt class="col-sm-4 text-muted">Mobile Number</dt>
                     <dd class="col-sm-8">
                         @if($consultation->phone)

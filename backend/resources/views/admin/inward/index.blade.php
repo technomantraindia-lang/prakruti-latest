@@ -51,6 +51,7 @@
                     <th>GST Amount</th>
                     <th>Freight / Landed</th>
                     <th>Total Landed Cost</th>
+                    <th class="text-center">Payment</th>
                     <th class="text-center">Status</th>
                     <th class="text-end">Actions</th>
                 </tr>
@@ -101,11 +102,21 @@
                         <strong class="text-success fs-6">₹{{ number_format($grn->total_landed_cost, 2) }}</strong>
                     </td>
                     <td class="text-center">
+                        @if($grn->payment_status === 'paid' || $grn->purchaseBill?->payment_status === 'paid')
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Paid</span>
+                        @else
+                            <span class="badge bg-danger"><i class="fas fa-clock me-1"></i>Not Paid</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
                         <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Stock Verified</span>
                     </td>
-                    <td class="text-end">
+                    <td class="text-end text-nowrap">
                         <a href="{{ route('admin.inward.show', $grn) }}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i> View Details
+                        </a>
+                        <a href="{{ route('admin.inward.print', $grn) }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print GRN">
+                            <i class="fas fa-print"></i>
                         </a>
                     </td>
                 </tr>

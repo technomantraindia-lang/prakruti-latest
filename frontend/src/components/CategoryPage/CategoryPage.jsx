@@ -5,6 +5,24 @@ import { api } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 
 import bottomCtaBg from '../../assets/images/new cta.png';
+import cerealPulsesImg from '../../assets/images/Final packaging/mix dal.png';
+import indianSpicesImg from '../../assets/images/Final packaging/lal mirch.png';
+import oilsGheeImg from '../../assets/images/Final packaging/gheee.png';
+import milletsImg from '../../assets/images/Final packaging/litlle millet.png';
+import riceFlourImg from '../../assets/images/Final packaging/bajra at.png';
+
+const categoryImageOverrides = {
+  'cereal & pulses': cerealPulsesImg,
+  'indian spices': indianSpicesImg,
+  'oils & ghee': oilsGheeImg,
+  millets: milletsImg,
+  'rice & flours': riceFlourImg,
+};
+
+const applyCategoryImages = (items) => items.map((category) => ({
+  ...category,
+  image: categoryImageOverrides[String(category.name || '').toLowerCase()] || category.image,
+}));
 
 const formatPrice = (value) => `₹${Number(value || 0).toFixed(0)}`;
 
@@ -20,7 +38,7 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
   const [addingId, setAddingId] = useState(null);
 
   // Dynamic API state
-  const [categories, setCategories] = useState(fallbackCategories);
+  const [categories, setCategories] = useState(() => applyCategoryImages(fallbackCategories));
   const [products, setProducts] = useState(fallbackProducts);
 
   // Filters State
@@ -32,7 +50,7 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
   useEffect(() => {
     let isMounted = true;
     api.getCategories().then(res => {
-      if (isMounted && res && res.length > 0) setCategories(res);
+      if (isMounted && res && res.length > 0) setCategories(applyCategoryImages(res));
     });
     api.getProducts().then(res => {
       if (isMounted && res && res.length > 0) setProducts(res);

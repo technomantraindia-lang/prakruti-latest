@@ -20,40 +20,30 @@
 
 .hero-banner-video {
   width: 100%;
+  height: auto;
   display: block;
+  object-fit: contain;
+  object-position: center center;
 }
 
-/* Desktops and Laptops: fills the screen height below the navbar */
-@media (min-width: 1024px) {
+/* Keep the complete video frame visible so embedded brand marks are never cropped. */
+.hero-banner-section,
+.hero-banner-container {
+  height: auto;
+  max-height: none;
+}
+
+@media (min-width: 768px) {
   .hero-banner-section,
   .hero-banner-container {
-    height: calc(100vh - var(--nav-height, 74px));
-    height: calc(100dvh - var(--nav-height, 74px));
-    max-height: calc(100dvh - var(--nav-height, 74px));
+    height: auto;
+    max-height: none;
   }
 
   .hero-banner-video {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-}
-
-/* Tablets */
-@media (max-width: 1023px) and (min-width: 768px) {
-  .hero-banner-section,
-  .hero-banner-container {
-    height: calc(100vh - var(--nav-height, 74px));
-    height: calc(100dvh - var(--nav-height, 74px));
-    max-height: calc(100dvh - var(--nav-height, 74px));
-  }
-
-  .hero-banner-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
+    height: auto;
+    object-fit: contain;
   }
 }
 
@@ -68,6 +58,7 @@
     width: 100%;
     height: auto;
     object-fit: contain;
+    object-position: center center;
   }
 }
 

@@ -462,6 +462,9 @@
   .logo-tagline {
     display: none;
   }
+  .logo-text {
+    display: none;
+  }
   .navbar-actions {
     gap: 4px;
   }

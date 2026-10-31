@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 
@@ -42,6 +43,7 @@ class OrderService
         $oldStatus = $order->status;
 
         if ($oldStatus === $newStatus) {
+            $this->syncAccountingIfEligible($order);
             return $order;
         }
 
@@ -78,6 +80,8 @@ class OrderService
             ['status' => $newStatus]
         );
 
+        $this->syncAccountingIfEligible($order->fresh());
+
         return $order;
     }
 
@@ -106,6 +110,24 @@ class OrderService
             ['pay_status' => 'paid', 'verified_by' => $admin?->id, 'reason' => $reason, 'verified_at' => now()->toIso8601String()]
         );
 
+        $this->syncAccountingIfEligible($order->fresh());
+
         return $order;
+    }
+
+    private function syncAccountingIfEligible(?Order $order): void
+    {
+        if (! $order || $order->status !== 'delivered' || $order->pay_status !== 'paid') {
+            return;
+        }
+
+        try {
+            app(AccountingService::class)->syncPaidDeliveredOrder($order);
+        } catch (\Throwable $e) {
+            Log::error('Accounting sync failed after order update', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

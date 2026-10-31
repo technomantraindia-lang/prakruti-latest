@@ -43,6 +43,7 @@
 .promise-title em {
   color: #91865c;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .promise-subtitle {
@@ -53,10 +54,32 @@
 }
 
 .prakruti-promise-grid {
+  position: relative;
+  perspective: 1400px;
   display: flex;
   flex-wrap: nowrap;
-  align-items: start;
+  align-items: stretch;
   gap: 12px;
+}
+
+.promise-flow-beam {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 1%;
+  right: 1%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent 0%, #d9a05b 22%, #2d5a27 50%, #d9a05b 78%, transparent 100%);
+  background-size: 220% 100%;
+  opacity: 0.62;
+  animation: promiseFlow 3.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes promiseFlow {
+  from { background-position: 0% 50%; }
+  to { background-position: 220% 50%; }
 }
 
 .prakruti-promise-card {
@@ -71,11 +94,33 @@
   background: #fffefa;
   box-shadow: 0 4px 12px rgba(45, 90, 39, 0.04);
   transition: var(--transition-smooth);
+  z-index: 1;
+  min-height: 470px;
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+}
+
+.prakruti-promise.is-visible .prakruti-promise-card {
+  transform: rotateY(calc((var(--card-order) - 1.5) * 4deg)) scale(0.93) translateZ(0);
+  opacity: 0.82;
+  filter: saturate(0.88);
+}
+
+.prakruti-promise.is-visible .prakruti-promise-card.is-active {
+  transform: translateY(-12px) rotateY(0deg) scale(1.045) translateZ(34px);
+  border-color: #2d5a27;
+  box-shadow: 0 28px 48px rgba(45, 90, 39, 0.2), 0 0 0 4px rgba(217, 160, 91, 0.15), 0 0 28px rgba(217, 160, 91, 0.18);
+  opacity: 1;
+  filter: saturate(1.08);
 }
 
 .prakruti-promise-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 14px 28px rgba(45, 90, 39, 0.11);
+}
+
+.prakruti-promise.is-visible .prakruti-promise-card:hover {
+  transform: translateY(-13px) rotateY(0deg) scale(1.055) translateZ(40px);
 }
 
 .prakruti-promise-arrow {
@@ -98,7 +143,9 @@
   left: 2px;
   right: 8px;
   height: 1px;
-  background: var(--color-primary-light);
+  background: linear-gradient(90deg, rgba(45, 90, 39, 0.25), #d9a05b, rgba(45, 90, 39, 0.35));
+  background-size: 220% 100%;
+  box-shadow: 0 0 6px rgba(217, 160, 91, 0.65);
   transform: translateY(-50%);
 }
 
@@ -108,7 +155,25 @@
   height: 8px;
   border-top: 1.4px solid var(--color-primary-light);
   border-right: 1.4px solid var(--color-primary-light);
+  filter: drop-shadow(0 0 4px rgba(217, 160, 91, 0.9));
   transform: translateY(-50%) rotate(45deg);
+}
+
+.prakruti-promise.is-visible .prakruti-promise-arrow::before {
+  animation: promiseArrowLight 1.35s ease-in-out infinite;
+}
+
+.prakruti-promise.is-visible .arrow-1::before {
+  animation-delay: 0.45s;
+}
+
+.prakruti-promise.is-visible .arrow-2::before {
+  animation-delay: 0.9s;
+}
+
+@keyframes promiseArrowLight {
+  0%, 100% { background-position: 100% 50%; opacity: 0.35; }
+  45%, 65% { background-position: 0% 50%; opacity: 1; }
 }
 
 .promise-number {
@@ -310,6 +375,10 @@
     gap: 4px;
   }
 
+  .prakruti-promise-card {
+    min-height: 0;
+  }
+
   .promise-image-wrap {
     aspect-ratio: 1;
   }
@@ -336,4 +405,41 @@
     flex-basis: 14px;
     width: 14px;
   }
+
+  .promise-flow-beam {
+    top: 50%;
+    left: 0;
+    right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promise-flow-beam {
+    animation: none;
+  }
+
+  .prakruti-promise-card,
+  .prakruti-promise.is-visible .prakruti-promise-card,
+  .prakruti-promise.is-visible .prakruti-promise-card.is-active {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* Keep every card equal without manufacturing a large empty lower block. */
+.prakruti-promise-card {
+  min-height: 0;
+}
+
+.promise-card-content {
+  min-height: 0;
+}
+
+.prakruti-promise.is-visible .prakruti-promise-card.is-active {
+  transform: translateY(-8px) rotateY(0deg) scale(1.035) translateZ(28px);
+}
+
+.prakruti-promise.is-visible .prakruti-promise-card:hover {
+  transform: translateY(-10px) rotateY(0deg) scale(1.045) translateZ(32px);
 }

@@ -8,9 +8,7 @@ import BestSellers from './components/BestSellers/BestSellers'
 import AboutSection from './components/AboutSection/AboutSection'
 import PrakrutiPromise from './components/PrakrutiPromise/PrakrutiPromise'
 import Testimonials from './components/Testimonials/Testimonials'
-import PromoBanner from './components/PromoBanner/PromoBanner'
 import InstagramFeed from './components/InstagramFeed/InstagramFeed'
-import FaqSection from './components/FaqSection/FaqSection'
 import Footer from './components/Footer/Footer'
 import LoadingScreen from './components/LoadingScreen/LoadingScreen'
 import CategoryPage from './components/CategoryPage/CategoryPage'
@@ -26,6 +24,8 @@ import AccountPage from './components/AccountPage/AccountPage'
 import LegalPage from './components/LegalPage/LegalPage'
 import DoctorConsultation from './components/DoctorConsultation/DoctorConsultation'
 import GuidelinesPage from './components/GuidelinesPage/GuidelinesPage'
+import ComingSoonModal from './components/ComingSoonModal/ComingSoonModal'
+import HomeUspHighlights from './components/HomeUspHighlights/HomeUspHighlights'
 
 import { api, getStoredUser } from './services/api'
 import { CartProvider, useCart } from './context/CartContext'
@@ -40,7 +40,8 @@ function AppShell() {
   const [currentUser, setCurrentUser] = useState(getStoredUser())
   const [resetPasswordToken, setResetPasswordToken] = useState('')
   const [resetPasswordEmail, setResetPasswordEmail] = useState('')
-  const { itemCount, notice, refreshCart } = useCart()
+  const [returnToConsultationAfterLogin, setReturnToConsultationAfterLogin] = useState(false)
+  const { itemCount, notice, refreshCart, isComingSoonOpen, closeComingSoonModal } = useCart()
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 800)
@@ -59,6 +60,37 @@ function AppShell() {
     refreshCart();
     setCurrentPage('home');
   };
+
+  const scrollElementIntoViewWithOffset = (elementId) => {
+    let count = 0;
+    const poll = () => {
+      count++;
+      const el = document.getElementById(elementId);
+      if (el) {
+        const navOffset = 90;
+        const targetY = window.pageYOffset + el.getBoundingClientRect().top - navOffset;
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: 'smooth'
+        });
+      } else if (count < 30) {
+        setTimeout(poll, 120);
+      }
+    };
+    setTimeout(poll, 120);
+  };
+
+  // Scroll to anchor once initial loading finishes
+  useEffect(() => {
+    if (!isLoading) {
+      const hash = window.location.hash;
+      if (hash === '#testimonials' || hash === '#reviews' || hash === '#community-testimonials') {
+        scrollElementIntoViewWithOffset('testimonials');
+      } else if (hash === '#doctor-consultation' || hash === '#consultation') {
+        scrollElementIntoViewWithOffset('doctor-consultation');
+      }
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -98,6 +130,14 @@ function AppShell() {
         setCurrentPage('privacy');
       } else if (hash === '#terms') {
         setCurrentPage('terms');
+      } else if (hash === '#testimonials' || hash === '#reviews' || hash === '#community-testimonials') {
+        setCurrentPage('home');
+        scrollElementIntoViewWithOffset('testimonials');
+        return;
+      } else if (hash === '#doctor-consultation' || hash === '#consultation') {
+        setCurrentPage('home');
+        scrollElementIntoViewWithOffset('doctor-consultation');
+        return;
       } else if (hash.startsWith('#product-')) {
         const id = hash.replace('#product-', '');
         setSelectedProductId(id);
@@ -113,6 +153,10 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#testimonials' || hash === '#reviews' || hash === '#community-testimonials' || hash === '#doctor-consultation' || hash === '#consultation') {
+      return;
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [currentPage, selectedCategoryFilter, selectedProductId]);
 
@@ -186,6 +230,14 @@ function AppShell() {
           {notice.message}
         </div>
       )}
+      <ComingSoonModal
+        isOpen={isComingSoonOpen}
+        onClose={closeComingSoonModal}
+        onContinueBrowsing={() => {
+          closeComingSoonModal();
+          handleNavigate('categories');
+        }}
+      />
       <Navbar 
         currentPage={currentPage}
         setCurrentPage={handleNavigate}
@@ -203,6 +255,21 @@ function AppShell() {
         {currentPage === 'home' && (
           <>
             <HeroBanner />
+            {revealHomeSection(
+              <HomeUspHighlights
+                onNavigateToFamilyPack={() => handleNavigate('family-pack')}
+                onNavigateToConsultation={() => {
+                  const el = document.getElementById('doctor-consultation');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    handleNavigate('home');
+                    setTimeout(() => document.getElementById('doctor-consultation')?.scrollIntoView({ behavior: 'smooth' }), 150);
+                  }
+                }}
+              />,
+              'up'
+            )}
             {revealHomeSection(<ShopByCategory onCategoryClick={openCategory} />, 'left')}
             {revealHomeSection(<AboutSection />, 'left')}
             {revealHomeSection(
@@ -217,13 +284,18 @@ function AppShell() {
             )}
             {revealHomeSection(<PrakrutiPromise />, 'scale')}
             {revealHomeSection(
-              <DoctorConsultation onShopClick={() => handleNavigate('categories')} />,
+              <DoctorConsultation
+                currentUser={currentUser}
+                onLoginClick={() => {
+                  setReturnToConsultationAfterLogin(true)
+                  handleNavigate('login')
+                }}
+                onShopClick={() => handleNavigate('categories')}
+              />,
               'up'
             )}
             {revealHomeSection(<Testimonials />, 'right')}
-            {revealHomeSection(<PromoBanner />, 'up')}
             {revealHomeSection(<InstagramFeed />, 'left')}
-            {revealHomeSection(<FaqSection />, 'down')}
           </>
         )}
 
@@ -340,6 +412,10 @@ function AppShell() {
               if (user) setCurrentUser(user);
               refreshCart();
               handleNavigate('home');
+              if (returnToConsultationAfterLogin) {
+                setReturnToConsultationAfterLogin(false);
+                setTimeout(() => scrollElementIntoViewWithOffset('doctor-consultation'), 150);
+              }
             }}
           />
         )}

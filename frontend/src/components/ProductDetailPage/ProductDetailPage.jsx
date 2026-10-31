@@ -38,7 +38,7 @@ const renderMultilineText = (value) => {
 };
 
 const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) => {
-  const { addToCart } = useCart();
+  const { addToCart, openComingSoonModal } = useCart();
   const [product, setProduct] = useState(() => {
     const found = fallbackProducts.find(p => String(p.id) === String(productId));
     return found || fallbackProducts[0];
@@ -175,14 +175,9 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
     }
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (isOutOfStock) return;
-    setAdding(true);
-    const res = await addToCart(product.id, quantity, selectedPackage?.variantId || null);
-    setAdding(false);
-    if (res?.success) {
-      onBuyNow?.();
-    }
+    openComingSoonModal?.();
   };
 
   const handleReviewSubmit = async (event) => {

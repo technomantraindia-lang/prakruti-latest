@@ -31,6 +31,7 @@
                 <tr>
                     <th>Reference</th>
                     <th>Patient</th>
+                    <th>Session / Payment</th>
                     <th>Contact Info</th>
                     <th>Status</th>
                     <th>Doctor Dispatch</th>
@@ -47,6 +48,15 @@
                             <small class="text-muted">
                                 {{ $requestItem->age_range ?: 'Age N/A' }} &bull; {{ $requestItem->dietary_preference ?: 'Diet N/A' }}
                             </small>
+                        </td>
+                        <td>
+                            <span class="badge {{ $requestItem->session_type === 'follow_up' ? 'bg-info text-dark' : 'bg-primary' }}">
+                                {{ $requestItem->session_type === 'follow_up' ? 'Follow-up' : 'New Consultation' }} #{{ $requestItem->session_number ?: 1 }}
+                            </span>
+                            <div class="small text-success fw-semibold mt-1">
+                                <i class="fas fa-check-circle me-1"></i>{{ strtoupper($requestItem->payment_status ?: 'paid_demo') }}
+                                <span class="text-muted fw-normal">₹{{ number_format((float) ($requestItem->payment_amount ?: 1500), 0) }}</span>
+                            </div>
                         </td>
                         <td>
                             <div><i class="fas fa-phone-alt me-1 text-muted small"></i>{{ $requestItem->phone ?: '-' }}</div>
@@ -99,7 +109,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-5">
+                        <td colspan="8" class="text-center text-muted py-5">
                             <i class="fas fa-inbox fa-2x mb-2 d-block text-muted"></i>
                             No consultation requests found.
                         </td>

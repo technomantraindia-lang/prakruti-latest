@@ -11,7 +11,7 @@ import tuarDalImg from '../assets/images/bestseller_tuar_dal.jpg';
 
 // Import category images as fallbacks
 import cerealPulsesImg from '../assets/images/cereal_pulses.png';
-import healthySeedsImg from '../assets/images/healthy_seeds.png';
+import healthySeedsImg from '../assets/images/Final packaging/image copy 4.png';
 import indianSpicesImg from '../assets/images/indian_spices.png';
 import milletsImg from '../assets/images/milltet.png';
 import oilsGheeImg from '../assets/images/oil and ghe.png';

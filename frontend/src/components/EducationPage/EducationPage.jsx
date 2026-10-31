@@ -5,9 +5,13 @@ import { apiClient } from '../../api/client'
 
 // Import assets
 import bannerBg from '../../assets/images/nutrition_banner.jpg'
-import healthyPlateImg from '../../assets/images/image copy 5.png'
+import healthyPlateImg from '../../assets/images/power final plate.png'
 import healthyPlateBanner from '../../assets/images/healthy_food_plate.jpg'
 import junkPlateBanner from '../../assets/images/junk_food_plate.jpg'
+import breakfastImg from '../../assets/images/brakfast.png'
+import lunchImg from '../../assets/images/lunch.png'
+import snackImg from '../../assets/images/snacks.png'
+import dinnerImg from '../../assets/images/dinnner.png'
 
 // Custom realistic cereal & protein pulse icon (reliable across all OS / devices)
 const ProteinCerealIcon = () => (
@@ -87,6 +91,7 @@ const FOOD_GROUPS = [
 const MEAL_TIMINGS = [
   {
     id: 'morning',
+    image: breakfastImg,
     time: '🌅 Morning Breakfast',
     tagline: 'Start with wholesome energy, not just tea & biscuits',
     description: 'Fuel your metabolism after an overnight fast with a combination of whole grains and protein.',
@@ -102,6 +107,7 @@ const MEAL_TIMINGS = [
   },
   {
     id: 'afternoon',
+    image: lunchImg,
     time: '☀️ Balanced Lunch',
     tagline: 'Balance your plate: don\'t fill it only with rice or roti',
     description: 'A balanced midday meal prevents afternoon lethargy and cravings.',
@@ -115,6 +121,7 @@ const MEAL_TIMINGS = [
   },
   {
     id: 'evening',
+    image: snackImg,
     time: '🌇 Sensible Evening Snack',
     tagline: 'Satisfy genuine hunger with nourishing wholesome snacks',
     description: 'Avoid automatically reaching for fried farsan, bakery biscuits, or packaged chips.',
@@ -128,6 +135,7 @@ const MEAL_TIMINGS = [
   },
   {
     id: 'night',
+    image: dinnerImg,
     time: '🌙 Light & Balanced Dinner',
     tagline: 'Comforting, easily digestible meals for restful sleep',
     description: 'Keep dinner appropriate for your activity level, ideally eaten 2–3 hours before bedtime.',
@@ -514,7 +522,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
-                📚 PDF Guidelines Library →
+                Library
               </a>
               <a href="#healthy-eating" className="edu-btn-primary">
                 Explore Nutrition Guide ↓
@@ -616,7 +624,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 custom={idx}
                 whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.22 } }}
               >
-                <div className="fg-icon">{group.icon}</div>
+                <div className="fg-icon" aria-hidden="true">{group.icon}</div>
                 <div className="fg-body">
                   <h4 className="fg-title">{group.title}</h4>
                   <p className="fg-role">{group.role}</p>
@@ -628,7 +636,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
         </div>
       </section>
 
-      {/* 4. The Simple Healthy Plate (Animated Showcase) */}
+      {/* 4. The Simple Power Plate (Animated Showcase) */}
       <section className="edu-section plate-section-bg">
         <div className="container">
           <motion.div
@@ -640,7 +648,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
           >
             <div className="plate-copy-col">
               <span className="section-kicker">PORTION WISDOM</span>
-              <h2>🍽️ The Simple Healthy Plate</h2>
+              <h2>🍽️ The Simple Power Plate</h2>
               <p className="plate-intro">
                 Instead of stressing over every calorie, look at your plate. Both Harvard's Healthy Eating Plate and ICMR-NIN emphasize visual portions:
               </p>
@@ -693,7 +701,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 </div>
                 <img
                   src={healthyPlateImg}
-                  alt="The Simple Healthy Plate - Balanced Portions"
+                  alt="The Simple Power Plate - Balanced Portions"
                   className="healthy-plate-img"
                   loading="lazy"
                 />
@@ -719,6 +727,38 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             <p className="section-desc">
               Healthy eating is not just what you eat, but having a practical daily pattern that fits your life without rigid clocks.
             </p>
+          </motion.div>
+
+          <motion.div
+            className="timing-cards-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
+            variants={staggerContainer}
+          >
+            {MEAL_TIMINGS.map((timing, index) => (
+              <motion.article
+                key={`meal-card-${timing.id}`}
+                className={`timing-card timing-card-${timing.id}`}
+                variants={fadeInUp}
+                custom={index}
+                whileHover={{ y: -7, transition: { duration: 0.22 } }}
+              >
+                <div className="timing-card-image-wrap">
+                  <img src={timing.image} alt={timing.time} className="timing-card-image" loading="lazy" />
+                  <span className="timing-card-step">0{index + 1}</span>
+                </div>
+                <div className="timing-card-body">
+                  <h3>{timing.time}</h3>
+                  <p className="timing-card-tagline">{timing.tagline}</p>
+                  <ul className="timing-card-highlights">
+                    {timing.items.slice(0, 3).map((item) => (
+                      <li key={item}><span>✓</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.article>
+            ))}
           </motion.div>
 
           <div className="timing-tabs-nav">
@@ -811,7 +851,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   className="contrast-card-img"
                   loading="lazy"
                 />
-                <span className="contrast-media-badge badge-healthy">🥗 Proper Balanced Healthy Plate</span>
+                <span className="contrast-media-badge badge-healthy">🥗 Proper Balanced Power Plate</span>
               </div>
               <div className="contrast-col-body">
                 <div className="contrast-block">
@@ -1554,7 +1594,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
         </div>
       </section>
 
-      {/* Lightbox Modal for Healthy Plate Full Zoom */}
+      {/* Lightbox Modal for Power Plate Full Zoom */}
       <AnimatePresence>
         {isPlateZoomed && (
           <motion.div

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ChartOfAccount;
 use App\Models\JournalEntry;
+use App\Services\AccountingService;
 use Illuminate\Http\Request;
 
 class AccountingController extends Controller
@@ -66,5 +67,16 @@ class AccountingController extends Controller
         $entries = $query->paginate(20)->withQueryString();
 
         return view('admin.accounting.journal', compact('entries'));
+    }
+
+    public function syncSales(AccountingService $accountingService)
+    {
+        $synced = $accountingService->syncPaidDeliveredOrders();
+
+        return redirect()
+            ->route('admin.accounting.index')
+            ->with('success', $synced
+                ? "{$synced} paid and delivered order(s) were added to the ledger."
+                : 'All paid and delivered orders are already present in the ledger.');
     }
 }

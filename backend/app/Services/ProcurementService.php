@@ -95,6 +95,8 @@ class ProcurementService
             // 2. Allocate landed expenses proportionally to each line item based on purchase value
             $totalLandedCost = $totalTaxable + $totalTax + $totalInwardExpenses;
 
+            $paymentStatus = in_array($data['payment_status'] ?? '', ['paid', 'unpaid']) ? $data['payment_status'] : 'unpaid';
+
             $grn = GoodsReceivedNote::create([
                 'grn_number' => GoodsReceivedNote::generateGrnNumber(),
                 'purchase_order_id' => $data['purchase_order_id'] ?? null,
@@ -103,6 +105,7 @@ class ProcurementService
                 'invoice_date' => ! empty($data['invoice_date']) ? $data['invoice_date'] : now()->toDateString(),
                 'received_date' => ! empty($data['received_date']) ? $data['received_date'] : now()->toDateString(),
                 'status' => 'verified',
+                'payment_status' => $paymentStatus,
                 'inward_freight_charge' => $freight,
                 'inward_handling_charge' => $handling,
                 'total_items_taxable' => $totalTaxable,
@@ -243,8 +246,8 @@ class ProcurementService
                 'sgst' => $sgst,
                 'igst' => $igst,
                 'total_amount' => $billTotal,
-                'paid_amount' => 0.0,
-                'payment_status' => 'unpaid',
+                'paid_amount' => $paymentStatus === 'paid' ? $billTotal : 0.0,
+                'payment_status' => $paymentStatus,
             ]);
 
             // Real-time synchronization to General Ledger

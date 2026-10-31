@@ -1,9 +1,9 @@
 @php
     $oldPackages = old('packages');
-    if ($oldPackages) {
+    if (is_array($oldPackages)) {
         $packageRows = collect($oldPackages)->values();
     } elseif (isset($product) && $product->relationLoaded('variations') && $product->variations->count()) {
-        $packageRows = $product->variations->map(fn ($variation) => [
+        $packageRows = $product->variations->filter(fn ($variation) => filled($variation->attr_val))->map(fn ($variation) => [
             'id' => $variation->id,
             'label' => $variation->attr_val,
             'price' => $variation->price,
@@ -11,6 +11,11 @@
             'stock_qty' => $variation->stock_qty,
             'status' => $variation->status,
         ])->values();
+    } elseif (isset($product)) {
+        // An existing product may contain only multi-attribute variations,
+        // which are intentionally managed on the dedicated variations page.
+        // Do not submit an empty required-looking package row during edit.
+        $packageRows = collect();
     } else {
         $packageRows = collect([[
             'label' => '',
@@ -22,7 +27,12 @@
     }
 
     $productInfo = old('product_information', $product->product_information ?? []);
+    $removedPackageIds = old('removed_packages', []);
 @endphp
+
+@foreach($removedPackageIds as $removedPackageId)
+    <input type="hidden" name="removed_packages[]" value="{{ $removedPackageId }}">
+@endforeach
 
 <div class="row g-4">
     <div class="col-12">
@@ -104,7 +114,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        <small class="text-muted d-block mt-3">The first active package becomes the product card price. Total package stock is synced as product stock.</small>
+                        <small class="text-muted d-block mt-3">The first active package becomes the product card price. Total package stock is synced as product stock. Existing custom options are kept unless you explicitly remove them here.</small>
                     </div>
                 </div>
 
@@ -902,7 +912,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        button.closest('.package-row')?.remove();
+        const row = button.closest('.package-row');
+        const variationId = row?.querySelector('input[name$="[id]"]')?.value;
+        const form = packageRows.closest('form');
+
+        // A missing row alone is not enough because multi-attribute
+        // variations are deliberately not rendered in this package editor.
+        // Tell the server only when the admin explicitly removes a saved row.
+        if (variationId && form && !form.querySelector(`input[name="removed_packages[]"][value="${variationId}"]`)) {
+            const removedInput = document.createElement('input');
+            removedInput.type = 'hidden';
+            removedInput.name = 'removed_packages[]';
+            removedInput.value = variationId;
+            form.appendChild(removedInput);
+        }
+
+        row?.remove();
         reindexPackageRows();
     });
 

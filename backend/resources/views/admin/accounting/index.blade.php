@@ -4,12 +4,19 @@
 
 @section('content')
 <div class="container-fluid px-4 py-4">
+    @include('admin.accounting._nav')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">Accounting & General Ledger</h1>
             <p class="text-muted small mb-0">Automated double-entry bookkeeping synchronized with Purchases, Sales & Returns.</p>
         </div>
         <div class="d-flex gap-2">
+            <form method="POST" action="{{ route('admin.accounting.syncSales') }}" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-outline-success" title="Add missing paid and delivered orders to the ledger">
+                    <i class="fas fa-rotate me-1"></i> Sync Paid &amp; Delivered Orders
+                </button>
+            </form>
             <a href="{{ route('admin.accounting.journal') }}" class="btn btn-outline-primary">
                 <i class="fas fa-book me-1"></i> View Journal Entries
             </a>

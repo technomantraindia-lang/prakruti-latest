@@ -26,6 +26,12 @@ class ConsultationRequestApiController extends Controller
             'age_range' => 'nullable|string|max:30',
             'dietary_preference' => 'nullable|string|max:50',
             'preferred_time' => 'nullable|string|max:255',
+            'session_type' => 'required|in:new_consultation,follow_up',
+            'payment_status' => 'required|in:paid_demo,paid',
+            'payment_method' => 'required|in:upi,card,netbanking',
+            'payment_gateway' => 'nullable|string|max:50',
+            'payment_transaction_id' => 'required|string|max:100',
+            'payment_amount' => 'required|numeric|min:0',
             'consent' => 'accepted',
         ]);
 
@@ -38,6 +44,8 @@ class ConsultationRequestApiController extends Controller
         }
 
         $reference = 'CONS-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
+        $user = $request->user();
+        $sessionNumber = ConsultationRequest::where('user_id', $user->id)->count() + 1;
 
         $prefix = [];
         if ($request->filled('consultation_type') || $request->filled('specialist_type')) {
@@ -52,6 +60,14 @@ class ConsultationRequestApiController extends Controller
                 $prefix[] = "[Focus Areas: {$goals}]";
             }
         }
+        $prefix[] = sprintf(
+            '[Booking: %s #%d | Payment: %s via %s | Transaction: %s]',
+            $request->input('session_type') === 'follow_up' ? 'Follow-up Session' : 'New Consultation',
+            $sessionNumber,
+            strtoupper((string) $request->input('payment_status')),
+            strtoupper((string) $request->input('payment_gateway', 'demo')),
+            $request->input('payment_transaction_id')
+        );
         $fullConcern = ! empty($prefix)
             ? implode(' ', $prefix) . "\n\n" . $request->input('concern')
             : $request->input('concern');
@@ -83,12 +99,15 @@ class ConsultationRequestApiController extends Controller
                     'reference_no' => $reference,
                     'status' => 'new',
                     'stored_as' => 'inquiry',
+                    'session_type' => $request->input('session_type'),
+                    'session_number' => $sessionNumber,
                 ],
             ], 201);
         }
 
         $consultation = ConsultationRequest::create([
             'reference_no' => $reference,
+            'user_id' => $user->id,
             'name' => $request->name,
             'email' => $request->email ? strtolower(trim($request->email)) : null,
             'phone' => $request->phone,
@@ -99,6 +118,14 @@ class ConsultationRequestApiController extends Controller
             'preferred_time' => $request->preferred_time,
             'consent' => (bool) $request->boolean('consent'),
             'status' => 'not_sent',
+            'session_type' => $request->input('session_type'),
+            'session_number' => $sessionNumber,
+            'payment_status' => $request->input('payment_status'),
+            'payment_method' => $request->input('payment_method'),
+            'payment_gateway' => $request->input('payment_gateway') ?: 'demo',
+            'payment_transaction_id' => $request->input('payment_transaction_id'),
+            'payment_amount' => $request->input('payment_amount'),
+            'payment_paid_at' => now(),
         ]);
 
         return response()->json([
@@ -108,6 +135,9 @@ class ConsultationRequestApiController extends Controller
                 'id' => $consultation->id,
                 'reference_no' => $consultation->reference_no,
                 'status' => $consultation->status,
+                'session_type' => $consultation->session_type,
+                'session_number' => $consultation->session_number,
+                'payment_status' => $consultation->payment_status,
             ],
         ], 201);
     }

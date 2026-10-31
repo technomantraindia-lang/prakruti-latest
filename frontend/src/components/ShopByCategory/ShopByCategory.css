@@ -72,6 +72,11 @@
   transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+.category-image-contain {
+  object-fit: contain;
+  background: #fff;
+}
+
 .category-card:hover .category-image {
   transform: scale(1.06);
 }

@@ -71,6 +71,7 @@ class GoodsReceivedNoteController extends Controller
             'received_date' => 'required|date',
             'inward_freight_charge' => 'nullable|numeric|min:0',
             'inward_handling_charge' => 'nullable|numeric|min:0',
+            'payment_status' => 'nullable|in:paid,unpaid',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -108,6 +109,40 @@ class GoodsReceivedNoteController extends Controller
         ]);
 
         return view('admin.inward.show', compact('grn'));
+    }
+
+    public function print(GoodsReceivedNote $grn)
+    {
+        $grn->load([
+            'vendor',
+            'receiver',
+            'items.product',
+            'items.variation',
+            'items.batch',
+            'purchaseBill',
+        ]);
+
+        return view('admin.inward.print', compact('grn'));
+    }
+
+    public function updatePaymentStatus(Request $request, GoodsReceivedNote $grn)
+    {
+        $validated = $request->validate([
+            'payment_status' => 'required|in:paid,unpaid',
+        ]);
+
+        $status = $validated['payment_status'];
+        $grn->update(['payment_status' => $status]);
+
+        if ($grn->purchaseBill) {
+            $billTotal = (float) $grn->purchaseBill->total_amount;
+            $grn->purchaseBill->update([
+                'payment_status' => $status,
+                'paid_amount' => $status === 'paid' ? $billTotal : 0.0,
+            ]);
+        }
+
+        return back()->with('success', 'GRN #' . $grn->grn_number . ' payment status marked as ' . strtoupper($status) . ' successfully.');
     }
 
     public function getVendorProducts(Vendor $vendor)

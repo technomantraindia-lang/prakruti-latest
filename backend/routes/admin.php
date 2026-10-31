@@ -73,6 +73,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/inward-stock/create', [GoodsReceivedNoteController::class, 'create'])->name('inward.create');
     Route::post('/inward-stock', [GoodsReceivedNoteController::class, 'store'])->name('inward.store');
     Route::get('/inward-stock/{grn}', [GoodsReceivedNoteController::class, 'show'])->name('inward.show');
+    Route::get('/inward-stock/{grn}/print', [GoodsReceivedNoteController::class, 'print'])->name('inward.print');
+    Route::patch('/inward-stock/{grn}/payment-status', [GoodsReceivedNoteController::class, 'updatePaymentStatus'])->name('inward.payment-status');
     Route::get('/inward-stock/vendors/{vendor}/products', [GoodsReceivedNoteController::class, 'getVendorProducts'])->name('inward.vendor-products');
 
     // Batch Inventory & Expiry Tracking
@@ -144,6 +146,7 @@ Route::middleware('admin')->group(function () {
     // Real-Time Double-Entry Accounting
     Route::get('/accounting', [AccountingController::class, 'index'])->name('accounting.index');
     Route::get('/accounting/journal', [AccountingController::class, 'journal'])->name('accounting.journal');
+    Route::post('/accounting/sync-sales', [AccountingController::class, 'syncSales'])->name('accounting.syncSales');
 
     // Statutory GSTR Tax Filing Reports
     Route::get('/reports/gstr1', [GstrReportController::class, 'gstr1'])->name('reports.gstr1');

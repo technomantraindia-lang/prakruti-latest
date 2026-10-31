@@ -1,0 +1,412 @@
+/* ==========================================================================
+   PRAKRUTI LUXURY COMING SOON MODAL
+   Compact & Pixel-Perfect for 100% Viewport Visibility on Laptop, Desktop & Mobile
+   ========================================================================== */
+
+.prakruti-cs-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: radial-gradient(circle at center, rgba(16, 42, 14, 0.78) 0%, rgba(8, 22, 7, 0.92) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.prakruti-cs-card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 94vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfaf4 60%, #f6f0e2 100%);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 20px;
+  padding: 22px 26px 18px;
+  box-shadow: 
+    0 20px 50px -10px rgba(13, 34, 11, 0.45),
+    0 4px 18px rgba(212, 175, 55, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  text-align: center;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+/* Custom subtle scrollbar for very short screens */
+.prakruti-cs-card::-webkit-scrollbar {
+  width: 5px;
+}
+.prakruti-cs-card::-webkit-scrollbar-thumb {
+  background: rgba(45, 90, 39, 0.25);
+  border-radius: 10px;
+}
+
+/* Ambient glow accent */
+.prakruti-cs-glow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(45, 90, 39, 0) 70%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+/* Close Button */
+.prakruti-cs-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(45, 90, 39, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  color: #2d5a27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  padding: 0;
+  z-index: 10;
+}
+
+.prakruti-cs-close svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.22s ease;
+}
+
+.prakruti-cs-close:hover {
+  background: #2d5a27;
+  color: #ffffff;
+  border-color: #2d5a27;
+  transform: rotate(90deg) scale(1.06);
+}
+
+/* Logo & Punchline */
+.prakruti-cs-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.prakruti-cs-logo-img {
+  height: 62px;
+  max-width: 150px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(45, 90, 39, 0.12));
+  transition: transform 0.25s ease;
+}
+
+.prakruti-cs-card:hover .prakruti-cs-logo-img {
+  transform: scale(1.02);
+}
+
+.prakruti-cs-punchline {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 0.86rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #2d5a27;
+  letter-spacing: 0.01em;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.prakruti-cs-pill {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8b4513;
+  background: rgba(217, 160, 91, 0.18);
+  border: 1px solid rgba(217, 160, 91, 0.35);
+  padding: 2px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+/* Main Heading */
+.prakruti-cs-heading {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: clamp(1.22rem, 2.5vw, 1.48rem);
+  font-weight: 800;
+  line-height: 1.24;
+  color: #193a15;
+  margin: 6px 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+/* Leaf Divider */
+.prakruti-cs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 10px auto;
+  max-width: 220px;
+}
+
+.cs-div-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+}
+
+.cs-div-leaf {
+  width: 14px;
+  height: 14px;
+  color: #c6924b;
+  flex-shrink: 0;
+}
+
+/* Body Text */
+.prakruti-cs-body {
+  margin-bottom: 12px;
+}
+
+.prakruti-cs-intro {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #3e483b;
+  margin: 0 0 10px 0;
+  font-weight: 450;
+}
+
+/* Highlight Box */
+.prakruti-cs-callout {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(246, 240, 226, 0.92) 100%);
+  border: 1px dashed rgba(45, 90, 39, 0.28);
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(45, 90, 39, 0.04);
+}
+
+.prakruti-cs-launch {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #2d5a27;
+  margin: 0 0 2px 0;
+}
+
+.prakruti-cs-trust {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  color: #555555;
+  margin: 0;
+}
+
+/* Sign-off */
+.prakruti-cs-signoff {
+  padding-top: 2px;
+}
+
+.prakruti-cs-motto {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 0.92rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #8b4513;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.01em;
+}
+
+.prakruti-cs-team {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #193a15;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Notify / Launch Alert Section */
+.prakruti-cs-notify-box {
+  background: #ffffff;
+  border: 1px solid rgba(45, 90, 39, 0.14);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.prakruti-cs-notify-label {
+  display: block;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.prakruti-cs-input-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.prakruti-cs-input-group input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dcd3c1;
+  border-radius: 6px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  color: #2b2b2b;
+  background: #faf8f3;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.prakruti-cs-input-group input:focus {
+  border-color: #2d5a27;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(45, 90, 39, 0.12);
+}
+
+.prakruti-cs-notify-btn {
+  height: 36px;
+  padding: 0 14px;
+  background: #2d5a27;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.22s ease;
+}
+
+.prakruti-cs-notify-btn:hover {
+  background: #193a15;
+  box-shadow: 0 3px 10px rgba(45, 90, 39, 0.22);
+}
+
+.prakruti-cs-notify-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #2d5a27;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 2px;
+}
+
+.prakruti-cs-success-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #eaf3e8;
+  color: #2d5a27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+}
+
+/* Main CTA Action Button */
+.prakruti-cs-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.prakruti-cs-continue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(135deg, #2d5a27 0%, #1d4319 100%);
+  color: #ffffff;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 10px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(45, 90, 39, 0.24);
+  transition: all 0.25s ease;
+}
+
+.prakruti-cs-continue-btn:hover {
+  background: linear-gradient(135deg, #193a15 0%, #122c10 100%);
+  box-shadow: 0 8px 22px rgba(45, 90, 39, 0.32);
+  transform: translateY(-1px);
+}
+
+.prakruti-cs-continue-btn:active {
+  transform: translateY(0);
+}
+
+.cs-arrow {
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+}
+
+.prakruti-cs-continue-btn:hover .cs-arrow {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .prakruti-cs-backdrop {
+    padding: 8px;
+  }
+
+  .prakruti-cs-card {
+    padding: 18px 16px 14px;
+    border-radius: 16px;
+    max-height: 96vh;
+  }
+
+  .prakruti-cs-logo-img {
+    height: 52px;
+  }
+
+  .prakruti-cs-punchline {
+    font-size: 0.8rem;
+  }
+
+  .prakruti-cs-heading {
+    font-size: 1.18rem;
+  }
+
+  .prakruti-cs-intro {
+    font-size: 0.82rem;
+  }
+
+  .prakruti-cs-input-group {
+    flex-direction: row;
+  }
+}

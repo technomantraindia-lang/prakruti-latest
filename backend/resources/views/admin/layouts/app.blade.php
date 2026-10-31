@@ -65,11 +65,73 @@
             --theme-btn-bg: linear-gradient(135deg, #2d5a27 0%, #193a15 100%);
         }
         body { background: #faf8f3; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
-        .sidebar { background: var(--sidebar-bg); min-height: 100vh; padding: 20px; transition: background 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
-        .sidebar h5 { color: white; margin-bottom: 25px; font-weight: 700; letter-spacing: 0.5px; }
-        .sidebar a { color: rgba(255,255,255,0.85); text-decoration: none; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 10px 15px; border-radius: 6px; transition: all 0.2s ease; margin-bottom: 5px; }
-        .sidebar a:hover { background: rgba(255,255,255,0.15); color: white; transform: translateX(3px); }
-        .sidebar a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            min-height: 100vh; 
+            padding: 16px 12px 30px 12px; 
+            transition: background 0.3s ease; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05); 
+        }
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        .sidebar h5 { 
+            color: white; 
+            margin-bottom: 18px; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            padding: 4px 6px;
+        }
+        .sidebar-heading {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.67rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            padding: 14px 8px 4px 8px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+        .sidebar-heading:first-of-type { margin-top: 0; padding-top: 4px; }
+        .sidebar-heading::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .sidebar a { 
+            color: rgba(255,255,255,0.85); 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-start; 
+            gap: 10px; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            transition: all 0.2s ease; 
+            margin-bottom: 2px;
+            font-size: 0.86rem;
+        }
+        .sidebar a:hover { 
+            background: rgba(255,255,255,0.14); 
+            color: #ffffff; 
+            transform: translateX(3px); 
+        }
+        .sidebar a.active { 
+            background: rgba(255,255,255,0.22); 
+            color: #ffffff; 
+            font-weight: 700; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .sidebar a i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.92rem;
+            opacity: 0.9;
+        }
+        .sidebar a:hover i, .sidebar a.active i { opacity: 1; }
         .sidebar-link-label { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
         .menu-new-badge { margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: #dc2626; color: #fff; font-size: 0.72rem; font-weight: 900; line-height: 22px; text-align: center; box-shadow: 0 0 0 2px rgba(255,255,255,0.22); }
         .navbar { border-bottom: 1px solid #e3ddcf; }
@@ -111,6 +173,22 @@
             .breadcrumb { max-width: 100%; overflow-x: auto; white-space: nowrap; }
             footer { gap: 10px; }
         }
+        @media print {
+            .admin-sidebar, .sidebar, .navbar, .breadcrumb, .alert, .btn, .no-print, .mobile-menu-toggle, .sidebar-backdrop, footer {
+                display: none !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+            }
+            .admin-shell, .admin-layout-row, .admin-main-column, .main-content {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -118,41 +196,98 @@
     <div class="container-fluid admin-shell">
         <div class="row admin-layout-row">
             <div class="col-md-2 sidebar admin-sidebar" id="adminSidebar">
-                <h5 class="d-flex align-items-center gap-2"><img src="{{ asset('assets/prakruti-logo.png') }}" alt="Prakruti Organic logo" class="admin-brand-logo"> Prakruti Admin</h5>
+                <h5 class="d-flex align-items-center gap-2 mb-3">
+                    <img src="{{ asset('assets/prakruti-logo.png') }}" alt="Prakruti Organic logo" class="admin-brand-logo"> 
+                    <span>Prakruti Admin</span>
+                </h5>
+
+                <!-- Main / Overview -->
+                <div class="sidebar-heading">Overview</div>
                 <a href="{{ route('admin.dashboard') }}" class="@if(request()->routeIs('admin.dashboard')) active @endif">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a>
-                <a href="{{ route('admin.products.index') }}" class="@if(request()->routeIs('admin.products.*')) active @endif"><i class="fas fa-boxes"></i> Products</a>
-                <a href="{{ route('admin.vendors.index') }}" class="@if(request()->routeIs('admin.vendors.*')) active @endif"><i class="fas fa-truck-loading"></i> Vendors</a>
-                <a href="{{ route('admin.inward.index') }}" class="@if(request()->routeIs('admin.inward.*')) active @endif"><i class="fas fa-boxes-packing"></i> Inward Stock (GRN)</a>
-                <a href="{{ route('admin.inventory.batches') }}" class="@if(request()->routeIs('admin.inventory.batches')) active @endif"><i class="fas fa-clock-rotate-left"></i> Batches &amp; Expiry</a>
-                <a href="{{ route('admin.purchase-returns.index') }}" class="@if(request()->routeIs('admin.purchase-returns.*')) active @endif"><i class="fas fa-undo-alt text-warning"></i> Purchase Returns (RTV)</a>
-                <a href="{{ route('admin.categories.index') }}" class="@if(request()->routeIs('admin.categories.*')) active @endif"><i class="fas fa-sitemap"></i> Categories</a>
-                <a href="{{ route('admin.banners.index') }}" class="@if(request()->routeIs('admin.banners.*')) active @endif"><i class="fas fa-images"></i> Home Banners</a>
+
+                <!-- E-Commerce & Store Operations -->
+                <div class="sidebar-heading">E-Commerce</div>
                 <a href="{{ route('admin.orders.index') }}" class="@if(request()->routeIs('admin.orders.*')) active @endif">
                     <span class="sidebar-link-label"><i class="fas fa-shopping-cart"></i> Orders</span>
                     @if($newOrdersMenuCount > 0)<span class="menu-new-badge" title="{{ $newOrdersMenuCount }} new order(s)">{{ $newOrdersMenuCount }}</span>@endif
                 </a>
-                <a href="{{ route('admin.accounting.index') }}" class="@if(request()->routeIs('admin.accounting.*')) active @endif"><i class="fas fa-balance-scale text-info"></i> Accounting &amp; Ledger</a>
-                <a href="{{ route('admin.reports.gstr1') }}" class="@if(request()->routeIs('admin.reports.*')) active @endif"><i class="fas fa-file-invoice-dollar text-success"></i> GSTR Tax Returns</a>
-                <a href="{{ route('admin.farm-gallery.index') }}" class="@if(request()->routeIs('admin.farm-gallery.*')) active @endif"><i class="fas fa-seedling"></i> Farm Gallery</a>
-                <a href="{{ route('admin.farm-gallery-categories.index') }}" class="@if(request()->routeIs('admin.farm-gallery-categories.*')) active @endif"><i class="fas fa-tags"></i> Farm Categories</a>
-                <a href="{{ route('admin.food-awareness.index') }}" class="@if(request()->routeIs('admin.food-awareness.*')) active @endif"><i class="fas fa-shield-virus text-warning"></i> Food Safety Watch</a>
-                <a href="{{ route('admin.guidelines.index') }}" class="@if(request()->routeIs('admin.guidelines.*')) active @endif"><i class="fas fa-file-pdf text-danger"></i> PDF Guidelines Library</a>
-                <a href="{{ route('admin.customers.index') }}" class="@if(request()->routeIs('admin.customers.*')) active @endif"><i class="fas fa-users"></i> Customers</a>
+                <a href="{{ route('admin.products.index') }}" class="@if(request()->routeIs('admin.products.*')) active @endif">
+                    <i class="fas fa-boxes"></i> Products
+                </a>
+                <a href="{{ route('admin.categories.index') }}" class="@if(request()->routeIs('admin.categories.*')) active @endif">
+                    <i class="fas fa-sitemap"></i> Categories
+                </a>
+                <a href="{{ route('admin.customers.index') }}" class="@if(request()->routeIs('admin.customers.*')) active @endif">
+                    <i class="fas fa-users"></i> Customers
+                </a>
                 <a href="{{ route('admin.inquiries.index') }}" class="@if(request()->routeIs('admin.inquiries.*')) active @endif">
                     <span class="sidebar-link-label"><i class="fas fa-comments"></i> Inquiries</span>
                     @if($newInquiriesMenuCount > 0)<span class="menu-new-badge" title="{{ $newInquiriesMenuCount }} new inquiry(s)">{{ $newInquiriesMenuCount }}</span>@endif
                 </a>
-                <a href="{{ route('admin.consultations.index') }}" class="@if(request()->routeIs('admin.consultations.*')) active @endif"><i class="fas fa-user-md"></i> Consultations</a>
+                <a href="{{ route('admin.consultations.index') }}" class="@if(request()->routeIs('admin.consultations.*')) active @endif">
+                    <span class="sidebar-link-label"><i class="fas fa-user-md"></i> Consultations</span>
+                    @if($newConsultationsCount > 0)<span class="menu-new-badge" title="{{ $newConsultationsCount }} new consultation(s)">{{ $newConsultationsCount }}</span>@endif
+                </a>
                 <a href="{{ route('admin.reviews.index') }}" class="@if(request()->routeIs('admin.reviews.*')) active @endif">
                     <span class="sidebar-link-label"><i class="fas fa-star"></i> Reviews</span>
                     @if($newReviewsMenuCount > 0)<span class="menu-new-badge" title="{{ $newReviewsMenuCount }} new review(s)">{{ $newReviewsMenuCount }}</span>@endif
                 </a>
-                <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) active @endif"><i class="fas fa-cog"></i> Settings</a>
-                <a href="{{ route('admin.help') }}" class="@if(request()->routeIs('admin.help')) active @endif"><i class="fas fa-circle-question"></i> Help &amp; Guide</a>
-                <hr style="border-color: rgba(255,255,255,0.3); margin: 20px 0;">
-                <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+
+                <!-- Inventory & Procurement -->
+                <div class="sidebar-heading">Inventory &amp; Vendors</div>
+                <a href="{{ route('admin.inward.index') }}" class="@if(request()->routeIs('admin.inward.*')) active @endif">
+                    <i class="fas fa-boxes-packing text-success"></i> Inward Stock (GRN)
+                </a>
+                <a href="{{ route('admin.vendors.index') }}" class="@if(request()->routeIs('admin.vendors.*')) active @endif">
+                    <i class="fas fa-truck-loading"></i> Vendors
+                </a>
+                <a href="{{ route('admin.inventory.batches') }}" class="@if(request()->routeIs('admin.inventory.batches')) active @endif">
+                    <i class="fas fa-clock-rotate-left"></i> Batches &amp; Expiry
+                </a>
+                <a href="{{ route('admin.purchase-returns.index') }}" class="@if(request()->routeIs('admin.purchase-returns.*')) active @endif">
+                    <i class="fas fa-undo-alt text-warning"></i> Purchase Returns (RTV)
+                </a>
+
+                <!-- Finance & Accounting -->
+                <div class="sidebar-heading">Accounting &amp; Taxes</div>
+                <a href="{{ route('admin.accounting.index') }}" class="@if(request()->routeIs('admin.accounting.*')) active @endif">
+                    <i class="fas fa-balance-scale text-info"></i> Accounting &amp; Ledger
+                </a>
+                <a href="{{ route('admin.reports.gstr1') }}" class="@if(request()->routeIs('admin.reports.*')) active @endif">
+                    <i class="fas fa-file-invoice-dollar text-success"></i> GSTR Tax Returns
+                </a>
+
+                <!-- Content & Extra Media -->
+                <div class="sidebar-heading">Content &amp; Gallery</div>
+                <a href="{{ route('admin.banners.index') }}" class="@if(request()->routeIs('admin.banners.*')) active @endif">
+                    <i class="fas fa-images"></i> Home Banners
+                </a>
+                <a href="{{ route('admin.farm-gallery.index') }}" class="@if(request()->routeIs('admin.farm-gallery.*')) active @endif">
+                    <i class="fas fa-seedling"></i> Farm Gallery
+                </a>
+                <a href="{{ route('admin.farm-gallery-categories.index') }}" class="@if(request()->routeIs('admin.farm-gallery-categories.*')) active @endif">
+                    <i class="fas fa-tags"></i> Farm Categories
+                </a>
+                <a href="{{ route('admin.food-awareness.index') }}" class="@if(request()->routeIs('admin.food-awareness.*')) active @endif">
+                    <i class="fas fa-shield-virus text-warning"></i> Food Safety Watch
+                </a>
+                <a href="{{ route('admin.guidelines.index') }}" class="@if(request()->routeIs('admin.guidelines.*')) active @endif">
+                    <i class="fas fa-file-pdf text-danger"></i> PDF Guidelines
+                </a>
+
+                <!-- System & Settings -->
+                <div class="sidebar-heading">System</div>
+                <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) active @endif">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="{{ route('admin.help') }}" class="@if(request()->routeIs('admin.help')) active @endif">
+                    <i class="fas fa-circle-question"></i> Help &amp; Guide
+                </a>
+
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 16px 0 12px 0;">
+                <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-danger-emphasis">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
                 <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">

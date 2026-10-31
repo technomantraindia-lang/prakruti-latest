@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $customerRole = Role::firstOrCreate(['name' => 'Customer'], ['guard_name' => 'web']);
 
         $this->call(PermissionSeeder::class);
+        $this->call(ChartOfAccountsSeeder::class);
 
         $superAdmin = User::firstOrCreate(
             ['email' => 'admin@prakruti'],

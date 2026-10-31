@@ -68,9 +68,61 @@
 }
 
 .legal-contact-note {
-  background: #f5f0e7;
-  border-radius: 18px;
-  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #153f2b 0%, #246246 62%, #b87632 150%);
+  border: 1px solid rgba(223, 184, 117, 0.55);
+  border-radius: 20px;
+  padding: 26px 28px;
+  box-shadow: 0 16px 34px rgba(21, 63, 43, 0.18);
+}
+
+.legal-contact-note::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -68px;
+  top: -92px;
+  border-radius: 50%;
+  background: rgba(255, 225, 166, 0.17);
+  pointer-events: none;
+}
+
+.legal-contact-note h2,
+.legal-contact-note p {
+  position: relative;
+  z-index: 1;
+}
+
+.legal-contact-note h2 {
+  color: #fff7e8;
+  margin-bottom: 10px;
+}
+
+.legal-contact-note p {
+  color: rgba(255, 247, 232, 0.84);
+  margin: 0;
+}
+
+.legal-contact-note a {
+  color: #ffe0a6;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 224, 166, 0.5);
+  text-underline-offset: 3px;
+}
+
+.legal-contact-note a:hover {
+  color: #ffffff;
+}
+
+.legal-contact-updated {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255, 247, 232, 0.68);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
 }
 
 @media (max-width: 640px) {
@@ -81,5 +133,9 @@
   .legal-content-card {
     padding: 26px 20px;
     border-radius: 18px;
+  }
+
+  .legal-contact-note {
+    padding: 22px 20px;
   }
 }

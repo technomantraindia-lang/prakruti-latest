@@ -52,6 +52,15 @@ export function CartProvider({ children }) {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState(null);
+  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
+
+  const openComingSoonModal = useCallback(() => {
+    setIsComingSoonOpen(true);
+  }, []);
+
+  const closeComingSoonModal = useCallback(() => {
+    setIsComingSoonOpen(false);
+  }, []);
 
   const flash = useCallback((message, type = 'success') => {
     setNotice({ message, type, id: Date.now() });
@@ -186,7 +195,10 @@ export function CartProvider({ children }) {
     updateQuantity,
     removeItem,
     clearCart,
-  }), [items, subtotal, discount, discountRule, taxableSubtotal, gstAmt, shipCharge, shippingRule, freeShippingThreshold, freeShippingRemaining, freeShippingUnlocked, total, loading, notice, flash, refreshCart, addToCart, updateQuantity, removeItem, clearCart]);
+    isComingSoonOpen,
+    openComingSoonModal,
+    closeComingSoonModal,
+  }), [items, subtotal, discount, discountRule, taxableSubtotal, gstAmt, shipCharge, shippingRule, freeShippingThreshold, freeShippingRemaining, freeShippingUnlocked, total, loading, notice, flash, refreshCart, addToCart, updateQuantity, removeItem, clearCart, isComingSoonOpen, openComingSoonModal, closeComingSoonModal]);
 
   return (
     <CartContext.Provider value={value}>

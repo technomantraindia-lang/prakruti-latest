@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './PrakrutiPromise.css'
 import organicOriginsImg from '../../assets/images/organic origins.png'
 import pureIngredientsImg from '../../assets/images/pure indgrdients.png'
@@ -36,8 +36,35 @@ const promiseCards = [
   },
 ]
 
-const PrakrutiPromise = () => (
-  <section className="prakruti-promise" aria-labelledby="prakruti-promise-title">
+const PrakrutiPromise = () => {
+  const sectionRef = useRef(null)
+  const [isSectionVisible, setIsSectionVisible] = useState(false)
+  const [activeCard, setActiveCard] = useState(0)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return undefined
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSectionVisible(entry.isIntersecting),
+      { threshold: 0.28 }
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isSectionVisible || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    const timer = window.setInterval(() => {
+      setActiveCard((current) => (current + 1) % promiseCards.length)
+    }, 1350)
+
+    return () => window.clearInterval(timer)
+  }, [isSectionVisible])
+
+  return (
+  <section ref={sectionRef} className={`prakruti-promise ${isSectionVisible ? 'is-visible' : ''}`} aria-labelledby="prakruti-promise-title">
     <div className="container">
       <div className="promise-intro">
         <p className="promise-eyebrow">The Prakruti promise</p>
@@ -49,9 +76,13 @@ const PrakrutiPromise = () => (
       </div>
 
       <div className="prakruti-promise-grid">
+        <span className="promise-flow-beam" aria-hidden="true" />
         {promiseCards.map((card, index) => (
           <React.Fragment key={card.title}>
-            <article className="prakruti-promise-card">
+            <article
+              className={`prakruti-promise-card card-index-${index} ${isSectionVisible && activeCard === index ? 'is-active' : ''}`}
+              style={{ '--card-order': index }}
+            >
               <span className="promise-number">{card.number}</span>
               <div className="promise-image-wrap">
                 <img src={card.image} alt={card.alt} className="promise-image" loading="lazy" />
@@ -61,7 +92,9 @@ const PrakrutiPromise = () => (
                 <p>{card.description}</p>
               </div>
             </article>
-            {index < promiseCards.length - 1 && <span className="prakruti-promise-arrow" aria-hidden="true" />}
+            {index < promiseCards.length - 1 && (
+              <span className={`prakruti-promise-arrow arrow-${index}`} aria-hidden="true" />
+            )}
           </React.Fragment>
         ))}
       </div>
@@ -71,6 +104,7 @@ const PrakrutiPromise = () => (
       </a>
     </div>
   </section>
-)
+  )
+}
 
 export default PrakrutiPromise

@@ -1,0 +1,609 @@
+/* ==========================================================================
+   HOME USP HIGHLIGHTS — SIGNATURE FEATURES
+   Clean Compact Cards with Hover Expansion & Pure Luxury Styling (No Images)
+   ========================================================================== */
+
+.home-usp-section {
+  padding: 44px 0 28px 0;
+  position: relative;
+  background: linear-gradient(180deg, rgba(250, 248, 243, 0.4) 0%, rgba(246, 243, 232, 0.9) 100%);
+  overflow: hidden;
+}
+
+/* Section Header */
+.home-usp-header {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto 26px auto;
+}
+
+.home-usp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b4513;
+  background: rgba(217, 160, 91, 0.18);
+  border: 1px solid rgba(217, 160, 91, 0.35);
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.home-usp-tag .sparkle {
+  color: #c6924b;
+  font-size: 0.85rem;
+}
+
+.home-usp-title {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: clamp(1.75rem, 3.2vw, 2.3rem);
+  font-weight: 800;
+  color: #193a15;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.home-usp-title span {
+  color: #2d5a27;
+  font-style: italic;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2d5a27 0%, #8b4513 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 2-Column Grid */
+.home-usp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Base Card */
+.home-usp-card {
+  position: relative;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 6px 20px rgba(45, 90, 39, 0.06);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: visible;
+  cursor: pointer;
+}
+
+.usp-card-glass {
+  position: relative;
+  padding: 22px 24px 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(252, 250, 244, 0.96) 100%);
+  z-index: 1;
+  border-radius: 20px;
+  overflow: visible;
+}
+
+/* Subtle glowing accent on card */
+.home-usp-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.45), rgba(45, 90, 39, 0.2), rgba(212, 175, 55, 0.15));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: all 0.35s ease;
+}
+
+/* Hover Elevation */
+.home-usp-card:hover,
+.home-usp-card.is-hovered {
+  border-color: #2d5a27;
+  box-shadow: 0 16px 38px -8px rgba(32, 86, 52, 0.2), 0 0 0 1px rgba(45, 90, 39, 0.25);
+  transform: translateY(-4px);
+}
+
+/* Top Accent Row */
+.usp-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.usp-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.family-pill {
+  color: #2d5a27;
+  background: rgba(45, 90, 39, 0.1);
+  border: 1px solid rgba(45, 90, 39, 0.25);
+}
+.family-pill .pill-dot {
+  background: #2d5a27;
+}
+
+.doctor-pill {
+  color: #8b4513;
+  background: rgba(139, 69, 19, 0.1);
+  border: 1px solid rgba(139, 69, 19, 0.25);
+}
+.doctor-pill .pill-dot {
+  background: #8b4513;
+}
+
+.usp-meta-label {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #8c9b88;
+}
+
+/* Main Preview Row */
+.usp-card-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.usp-icon-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.family-thumb {
+  background: linear-gradient(135deg, #f0f7ee 0%, #e1edd8 100%);
+  border-color: rgba(45, 90, 39, 0.3);
+}
+
+.doctor-thumb {
+  background: linear-gradient(135deg, #fdf6ee 0%, #f7ebd9 100%);
+  border-color: rgba(139, 69, 19, 0.3);
+}
+
+.doctor-card {
+  z-index: 2;
+}
+
+.doctor-profile-trigger {
+  position: relative;
+  flex: 0 0 74px;
+  height: 74px;
+  z-index: 8;
+  outline: none;
+}
+
+.doctor-profile-trigger .usp-icon-thumb {
+  width: 74px;
+  height: 74px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.doctor-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.doctor-profile-hint {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(25, 58, 21, 0.86);
+  color: #fff8ea;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.doctor-profile-trigger:hover .doctor-profile-image,
+.doctor-profile-trigger:focus .doctor-profile-image {
+  transform: scale(1.08);
+  filter: saturate(1.1) brightness(0.82);
+}
+
+.doctor-profile-trigger:hover .doctor-profile-hint,
+.doctor-profile-trigger:focus .doctor-profile-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.doctor-bio-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: min(470px, calc(100vw - 48px));
+  padding: 22px;
+  border: 1px solid rgba(139, 69, 19, 0.28);
+  border-radius: 16px;
+  background: rgba(255, 253, 247, 0.98);
+  box-shadow: 0 20px 42px rgba(54, 34, 17, 0.2);
+  color: #4c443b;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top left;
+  transition: opacity 0.24s ease, transform 0.24s ease, visibility 0.24s ease;
+  pointer-events: none;
+}
+
+.doctor-profile-trigger:hover .doctor-bio-panel,
+.doctor-profile-trigger:focus .doctor-bio-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.doctor-bio-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.14);
+}
+
+.doctor-bio-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.doctor-bio-heading strong,
+.doctor-bio-heading span {
+  display: block;
+}
+
+.doctor-bio-heading strong {
+  color: #193a15;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.22rem;
+}
+
+.doctor-bio-heading span,
+.doctor-bio-contact span,
+.doctor-bio-panel p,
+.doctor-bio-panel small {
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.doctor-bio-heading span {
+  color: #8b4513;
+}
+
+.doctor-bio-contact {
+  display: grid;
+  gap: 2px;
+  margin: 12px 0;
+  color: #655d54;
+}
+
+.doctor-bio-panel p {
+  margin: 0;
+  color: #5f665f;
+}
+
+.doctor-bio-panel small {
+  display: block;
+  margin-top: 10px;
+  color: #8b4513;
+  font-weight: 800;
+}
+
+.usp-pure-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.home-usp-card:hover .usp-icon-thumb {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.usp-main-info {
+  flex: 1;
+  text-align: left;
+}
+
+.usp-card-title {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #193a15;
+  margin: 0 0 3px 0;
+  line-height: 1.25;
+}
+
+.usp-card-tagline {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.86rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Chips Row */
+.usp-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.usp-chip {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #2d5a27;
+  background: #f0f7ef;
+  border: 1px solid #d4e8d2;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+/* Mobile Toggle Button */
+.usp-mobile-toggle-btn {
+  display: none;
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2d5a27;
+  background: #f6fbf5;
+  border: 1px dashed rgba(45, 90, 39, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Expandable Content Area */
+.usp-expand-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.48s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease;
+}
+
+/* On Desktop Hover or Mobile Toggle */
+.home-usp-card:hover .usp-expand-content,
+.home-usp-card.is-hovered .usp-expand-content,
+.home-usp-card.is-expanded-mobile .usp-expand-content {
+  max-height: 380px;
+  opacity: 1;
+  margin-top: 10px;
+}
+
+.usp-divider-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+  margin-bottom: 12px;
+}
+
+.usp-how-title {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #2d5a27;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+
+.doctor-card .usp-how-title {
+  color: #8b4513;
+}
+
+.usp-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.usp-steps-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #374151;
+}
+
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2d5a27;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.doctor-card .step-num {
+  background: #8b4513;
+}
+
+.step-body strong {
+  color: #193a15;
+}
+
+/* Action Button */
+.usp-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+.family-btn {
+  background: linear-gradient(135deg, #2d5a27 0%, #1e451b 100%);
+}
+
+.family-btn:hover {
+  background: linear-gradient(135deg, #193a15 0%, #122c10 100%);
+  box-shadow: 0 8px 22px rgba(45, 90, 39, 0.35);
+  transform: translateY(-1px);
+}
+
+.doctor-btn {
+  background: linear-gradient(135deg, #8b4513 0%, #6e360d 100%);
+}
+
+.doctor-btn:hover {
+  background: linear-gradient(135deg, #6e360d 0%, #522708 100%);
+  box-shadow: 0 8px 22px rgba(139, 69, 19, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-arrow {
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+}
+
+.usp-action-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (Laptops, Tablets & Mobile)
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .home-usp-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .usp-mobile-toggle-btn {
+    display: block;
+  }
+
+  .home-usp-card.is-expanded-mobile .usp-expand-content {
+    max-height: 420px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+
+  .doctor-bio-panel {
+    width: min(360px, calc(100vw - 52px));
+  }
+}
+
+@media (max-width: 480px) {
+  .home-usp-section {
+    padding: 32px 0 20px 0;
+  }
+
+  .usp-card-glass {
+    padding: 18px 16px 16px;
+  }
+
+  .usp-card-title {
+    font-size: 1.12rem;
+  }
+
+  .usp-card-tagline {
+    font-size: 0.82rem;
+  }
+
+  .usp-chips-row {
+    gap: 4px;
+  }
+
+  .usp-chip {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .usp-action-btn {
+    height: 40px;
+    font-size: 0.84rem;
+  }
+
+  .doctor-profile-trigger {
+    flex-basis: 62px;
+    height: 62px;
+  }
+
+  .doctor-profile-trigger .usp-icon-thumb {
+    width: 62px;
+    height: 62px;
+    border-radius: 15px;
+  }
+
+  .doctor-bio-panel {
+    left: -4px;
+    width: calc(100vw - 30px);
+    padding: 20px;
+  }
+}

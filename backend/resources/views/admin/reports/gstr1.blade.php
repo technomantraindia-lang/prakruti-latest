@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-4">
+    @include('admin.accounting._nav')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">GSTR-1: Outward Supplies Return</h1>
@@ -124,6 +125,62 @@
                             <td class="text-end">₹{{ number_format($b2bSgst, 2) }}</td>
                             <td class="text-end">₹{{ number_format($b2bIgst, 2) }}</td>
                             <td class="text-end">₹{{ number_format($b2bTaxable + $b2bCgst + $b2bSgst + $b2bIgst, 2) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table 7: B2C Small Invoices -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold text-primary"><i class="fas fa-user me-2"></i> Table 7: Taxable Outward Supplies to Consumers (B2C)</h6>
+            <span class="badge bg-secondary">{{ count($b2cInvoices) }} Invoice(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Buyer</th>
+                            <th>Invoice Number</th>
+                            <th>Invoice Date</th>
+                            <th>Place of Supply</th>
+                            <th class="text-end">Taxable Value (₹)</th>
+                            <th class="text-end">CGST (₹)</th>
+                            <th class="text-end">SGST (₹)</th>
+                            <th class="text-end">IGST (₹)</th>
+                            <th class="text-end">Invoice Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($b2cInvoices as $inv)
+                            <tr>
+                                <td>{{ $inv['buyer_name'] }}</td>
+                                <td class="font-monospace">{{ $inv['invoice_number'] }}</td>
+                                <td>{{ $inv['invoice_date'] }}</td>
+                                <td>{{ $inv['place_of_supply'] }}</td>
+                                <td class="text-end fw-bold">{{ number_format($inv['taxable'], 2) }}</td>
+                                <td class="text-end">{{ number_format($inv['cgst'], 2) }}</td>
+                                <td class="text-end">{{ number_format($inv['sgst'], 2) }}</td>
+                                <td class="text-end">{{ number_format($inv['igst'], 2) }}</td>
+                                <td class="text-end fw-bold">{{ number_format($inv['total'], 2) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-4 text-muted">No B2C consumer orders recorded for this month.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td colspan="4" class="text-end">Total B2C Outward Supplies:</td>
+                            <td class="text-end">₹{{ number_format($b2cTaxable, 2) }}</td>
+                            <td class="text-end">₹{{ number_format($b2cCgst, 2) }}</td>
+                            <td class="text-end">₹{{ number_format($b2cSgst, 2) }}</td>
+                            <td class="text-end">₹{{ number_format($b2cIgst, 2) }}</td>
+                            <td class="text-end">₹{{ number_format($b2cTaxable + $b2cCgst + $b2cSgst + $b2cIgst, 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>

@@ -7,7 +7,7 @@ import seedsImg from '../../assets/images/seeds.png';
 import gheeImg from '../../assets/images/bestseller_gir_ghee.jpg';
 import packagingImg from '../../assets/images/packge.png';
 import spicesImg from '../../assets/images/spices.png';
-import aboutUsBanner from '../../assets/images/packaging/about us aiamge .png';
+import aboutUsBanner from '../../assets/images/Final packaging/image copy 3.png';
 import sectionBg from '../../assets/images/SECTION .png';
 
 // Certification Badges
@@ -131,8 +131,13 @@ const AboutPage = ({ onShopClick }) => {
     <div className="about-page">
       
       {/* 1. Header Hero Banner */}
-      <section className="about-hero" style={{ backgroundImage: `url(${aboutUsBanner})` }}>
-        {/* Clean Graphic Banner */}
+      <section className="about-hero">
+        <img 
+          src={aboutUsBanner} 
+          alt="Prakruti - About Us Organic Staples and Heritage Products" 
+          className="about-hero-img"
+          loading="eager"
+        />
       </section>
 
       {/* 2. Our Story Section */}

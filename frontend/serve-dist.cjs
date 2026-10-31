@@ -5,7 +5,7 @@ const { URL } = require('url')
 
 const root = path.resolve(__dirname, 'dist')
 const backend = { hostname: '127.0.0.1', port: 8000 }
-const port = 5173
+const port = 5174
 
 const mimeTypes = {
   '.html': 'text/html',

@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from 'react'
+  import React, { useEffect, useState } from 'react'
 import './ShopByCategory.css'
 import { categoriesApi } from '../../api/categories'
-import cerealPulsesImg from '../../assets/images/cerals .png'
-import indianSpicesImg from '../../assets/images/indian spices.png'
+import cerealPulsesImg from '../../assets/images/Final packaging/mix dal.png'
+import indianSpicesImg from '../../assets/images/Final packaging/lal mirch.png'
 import milletsImg from '../../assets/images/milltet.png'
-import oilsGheeImg from '../../assets/images/oil and ghe.png'
+import oilsGheeImg from '../../assets/images/Final packaging/gheee.png'
+import littleMilletImg from '../../assets/images/Final packaging/litlle millet.png'
 import sweetenersImg from '../../assets/images/sweeterns.png'
-import healthySeedsImg from '../../assets/images/healthy_seeds.png'
-import riceFlourImg from '../../assets/images/rice flour.png'
+import healthySeedsImg from '../../assets/images/Final packaging/image copy 4.png'
+import riceFlourImg from '../../assets/images/Final packaging/bajra at.png'
 
 const localCategories = [
-  { name: 'Cereal & Pulses', image: cerealPulsesImg },
-  { name: 'Indian Spices', image: indianSpicesImg },
-  { name: 'Oils & Ghee', image: oilsGheeImg },
-  { name: 'Millets', image: milletsImg },
+  { name: 'Cereal & Pulses', image: cerealPulsesImg, imageFit: 'contain' },
+  { name: 'Indian Spices', image: indianSpicesImg, imageFit: 'contain' },
+  { name: 'Oils & Ghee', image: oilsGheeImg, imageFit: 'contain' },
+  { name: 'Millets', image: littleMilletImg, imageFit: 'contain' },
   { name: 'Sweeteners', image: sweetenersImg },
-  { name: 'Healthy Seeds', image: healthySeedsImg },
-  { name: 'Rice & Flours', image: riceFlourImg },
+  { name: 'Healthy Seeds', image: healthySeedsImg, imageFit: 'contain' },
+  { name: 'Rice & Flours', image: riceFlourImg, imageFit: 'contain' },
 ]
 
 const categoryOrder = localCategories.reduce((order, category, index) => {
@@ -35,7 +36,8 @@ const ShopByCategory = ({ onCategoryClick }) => {
         const local = localCategories.find((item) => item.name.toLowerCase() === String(cat.name || '').toLowerCase())
         return {
           name: cat.name,
-          image: cat.image || local?.image,
+          image: local?.imageFit ? local.image : (cat.image || local?.image),
+          imageFit: local?.imageFit,
         }
       }).filter((cat) => cat.image)
         .sort((a, b) => {
@@ -75,7 +77,7 @@ const ShopByCategory = ({ onCategoryClick }) => {
                 <img
                   src={category.image || cerealPulsesImg}
                   alt={category.name}
-                  className="category-image"
+                  className={`category-image${category.imageFit ? ` category-image-${category.imageFit}` : ''}`}
                   loading="lazy"
                   onError={(e) => {
                     e.target.onerror = null;

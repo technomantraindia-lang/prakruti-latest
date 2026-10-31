@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './Testimonials.css'
 import { reviewsApi } from '../../api/reviews'
@@ -75,8 +75,7 @@ const resolveMediaUrl = (url) => {
 const Testimonials = () => {
   const [customerTestimonials, setCustomerTestimonials] = useState([])
   const [filter, setFilter] = useState('all') // 'all' | 'photos' | 'videos' | 'five-star'
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [cardsPerView, setCardsPerView] = useState(3)
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [activeLightbox, setActiveLightbox] = useState(null)
   const [hoverRating, setHoverRating] = useState(0)
@@ -90,21 +89,7 @@ const Testimonials = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState({ type: null, message: '' })
 
-  // Responsive cards per view
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 720) {
-        setCardsPerView(1)
-      } else if (window.innerWidth < 1120) {
-        setCardsPerView(2)
-      } else {
-        setCardsPerView(3)
-      }
-    }
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  const marqueeRef = useRef(null)
 
   // Fetch approved customer testimonials from API
   useEffect(() => {
@@ -135,22 +120,44 @@ const Testimonials = () => {
     })
   }, [allList, filter])
 
-  // Max slide index
-  const maxIndex = Math.max(0, filteredList.length - cardsPerView)
+  const marqueeCards = useMemo(
+    () => (filteredList.length ? Array.from({ length: 3 }, () => filteredList).flat() : []),
+    [filteredList]
+  )
 
-  // Carousel navigation
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : maxIndex))
-  }
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev < maxIndex ? prev + 1 : 0))
-  }
-
-  // Adjust index when filter changes
+  // Keep the inline card row moving until a customer hovers or focuses it to read.
   useEffect(() => {
-    setCurrentIndex(0)
-  }, [filter])
+    const el = marqueeRef.current
+    if (!el || filteredList.length < 2) return undefined
+
+    let animationFrameId
+    let lastTime = performance.now()
+    const speed = 0.55
+    const step = (now) => {
+      const delta = (now - lastTime) / 16.67
+      lastTime = now
+      if (!isCarouselPaused && !isFormOpen) {
+        const setWidth = el.scrollWidth / 3
+        if (setWidth > 0) {
+          if (el.scrollLeft === 0) el.scrollLeft = setWidth
+          el.scrollLeft += speed * Math.min(delta, 3)
+          if (el.scrollLeft >= setWidth * 2) el.scrollLeft -= setWidth
+          if (el.scrollLeft <= 0) el.scrollLeft += setWidth
+        }
+      }
+      animationFrameId = requestAnimationFrame(step)
+    }
+    animationFrameId = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [filteredList.length, isCarouselPaused, isFormOpen])
+
+  const scrollMarquee = (direction) => {
+    const el = marqueeRef.current
+    if (!el) return
+    setIsCarouselPaused(true)
+    el.scrollBy({ left: direction === 'left' ? -320 : 320, behavior: 'smooth' })
+    window.setTimeout(() => setIsCarouselPaused(false), 2200)
+  }
 
   // Image upload handler
   const handleImageChange = (e) => {
@@ -275,11 +282,8 @@ const Testimonials = () => {
     }
   }, [imagePreview, videoPreview])
 
-  // Visible slice
-  const visibleCards = filteredList.slice(currentIndex, currentIndex + cardsPerView)
-
   return (
-    <section className="testimonials-section-v2" id="community-testimonials">
+    <section className="testimonials-section-v2" id="testimonials" data-section="community-testimonials">
       <div className="container">
         {/* Section Header */}
         <div className="testimonials-header-v2">
@@ -288,9 +292,7 @@ const Testimonials = () => {
             <span>VERIFIED COMMUNITY REVIEWS</span>
             <span className="sparkle">✦</span>
           </div>
-          <h2 className="testimonials-title-v2">
-            Loved by Over <span>10,000+</span> Indian Families
-          </h2>
+          <h2 className="testimonials-title-v2">Loved by Indian Families</h2>
           <p className="testimonials-subtitle-v2">
             Real experiences, unboxing photos, and authentic stories shared by patrons who chose pure organic nourishment.
           </p>
@@ -340,27 +342,36 @@ const Testimonials = () => {
         </div>
 
         {/* Carousel Showcase */}
-        <div className="testimonials-carousel-wrapper">
-          {filteredList.length > cardsPerView && (
+        <div
+          className="testimonials-carousel-wrapper"
+          onMouseEnter={() => setIsCarouselPaused(true)}
+          onMouseLeave={() => setIsCarouselPaused(false)}
+          onFocusCapture={() => setIsCarouselPaused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setIsCarouselPaused(false)
+          }}
+        >
+          {filteredList.length > 1 && (
             <button
               type="button"
               className="carousel-nav-btn prev-btn"
-              onClick={prevSlide}
+              onClick={() => scrollMarquee('left')}
               aria-label="Previous testimonials"
             >
               ‹
             </button>
           )}
 
-          <div className="testimonials-cards-grid">
-            {visibleCards.map((item, idx) => {
+          <div className="testimonials-cards-marquee" ref={marqueeRef}>
+            <div className="testimonials-cards-grid">
+            {marqueeCards.map((item, idx) => {
               const hasPhoto = Boolean(item.image)
               const hasVideo = Boolean(item.video)
               const mediaUrl = hasPhoto ? resolveMediaUrl(item.image) : null
               const videoUrl = hasVideo ? resolveMediaUrl(item.video) : null
 
               return (
-                <article key={item.id || idx} className={`testimonial-card-v2 ${hasPhoto || hasVideo ? 'has-media-card' : 'text-only-card'}`}>
+                <article key={`${item.id || 'testimonial'}-${idx}`} className={`testimonial-card-v2 ${hasPhoto || hasVideo ? 'has-media-card' : 'text-only-card'}`}>
                   {/* Card Top: Stars & Verified Badge */}
                   <div className="card-top-meta">
                     <div className="card-stars">
@@ -467,34 +478,20 @@ const Testimonials = () => {
                 </article>
               )
             })}
+            </div>
           </div>
 
-          {filteredList.length > cardsPerView && (
+          {filteredList.length > 1 && (
             <button
               type="button"
               className="carousel-nav-btn next-btn"
-              onClick={nextSlide}
+              onClick={() => scrollMarquee('right')}
               aria-label="Next testimonials"
             >
               ›
             </button>
           )}
         </div>
-
-        {/* Carousel Progress Indicators */}
-        {filteredList.length > cardsPerView && (
-          <div className="carousel-pagination-dots">
-            {Array.from({ length: maxIndex + 1 }).map((_, dotIdx) => (
-              <button
-                key={dotIdx}
-                type="button"
-                className={`pagination-dot ${dotIdx === currentIndex ? 'active' : ''}`}
-                onClick={() => setCurrentIndex(dotIdx)}
-                aria-label={`Go to slide ${dotIdx + 1}`}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Expandable Submission Form */}
         <AnimatePresence>

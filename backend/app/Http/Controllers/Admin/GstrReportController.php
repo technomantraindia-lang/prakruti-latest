@@ -76,10 +76,18 @@ class GstrReportController extends Controller
             }
 
             foreach ($order->items as $item) {
-                $gstRate = (float) ($item->product?->gst_percentage ?? 12);
+                // Use the rate captured on the order item first so historical
+                // returns are not changed when a product is edited later.
+                $gstRate = (float) ($item->gst_pct ?: ($item->product?->gst_percentage ?? 12));
                 $totalInc = (float) ($item->line_total ?: ($item->price * $item->qty));
-                $taxable = round(($totalInc * 100) / (100 + $gstRate), 2);
-                $tax = round($totalInc - $taxable, 2);
+                $lineDiscount = $order->subtotal > 0
+                    ? round((float) $order->discount * ($totalInc / (float) $order->subtotal), 2)
+                    : 0.0;
+                $netLineInclusive = max(0, $totalInc - $lineDiscount);
+                $taxable = $gstRate > 0
+                    ? round(($netLineInclusive * 100) / (100 + $gstRate), 2)
+                    : $netLineInclusive;
+                $tax = round($netLineInclusive - $taxable, 2);
 
                 $cgst = 0; $sgst = 0; $igst = 0;
                 if ($isInterstate) {
@@ -286,7 +294,15 @@ class GstrReportController extends Controller
             }
 
             fputcsv($file, []);
-            // Section 2: HSN Summary
+            // Section 2: B2C small invoices
+            fputcsv($file, ['=== TABLE 7: B2C SMALL INVOICES ===']);
+            fputcsv($file, ['Buyer Name', 'Invoice Number', 'Invoice Date', 'Place Of Supply', 'Taxable Value', 'CGST', 'SGST', 'IGST', 'Invoice Value']);
+            foreach ($b2c as $r) {
+                fputcsv($file, [$r['buyer_name'], $r['invoice_number'], $r['invoice_date'], $r['place_of_supply'], $r['taxable'], $r['cgst'], $r['sgst'], $r['igst'], $r['total']]);
+            }
+
+            fputcsv($file, []);
+            // Section 3: HSN Summary
             fputcsv($file, ['=== TABLE 12: HSN SUMMARY ===']);
             fputcsv($file, ['HSN', 'Description', 'UQC', 'Total Quantity', 'Total Taxable Value', 'CGST', 'SGST', 'IGST', 'Total Tax']);
             foreach ($hsn as $h) {

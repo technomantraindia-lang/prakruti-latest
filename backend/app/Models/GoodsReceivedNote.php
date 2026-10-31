@@ -20,6 +20,7 @@ class GoodsReceivedNote extends Model
         'invoice_date',
         'received_date',
         'status',
+        'payment_status',
         'inward_freight_charge',
         'inward_handling_charge',
         'total_items_taxable',

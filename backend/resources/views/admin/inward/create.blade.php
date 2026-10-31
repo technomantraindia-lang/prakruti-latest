@@ -52,9 +52,21 @@
                     <input type="number" step="0.01" name="inward_handling_charge" id="handlingInput" class="form-control" value="{{ old('inward_handling_charge', '0.00') }}" placeholder="0.00">
                     <small class="text-muted">Included in total inventory valuation.</small>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Payment Status <span class="text-danger">*</span></label>
+                    <select name="payment_status" id="paymentStatusSelect" class="form-select fw-semibold" required>
+                        <option value="unpaid" @selected(old('payment_status', 'unpaid') == 'unpaid')>
+                            🔴 Not Paid (Unpaid)
+                        </option>
+                        <option value="paid" @selected(old('payment_status') == 'paid')>
+                            🟢 Paid (Payment Settled)
+                        </option>
+                    </select>
+                    <small class="text-muted">Will reflect on GRN &amp; vendor bill.</small>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label fw-bold">Notes / Delivery Remarks</label>
-                    <input type="text" name="notes" class="form-control" value="{{ old('notes') }}" placeholder="e.g. Received in good condition, transport via V-Trans">
+                    <input type="text" name="notes" class="form-control" value="{{ old('notes') }}" placeholder="e.g. Received in good condition">
                 </div>
             </div>
         </div>

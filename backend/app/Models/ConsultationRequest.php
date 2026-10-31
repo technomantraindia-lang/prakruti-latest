@@ -8,6 +8,7 @@ class ConsultationRequest extends Model
 {
     protected $fillable = [
         'reference_no',
+        'user_id',
         'name',
         'email',
         'phone',
@@ -24,6 +25,14 @@ class ConsultationRequest extends Model
         'doctor_email',
         'doctor_notified_at',
         'doctor_notified_channel',
+        'session_type',
+        'session_number',
+        'payment_status',
+        'payment_method',
+        'payment_gateway',
+        'payment_transaction_id',
+        'payment_amount',
+        'payment_paid_at',
     ];
 
     protected function casts(): array
@@ -31,6 +40,9 @@ class ConsultationRequest extends Model
         return [
             'consent' => 'boolean',
             'doctor_notified_at' => 'datetime',
+            'session_number' => 'integer',
+            'payment_amount' => 'decimal:2',
+            'payment_paid_at' => 'datetime',
         ];
     }
 
@@ -48,6 +60,8 @@ class ConsultationRequest extends Model
         $msg .= "A new patient consultation inquiry has been forwarded to you.\n\n";
         $msg .= "📋 *Inquiry Details:*\n";
         $msg .= "• *Reference No:* #{$this->reference_no}\n";
+        $msg .= "• *Session:* " . ($this->session_type === 'follow_up' ? 'Follow-up' : 'New Consultation') . " #" . ($this->session_number ?: 1) . "\n";
+        $msg .= "• *Payment:* " . strtoupper((string) ($this->payment_status ?: 'paid_demo')) . " / ₹" . number_format((float) ($this->payment_amount ?: 1500), 0) . "\n";
         $msg .= "• *Patient Name:* {$this->name}\n";
         $msg .= "• *Mobile:* " . ($this->phone ?: 'Not provided') . "\n";
         $msg .= "• *Email:* " . ($this->email ?: 'Not provided') . "\n";
@@ -91,6 +105,8 @@ class ConsultationRequest extends Model
         $body .= "A new patient consultation inquiry has been received through the Prakruti Corporation portal and assigned to you.\n\n";
         $body .= "=== PATIENT & INQUIRY SUMMARY ===\n";
         $body .= "Reference Number: #{$this->reference_no}\n";
+        $body .= "Session: " . ($this->session_type === 'follow_up' ? 'Follow-up' : 'New Consultation') . " #" . ($this->session_number ?: 1) . "\n";
+        $body .= "Payment: " . strtoupper((string) ($this->payment_status ?: 'paid_demo')) . " / ₹" . number_format((float) ($this->payment_amount ?: 1500), 0) . "\n";
         $body .= "Patient Name: {$this->name}\n";
         $body .= "Contact Mobile: " . ($this->phone ?: 'Not provided') . "\n";
         $body .= "Email Address: " . ($this->email ?: 'Not provided') . "\n";

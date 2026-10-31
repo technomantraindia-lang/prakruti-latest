@@ -72,9 +72,13 @@ const LegalPage = ({ type = 'privacy' }) => {
             </div>
           ))}
 
-          <div className="legal-contact-note">
+          <div className={`legal-contact-note ${isTerms ? 'legal-contact-note-terms' : 'legal-contact-note-privacy'}`}>
             <h2>Need Help?</h2>
-            <p>For questions about this page, contact us at support@prakruticorp.org. Last updated: September 22, 2026.</p>
+            <p>
+              For questions about this page, contact us at{' '}
+              <a href="mailto:support@prakruticorp.org">support@prakruticorp.org</a>.
+              <span className="legal-contact-updated">Last updated: September 22, 2026.</span>
+            </p>
           </div>
         </div>
       </div>

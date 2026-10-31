@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\PurchaseBill;
 use App\Models\VendorDebitNote;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class AccountingService
@@ -230,6 +231,55 @@ class AccountingService
 
             return $entry;
         });
+    }
+
+    /**
+     * Post any paid and delivered orders that do not yet have a ledger entry.
+     * This repairs orders created before accounting was enabled or when a
+     * previous post-processing step failed. postSalesOrder() is idempotent.
+     */
+    public function syncPaidDeliveredOrders(): int
+    {
+        $synced = 0;
+
+        Order::query()
+            ->where('status', 'delivered')
+            ->where('pay_status', 'paid')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('journal_entries')
+                    ->whereColumn('journal_entries.reference_id', 'orders.id')
+                    ->where('journal_entries.reference_type', Order::class);
+            })
+            ->chunkById(100, function ($orders) use (&$synced) {
+                foreach ($orders as $order) {
+                    try {
+                        $entry = $this->postSalesOrder($order);
+                        if ($entry->wasRecentlyCreated) {
+                            $synced++;
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error('Accounting sync failed for delivered paid order', [
+                            'order_id' => $order->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            });
+
+        return $synced;
+    }
+
+    /**
+     * Ensure a delivered and paid order is represented in the ledger.
+     */
+    public function syncPaidDeliveredOrder(Order $order): ?JournalEntry
+    {
+        if ($order->status !== 'delivered' || $order->pay_status !== 'paid') {
+            return null;
+        }
+
+        return $this->postSalesOrder($order);
     }
 
     /**

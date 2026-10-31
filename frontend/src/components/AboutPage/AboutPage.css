@@ -54,12 +54,17 @@
 .about-hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 1918 / 820;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   margin-bottom: 36px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  background: #fbf7ee;
+}
+
+.about-hero-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
 }
 
 /* ==========================================================================

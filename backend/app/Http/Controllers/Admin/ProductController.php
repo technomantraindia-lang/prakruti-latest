@@ -108,7 +108,12 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $product->load(['images', 'variations']);
+        $product->load([
+            'images',
+            'variations.attribute',
+            'variations.multiAttributeValues.attribute',
+            'variations.multiAttributeValues.attributeValue',
+        ]);
 
         return view('admin.products.edit', array_merge(['product' => $product], $this->formData()));
     }
@@ -117,13 +122,21 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request, $product->id);
         $packages = $this->normalizePackageRows($data['packages'] ?? []);
+        $removedPackageIds = $data['removed_packages'] ?? [];
         unset($data['packages']);
+        unset($data['removed_packages']);
         $data['product_information'] = $this->normalizeProductInformation($data['product_information'] ?? []);
 
+        // `unit` is not part of the compact edit form. Keep the saved unit
+        // (for example kg or g) instead of replacing it with packet on edit.
+        $data['unit'] = $data['unit'] ?? ($product->unit ?: 'packet');
         $this->applyDefaultPackageToProductData($data, $packages);
 
         $data['featured'] = $request->boolean('featured');
-        $targetStock = (int) ($data['stock_qty'] ?? 0);
+        // The edit form does not have a separate product stock field. When a
+        // product has no package rows, keep its current stock instead of
+        // accidentally resetting it to zero.
+        $targetStock = (int) ($data['stock_qty'] ?? $product->stock_qty);
         unset($data['stock_qty']);
 
         if (empty($data['slug'])) {
@@ -143,7 +156,7 @@ class ProductController extends Controller
         }
 
         $product->update($data);
-        $this->syncPackageVariants($product, $packages);
+        $this->syncPackageVariants($product, $packages, $removedPackageIds);
         $this->removeGalleryImages($product, $request->input('remove_gallery', []));
         $this->reorderGalleryImages($product, $request->input('gallery_order', []));
         $this->saveGallery($product, $request);
@@ -523,13 +536,18 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:20',
             'min_order_qty' => 'nullable|integer|min:1',
             'weight' => 'nullable|numeric|min:0',
-            'packages' => 'required|array|min:1',
+            // Product creation needs one package. During an edit, package
+            // rows are optional so custom/multi-attribute variations can be
+            // preserved even when this screen does not manage them.
+            'packages' => $id ? 'nullable|array' : 'required|array|min:1',
             'packages.*.id' => 'nullable|integer|exists:product_variations,id',
             'packages.*.label' => 'required|string|max:100|distinct',
             'packages.*.price' => 'required|numeric|min:0',
             'packages.*.sale_price' => 'nullable|numeric|min:0',
             'packages.*.stock_qty' => 'required|integer|min:0',
             'packages.*.status' => 'nullable|in:active,inactive',
+            'removed_packages' => 'nullable|array',
+            'removed_packages.*' => 'integer|exists:product_variations,id',
             'short_desc' => 'nullable|string',
             'description' => 'nullable|string',
             'nutritional_info' => 'nullable|string',
@@ -555,6 +573,24 @@ class ProductController extends Controller
         ]);
 
         $validator->after(function ($validator) use ($request, $id) {
+            if ($id) {
+                $productVariationIds = ProductVariation::where('product_id', $id)->pluck('id');
+                $submittedVariationIds = collect($request->input('packages', []))
+                    ->pluck('id')
+                    ->filter()
+                    ->map(fn ($value) => (int) $value);
+                $removedVariationIds = collect($request->input('removed_packages', []))
+                    ->filter()
+                    ->map(fn ($value) => (int) $value);
+
+                foreach ($submittedVariationIds->merge($removedVariationIds)->unique() as $variationId) {
+                    if (! $productVariationIds->contains($variationId)) {
+                        $validator->errors()->add('packages', 'One or more selected package options do not belong to this product. Please reload and try again.');
+                        break;
+                    }
+                }
+            }
+
             $newGalleryCount = collect($request->file('gallery', []))->filter()->count();
             $removeGalleryIds = collect($request->input('remove_gallery', []))
                 ->filter()
@@ -741,15 +777,21 @@ class ProductController extends Controller
         $data['price'] = $defaultPackage['price'];
         $data['sale_price'] = $defaultPackage['sale_price'];
         $data['stock_qty'] = collect($packages)->sum('stock_qty');
-        $data['unit'] = 'packet';
+        $data['unit'] = $data['unit'] ?? 'packet';
     }
 
-    private function syncPackageVariants(Product $product, array $packages): void
+    private function syncPackageVariants(Product $product, array $packages, array $removedVariationIds = []): void
     {
-        $weightAttribute = ProductAttribute::firstOrCreate(
-            ['name' => 'Weight'],
-            ['status' => 'active']
-        );
+        if (empty($packages) && empty($removedVariationIds)) {
+            return;
+        }
+
+        $weightAttribute = ! empty($packages)
+            ? ProductAttribute::firstOrCreate(
+                ['name' => 'Weight'],
+                ['status' => 'active']
+            )
+            : null;
 
         $keptVariationIds = [];
 
@@ -768,7 +810,10 @@ class ProductController extends Controller
             $targetStock = $package['stock_qty'];
             $payload = [
                 'product_id' => $product->id,
-                'attr_id' => $weightAttribute->id,
+                // Keep the variation's original attribute. The product edit
+                // form manages package labels, but must not turn existing
+                // Color/Size/custom variations into Weight variations.
+                'attr_id' => $variation ? $variation->attr_id : $weightAttribute->id,
                 'attr_val' => $package['label'],
                 'sku' => $this->generateVariationSku($product, $package['label'], $variation?->id),
                 'price' => $package['price'],
@@ -790,9 +835,20 @@ class ProductController extends Controller
             $keptVariationIds[] = $variation->id;
         }
 
-        $product->variations()
-            ->when($keptVariationIds, fn ($query) => $query->whereNotIn('id', $keptVariationIds))
-            ->delete();
+        // Variations not shown on this form can be multi-attribute records or
+        // records created by the dedicated variation manager. Never delete
+        // those implicitly during a normal product edit. Deletion is only
+        // performed for rows the admin explicitly removed in the UI.
+        $removedVariationIds = collect($removedVariationIds)
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->reject(fn ($id) => in_array($id, $keptVariationIds, true))
+            ->values();
+
+        if ($removedVariationIds->isNotEmpty()) {
+            $product->variations()->whereIn('id', $removedVariationIds)->delete();
+        }
     }
 
     private function generateVariationSku(Product $product, string $label, ?int $ignoreId = null): string

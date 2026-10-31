@@ -49,7 +49,8 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
 
     // Public Inquiry / Contact Form API
     Route::post('/inquiries', [InquiryApiController::class, 'store']);
-    Route::post('/consultation-requests', [ConsultationRequestApiController::class, 'store']);
+    Route::post('/consultation-requests', [ConsultationRequestApiController::class, 'store'])
+        ->middleware(\App\Http\Middleware\AuthenticateApiToken::class);
     Route::get('/testimonials', [ReviewApiController::class, 'testimonials']);
     Route::post('/testimonials', [ReviewApiController::class, 'storeTestimonial']);
     Route::post('/family-packs/calculate', [FamilyPackApiController::class, 'calculate']);

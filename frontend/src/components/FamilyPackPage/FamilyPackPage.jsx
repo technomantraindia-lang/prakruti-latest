@@ -32,72 +32,52 @@ const NIN_REFERENCE_TABLE = {
 };
 
 /**
- * Default sample family (4 members representing multi-generational Indian household)
+/**
+ * Normalize and guarantee unique ID and full profile schema for each member
+ */
+function normalizeMember(member, index = 1) {
+  const memberId = member?.id != null && String(member.id).trim() !== ''
+    ? String(member.id)
+    : `mem_${index}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  return {
+    id: memberId,
+    name: member?.name || `Member ${index}`,
+    age: Math.max(1, Number(member?.age || 25)),
+    sex: member?.sex === 'female' ? 'female' : 'male',
+    heightFt: member?.heightFt != null ? String(member.heightFt) : '5',
+    heightIn: member?.heightIn != null ? String(member.heightIn) : '4',
+    weightKg: member?.weightKg != null ? String(member.weightKg) : '60',
+    activity: member?.activity || 'moderate',
+    lifeStage: member?.lifeStage || 'none',
+    diabetes: Boolean(member?.diabetes),
+    bp: Boolean(member?.bp),
+    heart: Boolean(member?.heart),
+    kidney: Boolean(member?.kidney),
+    goal: member?.goal || 'general',
+  };
+}
+
+/**
+ * First-time visitors start with one intentionally blank member profile.
+ * Logged-in users with a saved Family Pack are hydrated from the API below.
  */
 const initialMembers = [
   {
-    id: 1,
-    name: 'Boy',
-    age: 10,
-    sex: 'male',
-    heightFt: '4',
-    heightIn: '8',
-    weightKg: '34',
-    activity: 'athlete',
+    id: 'mem_initial',
+    name: '',
+    age: '',
+    sex: '',
+    heightFt: '',
+    heightIn: '',
+    weightKg: '',
+    activity: '',
     lifeStage: 'none',
     diabetes: false,
     bp: false,
     heart: false,
     kidney: false,
-    goal: 'active_child',
-  },
-  {
-    id: 2,
-    name: 'Girl',
-    age: 14,
-    sex: 'female',
-    heightFt: '5',
-    heightIn: '2',
-    weightKg: '45',
-    activity: 'moderate',
-    lifeStage: 'none',
-    diabetes: false,
-    bp: false,
-    heart: false,
-    kidney: false,
-    goal: 'general',
-  },
-  {
-    id: 3,
-    name: 'Father',
-    age: 45,
-    sex: 'male',
-    heightFt: '5',
-    heightIn: '9',
-    weightKg: '76',
-    activity: 'sedentary',
-    lifeStage: 'none',
-    diabetes: false,
-    bp: false,
-    heart: false,
-    kidney: false,
-    goal: 'weight_loss',
-  },
-  {
-    id: 4,
-    name: 'Grandmother',
-    age: 65,
-    sex: 'female',
-    heightFt: '5',
-    heightIn: '1',
-    weightKg: '58',
-    activity: 'sedentary',
-    lifeStage: 'none',
-    diabetes: true,
-    bp: true,
-    heart: false,
-    kidney: false,
-    goal: 'healthy_aging',
+    goal: '',
   },
 ];
 
@@ -147,7 +127,7 @@ function createMember(type = 'adult', index = 1) {
   }
 
   return {
-    id: Date.now() + Math.random(),
+    id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: `Member ${index}`,
     age,
     sex,
@@ -268,6 +248,26 @@ function calculateHouseholdBasket(members, household) {
       dailyGrams: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
       monthlyKg: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
       interpretation: 'Add members to generate smart household nutrition plan.',
+      safetyAlerts: [],
+    };
+  }
+
+  const hasIncompleteProfile = members.some((member) => (
+    !member.age ||
+    !member.sex ||
+    !member.heightFt ||
+    !member.heightIn ||
+    !member.weightKg ||
+    !member.activity ||
+    !member.goal
+  ));
+
+  if (hasIncompleteProfile) {
+    return {
+      assessedMembers: [],
+      dailyGrams: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
+      monthlyKg: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
+      interpretation: 'Complete the first member profile to generate a personalized household nutrition plan.',
       safetyAlerts: [],
     };
   }
@@ -453,7 +453,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
       const saved = currentUser && latest.success && latest.data ? latest.data : null;
       if (saved?.profile?.members?.length) {
         setSavedPack(saved);
-        setMembers(saved.profile.members);
+        setMembers(saved.profile.members.map((m, idx) => normalizeMember(m, idx + 1)));
         if (saved.profile.household) {
           setHousehold(saved.profile.household);
         }
@@ -467,7 +467,10 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
 
   // 3. Match calculated monthly kg with available store inventory
   useEffect(() => {
-    if (!products.length || !members.length) return;
+    if (!products.length || !members.length || basketPlan.assessedMembers.length !== members.length) {
+      setRecommendations([]);
+      return;
+    }
 
     const { cereals, pulses, nuts, oil, sugar, salt } = basketPlan.monthlyKg;
 
@@ -714,14 +717,20 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
     setMembers((prev) => [...prev, createMember(type, prev.length + 1)]);
   };
 
-  const removeMember = (id) => {
-    setMembers((prev) => prev.filter((m) => m.id !== id));
+  const removeMember = (id, index = null) => {
+    setMembers((prev) =>
+      prev.filter((m, idx) => {
+        if (id != null) return String(m.id) !== String(id);
+        return idx !== index;
+      })
+    );
   };
 
-  const updateMember = (id, field, value) => {
+  const updateMember = (id, field, value, index = null) => {
     setMembers((prev) =>
-      prev.map((m) => {
-        if (m.id !== id) return m;
+      prev.map((m, idx) => {
+        const isMatch = (id != null && String(m.id) === String(id)) || (index != null && idx === index);
+        if (!isMatch) return m;
         return { ...m, [field]: value };
       })
     );
@@ -966,9 +975,10 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
               const isFemale = member.sex === 'female';
               const isAdultFemale = isFemale && member.age >= 19 && member.age <= 49;
               const bmiCat = bmiCategory(member);
+              const cardId = member.id != null ? String(member.id) : `mem_${index}`;
 
               return (
-                <div className="member-card-item detailed-profile" key={member.id}>
+                <div className="member-card-item detailed-profile" key={cardId}>
                   {/* Top Bar Header */}
                   <div className="member-card-top-bar">
                     <div className="member-top-left-badges">
@@ -981,7 +991,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <button
                         type="button"
                         className="btn-remove-member"
-                        onClick={() => removeMember(member.id)}
+                        onClick={() => removeMember(member.id, index)}
                         title="Remove member"
                       >
                         ✕
@@ -992,34 +1002,41 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                   {/* Primary Demographics (Structured 2-row grid) */}
                   <div className="member-demographics-grid">
                     <div className="input-wrap name-wrap">
-                      <label>Name / Label</label>
+                      <label htmlFor={`member_name_${cardId}`}>Name / Label</label>
                       <input
+                        id={`member_name_${cardId}`}
+                        name={`member_name_${cardId}`}
                         type="text"
                         value={member.name}
-                        onChange={(e) => updateMember(member.id, 'name', e.target.value)}
+                        onChange={(e) => updateMember(member.id, 'name', e.target.value, index)}
                         placeholder={`Member ${index + 1}`}
                       />
                     </div>
 
                     <div className="input-wrap sex-wrap">
-                      <label>Sex</label>
+                      <label htmlFor={`member_sex_${cardId}`}>Sex</label>
                       <select
-                        value={member.sex || 'male'}
-                        onChange={(e) => updateMember(member.id, 'sex', e.target.value)}
+                        id={`member_sex_${cardId}`}
+                        name={`member_sex_${cardId}`}
+                        value={member.sex || ''}
+                        onChange={(e) => updateMember(member.id, 'sex', e.target.value, index)}
                       >
+                        <option value="">Select sex</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                       </select>
                     </div>
 
                     <div className="input-wrap age-wrap">
-                      <label>Age (Yrs)</label>
+                      <label htmlFor={`member_age_${cardId}`}>Age (Yrs)</label>
                       <input
+                        id={`member_age_${cardId}`}
+                        name={`member_age_${cardId}`}
                         type="number"
                         min="1"
                         max="110"
                         value={member.age}
-                        onChange={(e) => updateMember(member.id, 'age', Number(e.target.value))}
+                        onChange={(e) => updateMember(member.id, 'age', Number(e.target.value), index)}
                       />
                     </div>
 
@@ -1027,33 +1044,39 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <label>Height (ft / in)</label>
                       <div className="ft-in-flex">
                         <input
+                          id={`member_height_ft_${cardId}`}
+                          name={`member_height_ft_${cardId}`}
                           type="number"
                           min="1"
                           max="7"
                           value={member.heightFt}
-                          onChange={(e) => updateMember(member.id, 'heightFt', e.target.value)}
+                          onChange={(e) => updateMember(member.id, 'heightFt', e.target.value, index)}
                           placeholder="ft"
                         />
                         <span className="ft-in-divider">/</span>
                         <input
+                          id={`member_height_in_${cardId}`}
+                          name={`member_height_in_${cardId}`}
                           type="number"
                           min="0"
                           max="11"
                           value={member.heightIn}
-                          onChange={(e) => updateMember(member.id, 'heightIn', e.target.value)}
+                          onChange={(e) => updateMember(member.id, 'heightIn', e.target.value, index)}
                           placeholder="in"
                         />
                       </div>
                     </div>
 
                     <div className="input-wrap weight-wrap">
-                      <label>Weight (kg)</label>
+                      <label htmlFor={`member_weight_${cardId}`}>Weight (kg)</label>
                       <input
+                        id={`member_weight_${cardId}`}
+                        name={`member_weight_${cardId}`}
                         type="number"
                         min="5"
                         max="250"
                         value={member.weightKg}
-                        onChange={(e) => updateMember(member.id, 'weightKg', e.target.value)}
+                        onChange={(e) => updateMember(member.id, 'weightKg', e.target.value, index)}
                         placeholder="kg"
                       />
                     </div>
@@ -1062,11 +1085,14 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                   {/* Lifestyle & Nutrition Goals */}
                   <div className="member-lifestyle-grid">
                     <div className="input-wrap">
-                      <label>Daily Activity &amp; Lifestyle</label>
+                      <label htmlFor={`member_activity_${cardId}`}>Daily Activity &amp; Lifestyle</label>
                       <select
-                        value={member.activity || 'moderate'}
-                        onChange={(e) => updateMember(member.id, 'activity', e.target.value)}
+                        id={`member_activity_${cardId}`}
+                        name={`member_activity_${cardId}`}
+                        value={member.activity || ''}
+                        onChange={(e) => updateMember(member.id, 'activity', e.target.value, index)}
                       >
+                        <option value="">Select activity level</option>
                         <option value="sedentary">Desk / Office Routine (Sedentary)</option>
                         <option value="moderate">Moderate (Active Daily Routine)</option>
                         <option value="high">High Physical / Manual Activity</option>
@@ -1076,10 +1102,12 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
 
                     {isAdultFemale && (
                       <div className="input-wrap">
-                        <label>Life Stage</label>
+                        <label htmlFor={`member_lifestage_${cardId}`}>Life Stage</label>
                         <select
+                          id={`member_lifestage_${cardId}`}
+                          name={`member_lifestage_${cardId}`}
                           value={member.lifeStage || 'none'}
-                          onChange={(e) => updateMember(member.id, 'lifeStage', e.target.value)}
+                          onChange={(e) => updateMember(member.id, 'lifeStage', e.target.value, index)}
                         >
                           <option value="none">Standard Adult Profile</option>
                           <option value="pregnant">Pregnant (Life Stage++)</option>
@@ -1089,11 +1117,14 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                     )}
 
                     <div className="input-wrap">
-                      <label>Nutrition Goal</label>
+                      <label htmlFor={`member_goal_${cardId}`}>Nutrition Goal</label>
                       <select
-                        value={member.goal || 'general'}
-                        onChange={(e) => updateMember(member.id, 'goal', e.target.value)}
+                        id={`member_goal_${cardId}`}
+                        name={`member_goal_${cardId}`}
+                        value={member.goal || ''}
+                        onChange={(e) => updateMember(member.id, 'goal', e.target.value, index)}
                       >
+                        <option value="">Select nutrition goal</option>
                         <option value="general">General Wholesome Nutrition</option>
                         <option value="weight_loss">Weight Management</option>
                         <option value="high_protein">Muscle &amp; Protein Priority</option>
@@ -1126,8 +1157,9 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <label className={`health-flag-chip ${member.diabetes ? 'active' : ''}`}>
                         <input
                           type="checkbox"
+                          name={`member_diabetes_${cardId}`}
                           checked={!!member.diabetes}
-                          onChange={(e) => updateMember(member.id, 'diabetes', e.target.checked)}
+                          onChange={(e) => updateMember(member.id, 'diabetes', e.target.checked, index)}
                         />
                         <span>🍬 Diabetes (Sugar -50%)</span>
                       </label>
@@ -1135,8 +1167,9 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <label className={`health-flag-chip ${member.bp ? 'active' : ''}`}>
                         <input
                           type="checkbox"
+                          name={`member_bp_${cardId}`}
                           checked={!!member.bp}
-                          onChange={(e) => updateMember(member.id, 'bp', e.target.checked)}
+                          onChange={(e) => updateMember(member.id, 'bp', e.target.checked, index)}
                         />
                         <span>🧂 High BP (Salt -20%)</span>
                       </label>
@@ -1144,8 +1177,9 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <label className={`health-flag-chip ${member.heart ? 'active' : ''}`}>
                         <input
                           type="checkbox"
+                          name={`member_heart_${cardId}`}
                           checked={!!member.heart}
-                          onChange={(e) => updateMember(member.id, 'heart', e.target.checked)}
+                          onChange={(e) => updateMember(member.id, 'heart', e.target.checked, index)}
                         />
                         <span>🫀 Heart / Lipid (Oil -10%)</span>
                       </label>
@@ -1153,8 +1187,9 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                       <label className={`health-flag-chip danger ${member.kidney ? 'active' : ''}`}>
                         <input
                           type="checkbox"
+                          name={`member_kidney_${cardId}`}
                           checked={!!member.kidney}
-                          onChange={(e) => updateMember(member.id, 'kidney', e.target.checked)}
+                          onChange={(e) => updateMember(member.id, 'kidney', e.target.checked, index)}
                         />
                         <span>⚠️ Kidney Condition (Review)</span>
                       </label>

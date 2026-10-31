@@ -39,9 +39,13 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'email' => ['required', 'email'],
+            // The configured admin ID is `admin@prakruti`, which is an internal
+            // login identifier rather than a public RFC email address.
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ]);
+
+        $validated['email'] = strtolower(trim($validated['email']));
 
         $throttleKey = Str::transliterate(Str::lower($validated['email']) . '|' . $request->ip());
 

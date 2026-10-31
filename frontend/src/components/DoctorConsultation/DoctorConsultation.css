@@ -10,6 +10,7 @@
     radial-gradient(circle at 10% 88%, rgba(45, 90, 39, 0.1), transparent 38rem),
     linear-gradient(180deg, #fbf7ee 0%, #f6efe3 100%);
   overflow: hidden;
+  scroll-margin-top: 100px;
 }
 
 .doc-bg-glow {
@@ -134,6 +135,12 @@
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 24px rgba(25, 58, 21, 0.14);
+  outline: none;
+  cursor: pointer;
+}
+
+.doctor-img-container:focus-visible {
+  box-shadow: 0 0 0 3px rgba(217, 160, 91, 0.55), 0 14px 28px rgba(25, 58, 21, 0.22);
 }
 
 .doctor-photo {
@@ -142,6 +149,138 @@
   object-fit: cover;
   object-position: center top;
   display: block;
+  transition: transform 0.45s ease, filter 0.45s ease;
+}
+
+.doctor-img-container:hover .doctor-photo,
+.doctor-img-container:focus .doctor-photo {
+  transform: scale(1.08);
+  filter: brightness(0.62) saturate(1.08);
+}
+
+.doctor-bio-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 14px;
+  overflow-y: auto;
+  background: linear-gradient(145deg, rgba(18, 55, 38, 0.94), rgba(104, 57, 22, 0.92));
+  color: #fffaf0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s ease;
+}
+
+.doctor-img-container:hover .doctor-bio-overlay,
+.doctor-img-container:focus .doctor-bio-overlay {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.doctor-bio-overlay strong {
+  font-family: var(--font-heading, serif);
+  font-size: 1rem;
+  color: #ffe1a7;
+}
+
+.doctor-bio-overlay span,
+.doctor-bio-overlay p,
+.doctor-bio-overlay small {
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.doctor-bio-overlay p {
+  margin: 5px 0 0;
+  color: rgba(255, 250, 240, 0.83);
+}
+
+.doctor-bio-overlay small {
+  margin-top: 4px;
+  color: #ffe1a7;
+  font-weight: 800;
+}
+
+.doctor-bio-overlay hr {
+  width: 100%;
+  margin: 7px 0 4px;
+  border: 0;
+  border-top: 1px solid rgba(255, 225, 167, 0.35);
+}
+
+/* Expand the full biography into a readable floating profile card. */
+.doctor-img-container {
+  overflow: visible;
+  z-index: 12;
+}
+
+.doctor-photo {
+  border-radius: 20px;
+}
+
+.doctor-bio-overlay {
+  inset: auto auto auto calc(100% + 18px);
+  top: -14px;
+  z-index: 30;
+  width: min(440px, 38vw);
+  min-height: 300px;
+  max-height: 410px;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 24px;
+  overflow-y: auto;
+  border: 1px solid rgba(217, 160, 91, 0.65);
+  border-radius: 22px;
+  background: rgba(255, 253, 247, 0.98);
+  color: #4b5563;
+  box-shadow: 0 26px 70px rgba(43, 34, 22, 0.22), 0 0 0 5px rgba(217, 160, 91, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.97);
+  transform-origin: top left;
+  transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s ease;
+  pointer-events: none;
+}
+
+.doctor-img-container:hover .doctor-bio-overlay,
+.doctor-img-container:focus .doctor-bio-overlay,
+.doctor-img-container:focus-within .doctor-bio-overlay {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.doctor-bio-overlay strong {
+  font-size: 1.28rem;
+  color: #193a15;
+}
+
+.doctor-bio-overlay span,
+.doctor-bio-overlay p,
+.doctor-bio-overlay small {
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.doctor-bio-overlay span {
+  color: #8b4513;
+}
+
+.doctor-bio-overlay p {
+  margin: 7px 0 0;
+  color: #5f665f;
+}
+
+.doctor-bio-overlay small {
+  margin-top: 7px;
+  color: #8b4513;
+  font-weight: 800;
 }
 
 .doctor-verified-badge {
@@ -293,6 +432,18 @@
   border: 1px solid #ffe082;
 }
 
+.icon-assessment {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border: 1px solid #81c784;
+  color: #216b2a;
+}
+
+.pillar-icon svg,
+.booking-type-icon svg,
+.doc-login-icon svg {
+  display: block;
+}
+
 .icon-free {
   background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
   border: 1px solid #80cbc4;
@@ -388,6 +539,64 @@
   flex-direction: column;
 }
 
+.doc-login-required-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f5faf2 100%);
+  border: 1px solid #d7e5d1;
+  border-radius: 28px;
+  padding: 54px 44px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(43, 34, 22, 0.08);
+}
+
+.doc-login-icon {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  background: #e2f1e3;
+  color: #287332;
+  font-size: 1.8rem;
+}
+
+.doc-login-eyebrow {
+  display: block;
+  color: #bc7021;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+
+.doc-login-title {
+  font-family: var(--font-heading, serif);
+  color: #193a15;
+  font-size: 1.8rem;
+  margin: 0 0 12px;
+}
+
+.doc-login-text {
+  max-width: 420px;
+  margin: 0 auto 24px;
+  color: #647460;
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+
+.doc-login-btn {
+  border: 0;
+  margin: 0 auto;
+}
+
+.doc-login-note {
+  margin: 16px auto 0;
+  max-width: 390px;
+  color: #7b8577;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
 .doc-form-card {
   background: #ffffff;
   border: 1px solid #ebdcc5;
@@ -427,6 +636,154 @@
   color: #647460;
   line-height: 1.5;
   margin: 0;
+}
+
+.booking-type-block {
+  margin: 0 0 24px;
+  padding: 14px;
+  border: 1px solid #e6ddce;
+  border-radius: 16px;
+  background: #fcfbf8;
+}
+
+.booking-type-label {
+  display: block;
+  margin-bottom: 10px;
+  color: #193a15;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.booking-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.booking-type-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid #ded6c9;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #445244;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-type-option:hover,
+.booking-type-option.active {
+  border-color: #5d9a5f;
+  background: #eef7ee;
+}
+
+.booking-type-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: #e5f2e5;
+  color: #287332;
+}
+
+.booking-type-option strong,
+.booking-type-option small {
+  display: block;
+}
+
+.booking-type-option strong {
+  font-size: 0.78rem;
+  color: #193a15;
+}
+
+.booking-type-option small {
+  margin-top: 2px;
+  color: #7b8577;
+  font-size: 0.68rem;
+}
+
+.consultation-form-section {
+  margin: 0 0 10px;
+  border: 1px solid #e6ddce;
+  border-radius: 16px;
+  background: #fffefa;
+  overflow: hidden;
+}
+
+.consultation-form-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  color: #193a15;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.consultation-form-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.consultation-form-section summary::after {
+  content: '+';
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e8f3e8;
+  color: #287332;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.consultation-form-section[open] summary {
+  border-bottom: 1px solid #e6ddce;
+  background: #f7fbf5;
+}
+
+.consultation-form-section[open] summary::after {
+  content: '−';
+}
+
+.consultation-form-section summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.consultation-form-section summary strong {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #193a15;
+  color: #ffffff;
+  font-size: 0.7rem;
+}
+
+.consultation-form-section summary small {
+  color: #7b8577;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.consultation-form-section > .form-fields-grid,
+.consultation-form-section > .form-group-block {
+  padding: 16px;
+  margin-bottom: 0;
 }
 
 /* Goal Chips */
@@ -858,6 +1215,566 @@
 }
 
 /* ==========================================================================
+   Consultation Fee Highlights & Dummy Payment Checkout Styles
+   ========================================================================== */
+
+/* Left Card Doctor Fee Box */
+.doctor-fee-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fbf7ee 0%, #f4efe2 100%);
+  border: 1.5px solid #d9a05b;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(217, 160, 91, 0.12);
+}
+
+.fee-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #193a15;
+  background: rgba(45, 90, 39, 0.12);
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.fee-check {
+  color: #2d5a27;
+  font-weight: 900;
+}
+
+.fee-pricing-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.fee-amount-group {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.fee-amount {
+  font-family: var(--font-heading, serif);
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #193a15;
+  letter-spacing: -0.02em;
+}
+
+.fee-cadence {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #647460;
+}
+
+.fee-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8c5a17;
+  background: #fffaee;
+  border: 1px solid #e8cd9c;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.fee-benefit-text {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #555e52;
+  margin: 0;
+}
+
+/* Step Indicator */
+.step-indicator-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.step-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: #f0e8d8;
+  color: #645a4b;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.step-tag.active {
+  background: #193a15;
+  color: #ffffff;
+}
+
+.step-title-hint {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8c5a17;
+}
+
+/* Upfront Consultation Fee Callout in Step 1 */
+.fee-summary-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #faf6ee, #f5eedf);
+  border: 1.5px solid #d9a05b;
+  border-radius: 14px;
+  margin: 20px 0 16px;
+}
+
+.fee-callout-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.fee-callout-label {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #193a15;
+}
+
+.fee-callout-sub {
+  font-size: 0.78rem;
+  color: #665b49;
+  font-weight: 500;
+}
+
+.fee-callout-price {
+  font-family: var(--font-heading, serif);
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #193a15;
+}
+
+/* Step 2: Checkout Summary Card */
+.checkout-summary-card {
+  background: #ffffff;
+  border: 1.5px solid #ebdcc5;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(43, 34, 22, 0.03);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f2e9db;
+}
+
+.summary-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #193a15;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-badge {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #193a15;
+  background: #eef7ec;
+  border: 1px solid #c2e2be;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  padding: 4px 0;
+  color: #4b5563;
+}
+
+.summary-row .s-label {
+  color: #71717a;
+  font-weight: 500;
+}
+
+.summary-row .s-val {
+  color: #18181b;
+  font-weight: 700;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #f0e6d6;
+  margin: 10px 0;
+}
+
+.summary-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #193a15;
+  padding-top: 4px;
+}
+
+.summary-total-amount {
+  font-size: 1.4rem;
+  color: #193a15;
+}
+
+/* Dummy Payment Mode Notice */
+.dummy-payment-notice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.dummy-payment-notice .notice-icon {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.dummy-payment-notice .notice-text {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #1e40af;
+}
+
+/* Payment Method Tabs */
+.payment-method-selector {
+  margin-bottom: 16px;
+}
+
+.payment-tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pay-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pay-tab-btn:hover {
+  border-color: #d9a05b;
+  background: #fdfaf4;
+}
+
+.pay-tab-btn.active {
+  border-color: #193a15;
+  background: #f7faf5;
+  box-shadow: 0 0 0 2px rgba(25, 58, 21, 0.15);
+}
+
+.pay-tab-btn .tab-icon {
+  font-size: 1.3rem;
+}
+
+.pay-tab-btn .tab-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #193a15;
+  text-align: center;
+}
+
+/* Payment Method Panels */
+.pay-method-panel {
+  background: #faf7f0;
+  border: 1px solid #ebdcc5;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 22px;
+}
+
+/* UPI QR Box */
+.upi-qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.dummy-qr-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.qr-box-inner {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  background: #ffffff;
+  border: 2px solid #193a15;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.qr-box-inner .qr-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3.5px solid #193a15;
+}
+
+.qr-box-inner .qr-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.qr-box-inner .qr-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.qr-box-inner .qr-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+
+.qr-center-icon {
+  font-size: 2.2rem;
+}
+
+.qr-scan-text {
+  font-size: 0.78rem;
+  color: #555e52;
+  font-weight: 600;
+}
+
+.upi-input-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upi-input-wrap label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.upi-input-wrap input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d5c8b2;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: #ffffff;
+}
+
+/* Card Mock */
+.card-panel .card-mock-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.card-panel label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.card-panel input {
+  padding: 10px 14px;
+  border: 1.5px solid #d5c8b2;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: #ffffff;
+  width: 100%;
+}
+
+.card-sub-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Netbanking Chips */
+.bank-select-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.bank-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bank-chip {
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1.5px solid #d5c8b2;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #193a15;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bank-chip:hover {
+  border-color: #d9a05b;
+}
+
+.bank-chip.active {
+  background: #193a15;
+  border-color: #193a15;
+  color: #ffffff;
+}
+
+/* Checkout Action Buttons */
+.checkout-actions-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.btn-back-details {
+  background: #ffffff;
+  border: 1.5px solid #d5c8b2;
+  color: #555e52;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back-details:hover {
+  background: #f7faf5;
+  border-color: #193a15;
+  color: #193a15;
+}
+
+.btn-pay-confirm {
+  background: linear-gradient(135deg, #193a15 0%, #2e7d32 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 800;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.25);
+  transition: all 0.22s ease;
+}
+
+.btn-pay-confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(46, 125, 50, 0.35);
+}
+
+.btn-pay-confirm:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Receipt Card in Success Screen */
+.payment-receipt-card {
+  background: #ffffff;
+  border: 1.5px solid #c8e6c9;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin: 22px 0 24px;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.08);
+}
+
+.receipt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e8f5e9;
+}
+
+.receipt-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #193a15;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.receipt-paid-badge {
+  background: #2e7d32;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+}
+
+.receipt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  padding: 5px 0;
+  color: #4b5563;
+}
+
+.receipt-row .r-label {
+  color: #6b7280;
+}
+
+.receipt-row .r-val {
+  color: #111827;
+}
+
+.receipt-row .r-val.highlight {
+  color: #193a15;
+  font-family: monospace;
+  font-size: 0.98rem;
+}
+
+.receipt-row .r-val.mono {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
 
@@ -889,6 +1806,21 @@
     margin: 0 auto;
   }
 
+  .doctor-bio-overlay {
+    left: 50%;
+    top: calc(100% + 16px);
+    width: min(420px, calc(100vw - 38px));
+    max-height: 440px;
+    transform-origin: top center;
+    transform: translate(-50%, 10px) scale(0.97);
+  }
+
+  .doctor-img-container:hover .doctor-bio-overlay,
+  .doctor-img-container:focus .doctor-bio-overlay,
+  .doctor-img-container:focus-within .doctor-bio-overlay {
+    transform: translate(-50%, 0) scale(1);
+  }
+
   .doc-role-row {
     justify-content: center;
   }
@@ -902,7 +1834,87 @@
     padding: 26px 18px;
   }
 
+  .doc-login-required-card {
+    padding: 40px 22px;
+  }
+
+  .booking-type-options {
+    grid-template-columns: 1fr;
+  }
+
+  .consultation-form-section summary small {
+    display: none;
+  }
+
   .doc-success-screen {
     padding: 36px 18px;
   }
+
+  .payment-tabs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-actions-row {
+    grid-template-columns: 1fr;
+  }
+
+  .fee-summary-callout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
+
+/* Final profile modal treatment: centered, spacious, and never hidden behind the form. */
+.doctor-spotlight-card:hover {
+  transform: none;
+}
+
+.doctor-bio-overlay {
+  position: fixed;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  width: min(620px, calc(100vw - 40px));
+  min-height: 0;
+  max-height: min(78vh, 620px);
+  padding: 30px;
+  border-radius: 26px;
+  transform: translate(-50%, -46%) scale(0.94);
+  transform-origin: center;
+  box-shadow: 0 34px 90px rgba(20, 42, 30, 0.3), 0 0 0 100vmax rgba(17, 40, 28, 0.18);
+}
+
+.doctor-img-container:hover .doctor-bio-overlay,
+.doctor-img-container:focus .doctor-bio-overlay,
+.doctor-img-container:focus-within .doctor-bio-overlay {
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.doctor-bio-overlay strong {
+  font-size: 1.5rem;
+}
+
+.doctor-bio-overlay span,
+.doctor-bio-overlay p,
+.doctor-bio-overlay small {
+  font-size: 0.83rem;
+  line-height: 1.55;
+}
+
+.doctor-bio-overlay p {
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .doctor-bio-overlay {
+    top: 50%;
+    left: 50%;
+    width: calc(100vw - 28px);
+    max-height: 82vh;
+    padding: 22px;
+  }
+}
+

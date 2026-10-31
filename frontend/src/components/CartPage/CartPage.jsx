@@ -23,6 +23,7 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
     freeShippingRemaining,
     freeShippingUnlocked,
     total,
+    openComingSoonModal,
   } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discountValue, setDiscountValue] = useState(0);
@@ -668,138 +669,38 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                   </div>
                 </div>
 
-                {checkoutError && <p className="checkout-error-text">{checkoutError}</p>}
-                {cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0) && (
-                  <p className="checkout-error-text" style={{ color: '#b91c1c', backgroundColor: '#fee2e2', padding: '8px 12px', borderRadius: '6px', fontWeight: 600 }}>
-                    ⚠️ Your cart contains out-of-stock items. Please remove them to proceed with checkout.
-                  </p>
-                )}
+                {/* Launch / Development Notice */}
+                <div 
+                  className="cart-launch-notice" 
+                  style={{ 
+                    margin: '14px 0', 
+                    padding: '12px 14px', 
+                    background: 'linear-gradient(135deg, #fdfbf7 0%, #f6f0e4 100%)', 
+                    border: '1px dashed rgba(212, 175, 55, 0.6)', 
+                    borderRadius: '10px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '10px',
+                    fontSize: '0.86rem',
+                    color: '#344630',
+                    lineHeight: '1.45'
+                  }}
+                >
+                  <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>🌱</span>
+                  <div>
+                    <strong style={{ color: '#2d5a27' }}>Store Launching Soon:</strong> Something Pure is Coming Soon! Online ordering will be live shortly.
+                  </div>
+                </div>
 
                 {/* Checkout Trigger */}
                 <button 
                   type="button" 
                   className="btn btn-primary proceed-checkout-btn"
-                  disabled={isSubmittingOrder || cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0)}
-                  onClick={async () => {
-                    setCheckoutError('');
-                    const hasOutOfStock = cartItems.some((i) => i.stock_qty !== undefined && i.stock_qty !== null && Number(i.stock_qty) <= 0);
-                    if (hasOutOfStock) {
-                      setCheckoutError('Please remove out of stock items from your cart before proceeding.');
-                      return;
-                    }
-                    if (!currentUser) {
-                      setCheckoutError('Please login first to purchase your products.');
-                      if (onLoginRequired) onLoginRequired();
-                      return;
-                    }
-                    if (!shipping.name || !shipping.phone || !shipping.address || !shipping.city || !shipping.state) {
-                      setCheckoutError('Please add your name, phone, address, city, and state.');
-                      return;
-                    }
-
-                    if (isBusinessOrder) {
-                      if (!businessName.trim()) {
-                        setCheckoutError('Please enter your Registered Business / Company Name to claim GST.');
-                        return;
-                      }
-                      const gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-                      if (!gstinPattern.test(customerGstin.trim())) {
-                        setCheckoutError('Please enter a valid 15-digit GSTIN (e.g. 24AAACS1234A1Z1).');
-                        return;
-                      }
-                    }
-
-                    setIsSubmittingOrder(true);
-                    let finalShippingAddress = buildShippingAddress();
-
-                    // Save address permanently into localStorage & state for next time
-                    const nameParts = String(shipping.name || '').trim().split(/\s+/);
-                    const firstName = nameParts.shift() || currentUser?.name || 'Customer';
-                    const lastName = nameParts.join(' ');
-                    const savedRecord = {
-                      id: selectedAddressId !== 'new' ? selectedAddressId : `addr_${Date.now()}`,
-                      tag: addressTag || 'Home',
-                      first_name: firstName,
-                      last_name: lastName,
-                      phone: shipping.phone,
-                      address_line_1: shipping.address,
-                      city: shipping.city,
-                      state: shipping.state,
-                      pincode: shipping.pincode,
-                      country: 'India',
-                      is_default: savedAddresses.length === 0,
-                    };
-
-                    try {
-                      const updatedList = [...savedAddresses];
-                      const matchIdx = updatedList.findIndex(
-                        (a) => String(a.id) === String(savedRecord.id) ||
-                               (a.address_line_1 === savedRecord.address_line_1 && a.pincode === savedRecord.pincode)
-                      );
-                      if (matchIdx >= 0) {
-                        updatedList[matchIdx] = { ...updatedList[matchIdx], ...savedRecord };
-                      } else {
-                        updatedList.unshift(savedRecord);
-                      }
-                      setSavedAddresses(updatedList);
-                      setSelectedAddressId(String(savedRecord.id));
-                      setIsAddingNewAddress(false);
-                      localStorage.setItem('prakruti_saved_addresses', JSON.stringify(updatedList));
-                    } catch (e) {
-                      console.warn('Address localStorage issue', e);
-                    }
-
-                    if (currentUser && (selectedAddressId === 'new' || saveAddress)) {
-                      accountApi.addAddress({
-                        type: 'shipping',
-                        first_name: firstName,
-                        last_name: lastName,
-                        phone: shipping.phone,
-                        address_line_1: shipping.address,
-                        city: shipping.city,
-                        state: shipping.state,
-                        pincode: shipping.pincode,
-                        country: 'India',
-                        is_default: savedAddresses.length === 0,
-                      }).catch((err) => console.warn('Backend address sync notice', err));
-                    }
-
-                    const payload = {
-                      items: cartItems.map(item => ({
-                        product_id: item.product_id || item.id,
-                        var_id: item.var_id || null,
-                        qty: item.quantity,
-                      })),
-                      order_type: localStorage.getItem('prakruti_pending_order_type') === 'family_pack' ? 'family_pack' : 'standard',
-                      payment_method: 'cod',
-                      shipping_address: finalShippingAddress,
-                      billing_address: finalShippingAddress,
-                      coupon_code: couponApplied ? couponCode : undefined,
-                      is_business_order: isBusinessOrder,
-                      business_name: isBusinessOrder ? businessName.trim() : undefined,
-                      customer_gstin: isBusinessOrder ? customerGstin.trim().toUpperCase() : undefined,
-                      customer_state: shipping.state || 'Gujarat',
-                    };
-                    const res = await api.createOrder(payload);
-                    setIsSubmittingOrder(false);
-                    if (res && res.success) {
-                      setOrderConfirmation(res.order);
-                      await clearCart();
-                      setCouponApplied(false);
-                      setDiscountValue(0);
-                      setCouponCode('');
-                      localStorage.removeItem('prakruti_pending_order_type');
-                    } else {
-                      if (res?.status === 401) {
-                        setCheckoutError('Please login first to purchase your products.');
-                        if (onLoginRequired) onLoginRequired();
-                      } else {
-                        setCheckoutError(res?.message || 'Could not place the order.');
-                      }
-                    }
+                  onClick={() => {
+                    openComingSoonModal?.();
                   }}
                 >
-                  {isSubmittingOrder ? 'Processing Order...' : 'Proceed to Checkout ➔'}
+                  Proceed to Checkout ➔
                 </button>
 
                 {orderConfirmation && (

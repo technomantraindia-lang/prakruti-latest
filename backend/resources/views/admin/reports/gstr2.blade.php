@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-4">
+    @include('admin.accounting._nav')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">GSTR-2: Inward Supplies &amp; ITC Register</h1>

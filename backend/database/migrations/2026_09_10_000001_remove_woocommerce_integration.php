@@ -16,6 +16,14 @@ return new class extends Migration
             'coupons' => ['woocommerce_id'],
         ] as $table => $columns) {
             if (Schema::hasTable($table)) {
+                foreach (Schema::getIndexes($table) as $index) {
+                    if (array_intersect($index['columns'], $columns)) {
+                        Schema::table($table, function (Blueprint $schema) use ($index) {
+                            $schema->dropIndex($index['name']);
+                        });
+                    }
+                }
+
                 foreach ($columns as $column) {
                     if (Schema::hasColumn($table, $column)) {
                         Schema::table($table, function (Blueprint $schema) use ($column) {

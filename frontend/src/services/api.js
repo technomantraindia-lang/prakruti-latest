@@ -71,15 +71,11 @@ export const api = {
     return res.data || [];
   },
   createOrder: async (payload) => {
-    const res = await checkoutApi.processCheckout(payload);
-    if (res.success) {
-      return { success: true, order: res.data, message: res.message };
-    }
+    // Website is currently under development - order placement is paused
     return {
       success: false,
-      status: res.status,
-      message: res.message || 'Could not place the order. Please try again.',
-      errors: res.errors,
+      message: 'Something Pure is Coming Soon! We will be launching soon.',
+      underDevelopment: true,
     };
   },
   sendInquiry: async (data) => {
