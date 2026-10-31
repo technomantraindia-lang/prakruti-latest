@@ -314,28 +314,21 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
                 <span className="feature-icon">📝</span>
                 <div className="feature-text">
                   <h4>High in Protein</h4>
-                  <p>Builds muscle</p>
+                  <p>Nutritionally dense</p>
                 </div>
               </div>
               <div className="feature-card-item">
                 <span className="feature-icon">🌿</span>
                 <div className="feature-text">
                   <h4>Pure &amp; Natural</h4>
-                  <p>Simple, wholesome ingredients</p>
+                  <p>No chemical fertilizer, no preservative, no pesticides</p>
                 </div>
               </div>
               <div className="feature-card-item">
                 <span className="feature-icon">🚫</span>
                 <div className="feature-text">
                   <h4>No Preservatives</h4>
-                  <p>Chemical free</p>
-                </div>
-              </div>
-              <div className="feature-card-item">
-                <span className="feature-icon">🏡</span>
-                <div className="feature-text">
-                  <h4>Farm Fresh</h4>
-                  <p>Direct harvest</p>
+                  <p>Lab test report</p>
                 </div>
               </div>
             </div>
@@ -374,16 +367,26 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
 
         {/* Certificate Logos Banner */}
         <div className="product-trust-accreditations-wrap">
-          <p className="trust-certification-note">
-            Responsibly Sourced &amp; Packed at a Certified Organic Facility
-          </p>
-          <div className="trust-logos-grid">
-            {certificationBadges.map((badge) => (
-              <div className="trust-logo-card" key={badge.label}>
-                <img src={badge.image} alt={badge.label} loading="lazy" />
-                <span>{badge.label}</span>
-              </div>
-            ))}
+          <div className="product-trust-logos-panel">
+            <span className="trust-certification-note">OUR QUALITY MARKS</span>
+            <div className="trust-logos-grid">
+              {certificationBadges
+                .filter((badge) => badge.label !== 'HACCP Food Safety Certified')
+                .map((badge) => (
+                  <div className="trust-logo-card" key={badge.label}>
+                    <img src={badge.image} alt={badge.label} loading="lazy" />
+                    <span>{badge.label}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+          <div className="product-trust-copy">
+            <span className="trust-certification-note">A STANDARD WE LIVE BY</span>
+            <h3>Responsibly Sourced &amp; Packed at a Certified Organic Facility</h3>
+            <p>
+              At Prakruti, we believe quality begins with responsible sourcing and careful handling. Our products are sourced with attention to quality, authenticity and traceability. They are packed at a certified organic facility, following appropriate hygiene and quality practices to maintain product integrity. Every step reflects our commitment to responsible practices and consumer trust.
+            </p>
+            <span className="trust-copy-rule" aria-hidden="true" />
           </div>
         </div>
 

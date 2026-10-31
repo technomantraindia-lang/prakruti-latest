@@ -1433,6 +1433,10 @@
    Product Trust Accreditations Wrap (Matching Home Page)
    ========================================================================== */
 .product-trust-accreditations-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 30px;
+  align-items: stretch;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--color-border, #e7dfd1);
   border-radius: 24px;
@@ -1443,20 +1447,56 @@
 }
 
 .product-trust-accreditations-wrap .trust-certification-note {
-  margin: 0 auto 24px;
-  max-width: 760px;
-  text-align: center;
+  display: block;
+  margin: 0 0 12px;
+  max-width: none;
+  text-align: left;
+  color: #c07a28;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+}
+
+.product-trust-logos-panel {
+  min-width: 0;
+}
+
+.product-trust-copy {
+  position: relative;
+  padding: 8px 0 8px 30px;
+  border-left: 1px solid #e5dac8;
+}
+
+.product-trust-copy h3 {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-weight: 700;
   color: var(--color-primary-dark, #173826);
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.5;
+  line-height: 1.22;
+  margin: 0 0 16px;
+}
+
+.product-trust-copy p {
+  color: #637365;
+  font-size: 0.9rem;
+  line-height: 1.72;
+  margin: 0;
+}
+
+.product-trust-copy .trust-copy-rule {
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin-top: 20px;
+  border-radius: 999px;
+  background: #c07a28;
 }
 
 .product-trust-accreditations-wrap .trust-logos-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px 0;
   justify-items: center;
   margin-bottom: 0;
 }
@@ -1465,13 +1505,13 @@
   background: transparent;
   border: 0;
   border-radius: 0;
-  padding: 10px 4px 0;
+  padding: 0 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 140px;
+  gap: 4px;
+  min-height: 88px;
   transition: transform 0.25s ease;
 }
 
@@ -1480,8 +1520,8 @@
 }
 
 .product-trust-accreditations-wrap .trust-logo-card img {
-  width: 88px;
-  height: 88px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(18, 47, 27, 0.12));
   transition: transform 0.3s ease;
@@ -1492,15 +1532,18 @@
 }
 
 .product-trust-accreditations-wrap .trust-logo-card span {
-  font-size: 0.74rem;
+  font-size: 0.61rem;
   line-height: 1.35;
   font-weight: 700;
   color: var(--color-primary-dark, #193a15);
   text-align: center;
-  max-width: 120px;
+  max-width: 110px;
 }
 
 @media (max-width: 1200px) {
+  .product-trust-accreditations-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  }
   .product-trust-accreditations-wrap .trust-logos-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1508,8 +1551,15 @@
 
 @media (max-width: 768px) {
   .product-trust-accreditations-wrap {
+    display: block;
     padding: 24px 16px;
     margin-bottom: 36px;
+  }
+  .product-trust-copy {
+    margin-top: 24px;
+    padding: 24px 0 0;
+    border-left: 0;
+    border-top: 1px solid #e5dac8;
   }
   .product-trust-accreditations-wrap .trust-logos-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
