@@ -405,8 +405,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
     }
 
     const wt = Number(weightKg)
-    if (!Number.isFinite(wt) || wt < 1 || wt > 180) {
-      nextErrors.weight = 'Enter a valid weight between 1 and 180 kg.'
+    if (!Number.isFinite(wt) || wt < 1 || wt > 110) {
+      nextErrors.weight = 'Enter a valid weight between 1 and 110 kg.'
     }
 
     const ageNum = Number(age)
@@ -1520,10 +1520,18 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                     id="bmi-weight"
                     type="number"
                     min="1"
-                    max="180"
+                    max="110"
                     placeholder="e.g. 64"
                     value={weightKg}
-                    onChange={(e) => setWeightKg(e.target.value)}
+                    onChange={(e) => {
+                      const nextValue = e.target.value
+                      if (nextValue === '') {
+                        setWeightKg('')
+                        return
+                      }
+                      const numericValue = Number(nextValue)
+                      setWeightKg(Number.isFinite(numericValue) ? String(Math.min(110, Math.max(1, numericValue))) : '')
+                    }}
                   />
                   {errors.weight && <span className="bmi-field-error">{errors.weight}</span>}
                 </div>

@@ -151,7 +151,7 @@ function calculateBmi(member) {
   const heightM = (totalInches * 2.54) / 100.0;
   const weight = Number(member?.weightKg || 0);
 
-  if (ft < 1 || ft > 12 || inc < 1 || inc > 12 || weight < 1 || weight > 180 || heightM < 0.6) return null;
+  if (ft < 1 || ft > 12 || inc < 1 || inc > 12 || weight < 1 || weight > 110 || heightM < 0.6) return null;
   return Number((weight / (heightM * heightM)).toFixed(1));
 }
 
@@ -267,7 +267,7 @@ function calculateHouseholdBasket(members, household) {
     const memberFeet = Number(member.heightFt);
     const memberInches = Number(member.heightIn);
     const memberWeight = Number(member.weightKg);
-    return memberAge < 1 || memberAge > 100 || memberFeet < 1 || memberFeet > 12 || memberInches < 1 || memberInches > 12 || memberWeight < 1 || memberWeight > 180;
+    return memberAge < 1 || memberAge > 100 || memberFeet < 1 || memberFeet > 12 || memberInches < 1 || memberInches > 12 || memberWeight < 1 || memberWeight > 110;
   });
 
   if (hasIncompleteProfile) {
@@ -285,7 +285,7 @@ function calculateHouseholdBasket(members, household) {
       assessedMembers: [],
       dailyGrams: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
       monthlyKg: { cereals: 0, pulses: 0, nuts: 0, oil: 0, sugar: 0, salt: 0 },
-      interpretation: 'Use age 1–100 years, height 1–12 ft and 1–12 in, and weight 1–180 kg for each member.',
+      interpretation: 'Use age 1–100 years, height 1–12 ft and 1–12 in, and weight 1–110 kg for each member.',
       safetyAlerts: [],
     };
   }
@@ -745,11 +745,15 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
   };
 
   const updateMember = (id, field, value, index = null) => {
+    const numericWeight = Number(value)
+    const safeValue = field === 'weightKg' && value !== ''
+      ? (Number.isFinite(numericWeight) ? String(Math.min(110, Math.max(1, numericWeight))) : '')
+      : value
     setMembers((prev) =>
       prev.map((m, idx) => {
         const isMatch = (id != null && String(m.id) === String(id)) || (index != null && idx === index);
         if (!isMatch) return m;
-        return { ...m, [field]: value };
+        return { ...m, [field]: safeValue };
       })
     );
   };
@@ -1092,7 +1096,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
                         name={`member_weight_${cardId}`}
                         type="number"
                         min="1"
-                        max="180"
+                        max="110"
                         value={member.weightKg}
                         onChange={(e) => updateMember(member.id, 'weightKg', e.target.value, index)}
                         placeholder="kg"

@@ -956,8 +956,9 @@
 }
 
 .nutrition-ai-logo {
-  width: 82px;
+  width: 128px;
   height: 82px;
+  padding: 8px;
   object-fit: contain;
   border-radius: 20px;
   background: #ffffff;
@@ -1641,8 +1642,8 @@
     gap: 10px;
   }
   .nutrition-ai-logo {
-    width: 64px;
-    height: 64px;
+    width: 100px;
+    height: 68px;
   }
   .nutrition-ai-heading h2 {
     font-size: 2rem;
