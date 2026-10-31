@@ -13,7 +13,7 @@ import breakfastImg from '../../assets/images/brakfast.png'
 import lunchImg from '../../assets/images/lunch.png'
 import snackImg from '../../assets/images/snacks.png'
 import dinnerImg from '../../assets/images/dinnner.png'
-import nutritionAiLogo from '../../assets/images/logo nutrituion.png'
+import nutritionAiLogo from '../../assets/images/nutrtituonnnnn.png'
 
 // Custom realistic cereal & protein pulse icon (reliable across all OS / devices)
 const ProteinCerealIcon = () => (
