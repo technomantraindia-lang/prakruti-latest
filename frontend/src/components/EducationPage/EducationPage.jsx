@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { FiActivity, FiAlertCircle, FiBookOpen, FiCoffee, FiDroplet, FiFeather } from 'react-icons/fi'
 import './EducationPage.css'
 import { apiClient } from '../../api/client'
 
@@ -12,6 +13,7 @@ import breakfastImg from '../../assets/images/brakfast.png'
 import lunchImg from '../../assets/images/lunch.png'
 import snackImg from '../../assets/images/snacks.png'
 import dinnerImg from '../../assets/images/dinnner.png'
+import nutritionAiLogo from '../../assets/images/nutrtituonnnnn.png'
 
 // Custom realistic cereal & protein pulse icon (reliable across all OS / devices)
 const ProteinCerealIcon = () => (
@@ -298,7 +300,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
   const handleSeeAnswer = (customQ) => {
     const rawQuestion = (typeof customQ === 'string' ? customQ : searchMyth).trim()
     const question = rawQuestion || 'Why does diabetes happen and what is the best diet for it?'
-    const prompt = `Please explain from a scientific nutritional and health perspective in simple, clear terms: "${question}". Explain why this happens, common food myths vs facts, healthy traditional Indian dietary habits, and practical nutritional tips to manage or prevent this.`
+    const prompt = `Think deeply. Go in deep search. Evaluate all the details available and answer this in clear simple language.\n\nUser question: "${question}"\n\nExplain why this happens, common food myths vs facts, healthy traditional Indian dietary habits, and practical nutritional tips to manage or prevent this from a scientific nutritional and health perspective.`
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(prompt).catch(() => {})
@@ -966,7 +968,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">🧂</span>
+                <span className="dd-icon" aria-hidden="true"><FiAlertCircle /></span>
                 <span className="dd-source-badge">WHO Global Fact Sheet ↗</span>
               </div>
               <h4>Salt: The Hidden Habit</h4>
@@ -982,7 +984,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">🍭</span>
+                <span className="dd-icon" aria-hidden="true"><FiCoffee /></span>
                 <span className="dd-source-badge">WHO Guideline (Sugars) ↗</span>
               </div>
               <h4>Sugar: Beyond the Chai Spoon</h4>
@@ -998,7 +1000,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">🫒</span>
+                <span className="dd-icon" aria-hidden="true"><FiDroplet /></span>
                 <span className="dd-source-badge">WHO Guideline (Fats) ↗</span>
               </div>
               <h4>Oil & Ghee: Fat Is Not the Enemy</h4>
@@ -1014,7 +1016,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">💪</span>
+                <span className="dd-icon" aria-hidden="true"><FiActivity /></span>
                 <span className="dd-source-badge badge-nin">ICMR - NIN RDA 2024 ↗</span>
               </div>
               <h4>Protein: Everyday Plate First</h4>
@@ -1030,7 +1032,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">🌾</span>
+                <span className="dd-icon" aria-hidden="true"><FiFeather /></span>
                 <span className="dd-source-badge">WHO Guideline (Carbs) ↗</span>
               </div>
               <h4>Carbohydrates Are Not the Enemy</h4>
@@ -1046,7 +1048,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -8, transition: { duration: 0.22 } }}
             >
               <div className="dd-card-top">
-                <span className="dd-icon">🛒</span>
+                <span className="dd-icon" aria-hidden="true"><FiBookOpen /></span>
                 <span className="dd-source-badge badge-nin">ICMR - NIN Report 2024 ↗</span>
               </div>
               <h4>Learn to Read the Food Label</h4>
@@ -1056,7 +1058,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
         </div>
       </section>
 
-      {/* 8. Food Myths vs Facts (Animated Accordion Drawer) */}
+      {/* 8. AI Enabled Deep Dive (Animated Accordion Drawer) */}
       <section className="edu-section myths-section-bg">
         <div className="container">
           <motion.div
@@ -1066,10 +1068,16 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="section-kicker">FACT CHECK</span>
-            <h2>🧠 Food Myths vs Facts</h2>
+            <span className="section-kicker">AI ENABLED DEEP DIVE</span>
+            <div className="nutrition-ai-heading">
+              <img src={nutritionAiLogo} alt="Nutrition AI" className="nutrition-ai-logo" />
+              <div>
+                <h2>Nutrition AI</h2>
+                <p className="nutrition-ai-subtitle">Ask anything you wish</p>
+              </div>
+            </div>
             <p className="section-desc">
-              Separate nutritional science from internet trends. Click any myth below to uncover the scientific fact:
+              Explore food myths with an AI-assisted starting point, then review the evidence and discuss personal concerns with a qualified professional.
             </p>
             <div className="myths-search-wrap">
               <input
@@ -1103,6 +1111,10 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 See the Answer →
               </button>
             </div>
+
+            <p className="nutrition-ai-disclaimer">
+              Disclaimer:- Content generated by this platform is powered by artificial intelligence. While we strive for accuracy, AI outputs may contain errors or inaccuracies. Always verify health and nutrition facts with qualified healthcare professionals or official regulatory guidelines.
+            </p>
 
             {aiRedirectFeedback && (
               <div className="myths-ai-feedback">
@@ -1184,7 +1196,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
       </section>
 
       {/* 9. One Kitchen for the Whole Family & Life Stages (Animated Grid) */}
-      <section className="edu-section">
+      <section className="edu-section family-section">
         <div className="container">
           <motion.div
             className="section-header-center"
