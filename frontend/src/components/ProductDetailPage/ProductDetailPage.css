@@ -290,7 +290,6 @@
 }
 
 .feature-icon {
-  font-size: 1.4rem;
   background-color: var(--color-white);
   border: 1px solid var(--color-border);
   width: 42px;
@@ -301,6 +300,13 @@
   justify-content: center;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+}
+
+.feature-icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  stroke-width: 2.1;
 }
 
 .feature-text h4 {

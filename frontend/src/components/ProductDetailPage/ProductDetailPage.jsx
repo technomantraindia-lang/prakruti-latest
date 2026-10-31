@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ProductDetailPage.css';
+import { FiActivity, FiFeather, FiFileText } from 'react-icons/fi';
 import { productsData as fallbackProducts } from '../../data/products';
 import { api } from '../../services/api';
 import { reviewsApi } from '../../api/reviews';
@@ -311,21 +312,21 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
             {/* Highlights features grid */}
             <div className="features-highlight-grid">
               <div className="feature-card-item">
-                <span className="feature-icon">📝</span>
+                <span className="feature-icon" aria-hidden="true"><FiActivity /></span>
                 <div className="feature-text">
                   <h4>High in Protein</h4>
                   <p>Nutritionally dense</p>
                 </div>
               </div>
               <div className="feature-card-item">
-                <span className="feature-icon">🌿</span>
+                <span className="feature-icon" aria-hidden="true"><FiFeather /></span>
                 <div className="feature-text">
                   <h4>Pure &amp; Natural</h4>
                   <p>No chemical fertilizer, no preservative, no pesticides</p>
                 </div>
               </div>
               <div className="feature-card-item">
-                <span className="feature-icon">🚫</span>
+                <span className="feature-icon" aria-hidden="true"><FiFileText /></span>
                 <div className="feature-text">
                   <h4>No Preservatives</h4>
                   <p>Lab test report</p>
