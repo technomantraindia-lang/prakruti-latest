@@ -223,6 +223,13 @@ const BMI_PRODUCT_RECOMMENDATIONS = {
   Obesity: ['Flaxseeds & Chia Seeds', 'Cold Pressed Sesame Oil', 'Organic Spices & Turmeric']
 }
 
+const clampBmiInput = (value, min, max) => {
+  if (value === '') return ''
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) return ''
+  return String(Math.min(max, Math.max(min, numericValue)))
+}
+
 const AWARENESS_CATEGORIES = [
   { id: 'all', label: 'All Reality Alerts' },
   { id: 'spices', label: 'Spices & Masalas' },
@@ -395,8 +402,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
     if (heightUnit === 'ft-in') {
       const ft = Number(feet)
       const inc = Number(inches)
-      if (!Number.isFinite(ft) || !Number.isFinite(inc) || ft < 1 || ft > 12 || inc < 1 || inc > 12) {
-        nextErrors.height = 'Enter feet and inches between 1 and 12.'
+      if (!Number.isFinite(ft) || !Number.isFinite(inc) || ft < 1 || ft > 8 || inc < 1 || inc > 12) {
+        nextErrors.height = 'Enter feet between 1 and 8 and inches between 1 and 12.'
       } else {
         computedHeightCm = ft * 30.48 + (inc || 0) * 2.54
       }
@@ -405,8 +412,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
     }
 
     const wt = Number(weightKg)
-    if (!Number.isFinite(wt) || wt < 1 || wt > 110) {
-      nextErrors.weight = 'Enter a valid weight between 1 and 110 kg.'
+    if (!Number.isFinite(wt) || wt < 1 || wt > 180) {
+      nextErrors.weight = 'Enter a valid weight between 1 and 180 kg.'
     }
 
     const ageNum = Number(age)
@@ -1494,10 +1501,10 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                       <input
                         type="number"
                         min="1"
-                        max="12"
+                        max="8"
                         placeholder="Ft (e.g. 5)"
                         value={feet}
-                        onChange={(e) => setFeet(e.target.value)}
+                        onChange={(e) => setFeet(clampBmiInput(e.target.value, 1, 8))}
                       />
                       <input
                         type="number"
@@ -1505,7 +1512,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                         max="12"
                         placeholder="In (e.g. 7)"
                         value={inches}
-                        onChange={(e) => setInches(e.target.value)}
+                        onChange={(e) => setInches(clampBmiInput(e.target.value, 1, 12))}
                       />
                     </div>
                     {errors.height && <span className="bmi-field-error">{errors.height}</span>}
@@ -1520,18 +1527,10 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                     id="bmi-weight"
                     type="number"
                     min="1"
-                    max="110"
+                    max="180"
                     placeholder="e.g. 64"
                     value={weightKg}
-                    onChange={(e) => {
-                      const nextValue = e.target.value
-                      if (nextValue === '') {
-                        setWeightKg('')
-                        return
-                      }
-                      const numericValue = Number(nextValue)
-                      setWeightKg(Number.isFinite(numericValue) ? String(Math.min(110, Math.max(1, numericValue))) : '')
-                    }}
+                    onChange={(e) => setWeightKg(clampBmiInput(e.target.value, 1, 180))}
                   />
                   {errors.weight && <span className="bmi-field-error">{errors.weight}</span>}
                 </div>
@@ -1547,7 +1546,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                     max="100"
                     placeholder="e.g. 32"
                     value={age}
-                    onChange={(e) => setAge(e.target.value)}
+                    onChange={(e) => setAge(clampBmiInput(e.target.value, 1, 100))}
                   />
                   {errors.age && <span className="bmi-field-error">{errors.age}</span>}
                 </div>
