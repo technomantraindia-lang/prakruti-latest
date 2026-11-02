@@ -6,6 +6,7 @@
         $packageRows = $product->variations->filter(fn ($variation) => filled($variation->attr_val))->map(fn ($variation) => [
             'id' => $variation->id,
             'label' => $variation->attr_val,
+            'sku' => $variation->sku,
             'price' => $variation->price,
             'sale_price' => $variation->sale_price,
             'stock_qty' => $variation->stock_qty,
@@ -19,6 +20,7 @@
     } else {
         $packageRows = collect([[
             'label' => '',
+            'sku' => '',
             'price' => $product->price ?? '',
             'sale_price' => $product->sale_price ?? '',
             'stock_qty' => $product->stock_qty ?? 0,
@@ -48,14 +50,22 @@
                 <h5 class="mb-0">Basic Product Details</h5>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Product Name *</label>
-                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $product->name ?? '') }}" placeholder="e.g. A2 Gir Cow Ghee Bilona" required>
-                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="row g-3 mb-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold">Product Name *</label>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $product->name ?? '') }}" placeholder="e.g. A2 Gir Cow Ghee Bilona" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">Product SKU (Code)</label>
+                        <input type="text" name="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ old('sku', $product->sku ?? '') }}" placeholder="e.g. PRK-GHEE-001 (Auto if empty)">
+                        @error('sku')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <small class="text-muted">Unique inventory identifier. Leave empty to auto-generate.</small>
+                    </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Category *</label>
+                    <label class="form-label fw-bold">Category *</label>
                     <select name="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
                         <option value="">Select Category</option>
                         @foreach($categories as $cat)
@@ -79,36 +89,41 @@
                             @foreach($packageRows as $index => $package)
                                 <div class="package-row border rounded-3 bg-white p-3">
                                     <input type="hidden" name="packages[{{ $index }}][id]" value="{{ $package['id'] ?? '' }}">
-                                    <div class="row g-3 align-items-end">
+                                    <div class="row g-2 align-items-end">
                                         <div class="col-md-3">
-                                            <label class="form-label">Package Size *</label>
-                                            <input type="text" name="packages[{{ $index }}][label]" class="form-control @error("packages.$index.label") is-invalid @enderror" value="{{ $package['label'] ?? '' }}" placeholder="500g / 1kg" required>
+                                            <label class="form-label small fw-bold">Package Size *</label>
+                                            <input type="text" name="packages[{{ $index }}][label]" class="form-control form-control-sm @error("packages.$index.label") is-invalid @enderror" value="{{ $package['label'] ?? '' }}" placeholder="500g / 1kg" required>
                                             @error("packages.$index.label")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="col-md-2">
-                                            <label class="form-label">Regular Price *</label>
-                                            <input type="number" step="0.01" name="packages[{{ $index }}][price]" class="form-control @error("packages.$index.price") is-invalid @enderror" value="{{ $package['price'] ?? '' }}" placeholder="750" required>
+                                            <label class="form-label small fw-bold">Package SKU</label>
+                                            <input type="text" name="packages[{{ $index }}][sku]" class="form-control form-control-sm @error("packages.$index.sku") is-invalid @enderror" value="{{ $package['sku'] ?? '' }}" placeholder="Auto if empty">
+                                            @error("packages.$index.sku")<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label small fw-bold">Regular Price *</label>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][price]" class="form-control form-control-sm @error("packages.$index.price") is-invalid @enderror" value="{{ $package['price'] ?? '' }}" placeholder="750" required>
                                             @error("packages.$index.price")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="col-md-2">
-                                            <label class="form-label">Sale Price</label>
-                                            <input type="number" step="0.01" name="packages[{{ $index }}][sale_price]" class="form-control @error("packages.$index.sale_price") is-invalid @enderror" value="{{ $package['sale_price'] ?? '' }}" placeholder="675">
+                                            <label class="form-label small fw-bold">Sale Price</label>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][sale_price]" class="form-control form-control-sm @error("packages.$index.sale_price") is-invalid @enderror" value="{{ $package['sale_price'] ?? '' }}" placeholder="675">
                                             @error("packages.$index.sale_price")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Stock *</label>
-                                            <input type="number" name="packages[{{ $index }}][stock_qty]" class="form-control @error("packages.$index.stock_qty") is-invalid @enderror" value="{{ $package['stock_qty'] ?? 0 }}" min="0" required>
+                                        <div class="col-md-1">
+                                            <label class="form-label small fw-bold">Stock *</label>
+                                            <input type="number" name="packages[{{ $index }}][stock_qty]" class="form-control form-control-sm @error("packages.$index.stock_qty") is-invalid @enderror" value="{{ $package['stock_qty'] ?? 0 }}" min="0" required>
                                             @error("packages.$index.stock_qty")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Status</label>
-                                            <select name="packages[{{ $index }}][status]" class="form-select">
+                                        <div class="col-md-1">
+                                            <label class="form-label small fw-bold">Status</label>
+                                            <select name="packages[{{ $index }}][status]" class="form-select form-select-sm">
                                                 <option value="active" @selected(($package['status'] ?? 'active') === 'active')>Active</option>
                                                 <option value="inactive" @selected(($package['status'] ?? '') === 'inactive')>Inactive</option>
                                             </select>
                                         </div>
                                         <div class="col-md-1">
-                                            <button type="button" class="btn btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
                                         </div>
                                     </div>
                                 </div>
@@ -854,32 +869,36 @@ document.addEventListener('DOMContentLoaded', function () {
         return `
             <div class="package-row border rounded-3 bg-white p-3">
                 <input type="hidden" name="packages[${index}][id]" value="">
-                <div class="row g-3 align-items-end">
+                <div class="row g-2 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label">Package Size *</label>
-                        <input type="text" name="packages[${index}][label]" class="form-control" placeholder="500g / 1kg" required>
+                        <label class="form-label small fw-bold">Package Size *</label>
+                        <input type="text" name="packages[${index}][label]" class="form-control form-control-sm" placeholder="500g / 1kg" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Regular Price *</label>
-                        <input type="number" step="0.01" name="packages[${index}][price]" class="form-control" placeholder="750" required>
+                        <label class="form-label small fw-bold">Package SKU</label>
+                        <input type="text" name="packages[${index}][sku]" class="form-control form-control-sm" placeholder="Auto if empty">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Sale Price</label>
-                        <input type="number" step="0.01" name="packages[${index}][sale_price]" class="form-control" placeholder="675">
+                        <label class="form-label small fw-bold">Regular Price *</label>
+                        <input type="number" step="0.01" name="packages[${index}][price]" class="form-control form-control-sm" placeholder="750" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Stock *</label>
-                        <input type="number" name="packages[${index}][stock_qty]" class="form-control" value="0" min="0" required>
+                        <label class="form-label small fw-bold">Sale Price</label>
+                        <input type="number" step="0.01" name="packages[${index}][sale_price]" class="form-control form-control-sm" placeholder="675">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Status</label>
-                        <select name="packages[${index}][status]" class="form-select">
+                    <div class="col-md-1">
+                        <label class="form-label small fw-bold">Stock *</label>
+                        <input type="number" name="packages[${index}][stock_qty]" class="form-control form-control-sm" value="0" min="0" required>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label small fw-bold">Status</label>
+                        <select name="packages[${index}][status]" class="form-select form-select-sm">
                             <option value="active" selected>Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
                     </div>
                 </div>
             </div>

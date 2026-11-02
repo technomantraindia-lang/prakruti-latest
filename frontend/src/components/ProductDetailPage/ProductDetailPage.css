@@ -222,12 +222,51 @@
   flex-direction: column;
 }
 
+.product-meta-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
 .category-green-tag {
   font-size: 0.76rem;
   font-weight: 800;
   color: var(--color-primary-light);
   letter-spacing: 0.08em;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.product-sku-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  color: #4b6b3e;
+  background-color: #f3f7ee;
+  border: 1px solid #d5e2cb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.product-sku-tag strong {
+  color: #274728;
+  font-weight: 700;
+}
+
+.sku-code-value {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  color: #274728;
+  background: #f3f7ee;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #d5e2cb;
 }
 
 .showcase-title {

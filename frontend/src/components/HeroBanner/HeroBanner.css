@@ -7,6 +7,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .hero-banner-container {
@@ -16,14 +18,27 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .hero-banner-video {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: cover;
+  object-position: center top;
+  margin-top: -8px;
+  margin-bottom: -4px;
+  padding: 0;
+  vertical-align: top;
+}
+
+/* The banner is the first element below the sticky header; keep it flush with
+   the header and prevent any browser inline-media baseline gap. */
+main > .hero-banner-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 /* Keep the complete video frame visible so embedded brand marks are never cropped. */
@@ -43,7 +58,9 @@
   .hero-banner-video {
     width: 100%;
     height: auto;
-    object-fit: contain;
+    object-fit: cover;
+    margin-top: -8px;
+    margin-bottom: -4px;
   }
 }
 
@@ -57,8 +74,10 @@
   .hero-banner-video {
     width: 100%;
     height: auto;
-    object-fit: contain;
-    object-position: center center;
+    object-fit: cover;
+    object-position: center top;
+    margin-top: -4px;
+    margin-bottom: -2px;
   }
 }
 

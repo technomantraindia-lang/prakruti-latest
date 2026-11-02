@@ -1986,3 +1986,80 @@
     animation: none;
   }
 }
+
+/* Keep the entrance animation, but do not make journey cards jump larger on hover. */
+.journey-card:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.journey-path-card:hover,
+.journey-path-card.hovered,
+.journey-path-card.active,
+.journey-path-card-5:hover,
+.journey-path-card-5.hovered,
+.journey-path-card-5.active {
+  transform: translateY(0) scale(1);
+}
+
+/* Luminous 3D connectors for the four-card journey layout. */
+.journey-grid {
+  position: relative;
+}
+
+.journey-grid .journey-card:not(:last-child)::before {
+  position: absolute;
+  top: 50%;
+  right: -28px;
+  width: 34px;
+  height: 2px;
+  content: '';
+  background: linear-gradient(90deg, #d3a248, #fff2b8, #b77a24);
+  box-shadow: 0 0 5px rgba(255, 224, 126, 0.9), 0 0 14px rgba(194, 137, 36, 0.62);
+  transform: translateY(-50%);
+  pointer-events: none;
+  animation: journeyConnectorShimmer 2.4s ease-in-out infinite;
+}
+
+.journey-grid .journey-card:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  right: -34px;
+  z-index: 2;
+  content: '›';
+  color: #fff0aa;
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 0 #8a5515, 0 0 5px #fff0a8, 0 0 14px rgba(209, 151, 48, 0.95);
+  transform: translateY(-56%) perspective(36px) rotateY(-16deg);
+  pointer-events: none;
+  animation: journeyArrowFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes journeyConnectorShimmer {
+  0%, 100% { opacity: 0.62; filter: brightness(0.95); }
+  50% { opacity: 1; filter: brightness(1.35); }
+}
+
+@keyframes journeyArrowFloat {
+  0%, 100% { filter: brightness(0.95) drop-shadow(0 2px 2px rgba(83, 46, 8, 0.4)); }
+  50% { filter: brightness(1.35) drop-shadow(0 4px 7px rgba(234, 183, 67, 0.8)); }
+}
+
+@media (max-width: 900px) {
+  .journey-grid .journey-card:not(:last-child)::before,
+  .journey-grid .journey-card:not(:last-child)::after {
+    display: none;
+  }
+
+  .journey-path-card:hover,
+  .journey-path-card.hovered,
+  .journey-path-card.active,
+  .journey-path-card-5:hover,
+  .journey-path-card-5.hovered,
+  .journey-path-card-5.active {
+    transform: translateY(0) scale(1) !important;
+  }
+}

@@ -307,7 +307,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
   const handleSeeAnswer = (customQ) => {
     const rawQuestion = (typeof customQ === 'string' ? customQ : searchMyth).trim()
     const question = rawQuestion || 'Why does diabetes happen and what is the best diet for it?'
-    const prompt = `Think deeply. Go in deep search. Evaluate all the details available and answer this in clear simple language.\n\nUser question: "${question}"\n\nExplain why this happens, common food myths vs facts, healthy traditional Indian dietary habits, and practical nutritional tips to manage or prevent this from a scientific nutritional and health perspective.`
+    const prompt = question
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(prompt).catch(() => {})
@@ -1289,107 +1289,110 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               viewport={{ once: true, amount: 0.1 }}
               variants={staggerContainer}
             >
-              {awarenessAlerts.map((alert) => (
-                <motion.article
-                  key={alert.id}
-                  className="awareness-card"
-                  variants={fadeInUp}
-                  whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                >
-                  {/* Card Media (Video or Image) */}
-                  <div
-                    className="awareness-card-media-wrapper"
-                    onClick={() => setSelectedAlertModal(alert)}
-                    role="button"
-                    tabIndex={0}
+              {awarenessAlerts.map((alert) => {
+                const targetUrl = alert.instagram_url || alert.video || 'https://www.instagram.com/prakrutiorganics_/'
+                const isInstagram = Boolean(alert.embed_url || alert.shortcode || (alert.video && alert.video.includes('instagram.com')))
+                const embedSrc = alert.embed_url || (alert.shortcode ? `https://www.instagram.com/p/${alert.shortcode}/embed/` : (alert.video && alert.video.includes('instagram.com') ? alert.video.replace(/\/$/, '') + '/embed/' : ''))
+
+                return (
+                  <motion.article
+                    key={alert.id}
+                    className="awareness-card"
+                    variants={fadeInUp}
+                    whileHover={{ y: -6, transition: { duration: 0.22 } }}
                   >
-                    {alert.video ? (
-                      <div
-                        className="awareness-video-preview"
-                        onMouseEnter={(e) => {
-                          const vid = e.currentTarget.querySelector('video')
-                          if (vid) vid.play().catch(() => {})
-                        }}
-                        onMouseLeave={(e) => {
-                          const vid = e.currentTarget.querySelector('video')
-                          if (vid) {
-                            vid.pause()
-                            vid.currentTime = 0
-                          }
-                        }}
-                      >
-                        <video
-                          src={`${alert.video}#t=0.1`}
-                          poster={alert.image || undefined}
-                          muted
-                          playsInline
-                          preload="metadata"
-                          className="awareness-media-asset"
-                        />
-                        <div className="awareness-media-overlay">
-                          <span className="awareness-play-btn" title="Watch Video">▶</span>
-                          <span className="awareness-media-label">Video Evidence</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="awareness-image-preview">
-                        <img
-                          src={alert.image || alert.image_url || 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80'}
-                          alt={alert.title}
-                          className="awareness-media-asset"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80'
-                          }}
-                        />
-                        <div className="awareness-media-overlay">
-                          <span className="awareness-zoom-icon">🔍</span>
-                          <span className="awareness-media-label">View Investigation</span>
-                        </div>
-                      </div>
-                    )}
-                    <span className={`awareness-severity-badge severity-${alert.severity || 'high'}`}>
-                      {alert.severity === 'critical'
-                        ? '🚨 CRITICAL ADULTERATION'
-                        : alert.severity === 'high'
-                        ? '⚠️ HIGH RISK'
-                        : 'ℹ️ SAFETY NOTICE'}
-                    </span>
-                  </div>
-
-                  {/* Card Content */}
-                  <div className="awareness-card-body">
-                    <div className="awareness-card-meta">
-                      <span className="awareness-category-tag">{alert.category_label || alert.category}</span>
-                      {alert.incident_date && (
-                        <span className="awareness-date-tag">🗓️ {alert.incident_date}</span>
-                      )}
-                    </div>
-
-                    <h3
-                      className="awareness-card-title"
-                      onClick={() => setSelectedAlertModal(alert)}
+                    <a
+                      href={targetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="awareness-card-link"
+                      aria-label={alert.title}
                     >
-                      {alert.title}
-                    </h3>
+                      {/* Card Media (Instagram Reel / Video / Image) */}
+                      <div className="awareness-card-media-wrapper">
+                        {isInstagram && embedSrc ? (
+                          <div className="awareness-instagram-holder">
+                            <iframe
+                              src={embedSrc}
+                              className="awareness-instagram-iframe"
+                              title={alert.title}
+                              frameBorder="0"
+                              scrolling="no"
+                              allowTransparency="true"
+                            />
+                            <div className="video-reel-indicator">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                              <span>Reel</span>
+                            </div>
+                          </div>
+                        ) : alert.video ? (
+                          <div className="awareness-video-preview">
+                            <video
+                              src={`${alert.video}#t=0.1`}
+                              poster={alert.image || undefined}
+                              muted
+                              playsInline
+                              preload="metadata"
+                              className="awareness-media-asset"
+                            />
+                            <div className="video-reel-indicator">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                              <span>Video</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="awareness-image-preview">
+                            <img
+                              src={alert.image || alert.image_url || 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80'}
+                              alt={alert.title}
+                              className="awareness-media-asset"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null
+                                e.currentTarget.src = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80'
+                              }}
+                            />
+                          </div>
+                        )}
 
-                    <p className="awareness-card-summary">
-                      {alert.summary}
-                    </p>
+                        {/* Hover Overlay */}
+                        <div className="awareness-media-overlay">
+                          <svg
+                            className="instagram-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ width: '22px', height: '22px' }}
+                          >
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                          </svg>
+                          <span className="awareness-view-text">Watch on Instagram</span>
+                        </div>
+                      </div>
 
-                    <div className="awareness-card-actions">
-                      <button
-                        type="button"
-                        className="awareness-details-btn"
-                        onClick={() => setSelectedAlertModal(alert)}
-                      >
-                        {alert.video ? '▶ Watch Video' : '🔍 View Photo'}
-                      </button>
-                    </div>
-                  </div>
-                </motion.article>
-              ))}
+                      {/* Card Content - ONLY Title and Short Paragraph */}
+                      <div className="awareness-card-body">
+                        <h3 className="awareness-card-title">
+                          {alert.title}
+                        </h3>
+
+                        <p className="awareness-card-summary">
+                          {alert.summary}
+                        </p>
+                      </div>
+                    </a>
+                  </motion.article>
+                )
+              })}
             </motion.div>
           )}
 

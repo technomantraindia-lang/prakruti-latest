@@ -276,6 +276,9 @@
                 <a href="{{ route('admin.guidelines.index') }}" class="@if(request()->routeIs('admin.guidelines.*')) active @endif">
                     <i class="fas fa-file-pdf text-danger"></i> PDF Guidelines
                 </a>
+                <a href="{{ route('admin.instagram.index') }}" class="@if(request()->routeIs('admin.instagram.*')) active @endif">
+                    <i class="fab fa-instagram text-danger"></i> Instagram Feed
+                </a>
 
                 <!-- System & Settings -->
                 <div class="sidebar-heading">System</div>

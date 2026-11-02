@@ -52,7 +52,8 @@ export const categoriesData = [
     name: 'Oils & Ghee',
     count: 5,
     description: 'Pure, cold-pressed oils and traditional ghee for a healthy you.',
-    image: oilsGheeImg,
+    image: oilsGheeImg, 
+    
   },
   {
     id: 'rice-flours',

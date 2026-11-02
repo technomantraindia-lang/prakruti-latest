@@ -21,21 +21,27 @@ class FoodAwarenessApiController extends Controller
             ->latest()
             ->get()
             ->map(function ($item) {
+                $videoUrl = $item->video_url ?? $item->video ?? '';
+                $shortcode = '';
+                $embedUrl = '';
+
+                if (!empty($videoUrl) && preg_match('/(?:instagram\.com\/(?:p|reel|reels|tv)\/)([A-Za-z0-9_-]+)/i', $videoUrl, $m)) {
+                    $shortcode = $m[1];
+                    $embedUrl = "https://www.instagram.com/p/{$shortcode}/embed/";
+                }
+
                 return [
                     'id' => $item->id,
                     'title' => $item->title,
-                    'category' => $item->category,
-                    'category_label' => $item->category_label ?? ucfirst(str_replace('_', ' ', $item->category)),
-                    'tag' => $item->tag,
-                    'severity' => $item->severity,
-                    'media_type' => $item->media_type,
-                    'image' => $item->image_url,
-                    'video' => $item->video_url,
-                    'source' => $item->source,
-                    'incident_date' => $item->incident_date,
                     'summary' => $item->summary,
-                    'details' => $item->details,
-                    'how_to_test' => $item->how_to_test,
+                    'video' => $videoUrl,
+                    'instagram_url' => !empty($shortcode) ? $videoUrl : null,
+                    'shortcode' => $shortcode,
+                    'embed_url' => $embedUrl,
+                    'image' => $item->image_url,
+                    'category' => $item->category,
+                    'category_label' => $item->category_label ?? 'Food Safety Watch',
+                    'is_active' => (bool) $item->is_active,
                     'created_at' => $item->created_at?->toIso8601String(),
                 ];
             });

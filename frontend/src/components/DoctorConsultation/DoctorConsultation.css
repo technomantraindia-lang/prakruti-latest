@@ -1876,11 +1876,18 @@
   top: 50%;
   left: 50%;
   z-index: 100;
+  box-sizing: border-box;
   width: min(620px, calc(100vw - 40px));
+  height: min(680px, calc(100vh - 32px));
+  height: min(680px, calc(100dvh - 32px));
   min-height: 0;
-  max-height: min(78vh, 620px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   padding: 30px;
   border-radius: 26px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   transform: translate(-50%, -46%) scale(0.94);
   transform-origin: center;
   box-shadow: 0 34px 90px rgba(20, 42, 30, 0.3), 0 0 0 100vmax rgba(17, 40, 28, 0.18);
@@ -1913,8 +1920,205 @@
     top: 50%;
     left: 50%;
     width: calc(100vw - 28px);
-    max-height: 82vh;
+    height: min(82vh, calc(100vh - 24px));
+    height: min(82dvh, calc(100dvh - 24px));
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
     padding: 22px;
+  }
+}
+
+/* Persistent profile interaction: hover/focus opens the bio, but pointer movement
+   never dismisses it. The close control and Escape key are the intentional exits. */
+.doctor-img-container:not(.is-bio-open) .doctor-bio-overlay {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -46%) scale(0.94);
+}
+
+.doctor-img-container.is-bio-open .doctor-bio-overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.doctor-bio-overlay {
+  gap: 8px;
+  text-align: left;
+}
+
+.doctor-bio-close,
+.doctor-photo-modal-close {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+}
+
+.doctor-bio-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #eef5ea;
+  color: #193a15;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.doctor-bio-close:hover,
+.doctor-bio-close:focus-visible {
+  background: #dcebd7;
+  transform: rotate(90deg);
+}
+
+.doctor-bio-contact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 14px;
+}
+
+.doctor-bio-overlay h4 {
+  margin: 5px 0 0;
+  color: #193a15;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.doctor-bio-overlay p {
+  margin: 0;
+  line-height: 1.38;
+}
+
+.doctor-bio-overlay ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px 14px;
+  margin: 0;
+  padding-left: 18px;
+  color: #5f665f;
+}
+
+.doctor-bio-overlay li {
+  margin: 3px 0;
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.doctor-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(20, 35, 25, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.doctor-photo-modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: min(760px, 92vw);
+  max-height: calc(100dvh - 24px);
+  padding: clamp(12px, 2vw, 20px);
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+}
+
+.doctor-photo-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(25, 58, 21, 0.92);
+  color: #ffffff;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.doctor-photo-modal-close:hover,
+.doctor-photo-modal-close:focus-visible {
+  background: #2e7d32;
+}
+
+.doctor-photo-large {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 104px);
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+.doctor-photo-modal-content p {
+  margin: 12px 4px 0;
+  color: #193a15;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .doctor-bio-overlay {
+    width: calc(100vw - 28px);
+    height: min(82vh, calc(100vh - 24px));
+    height: min(82dvh, calc(100dvh - 24px));
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 22px;
+  }
+
+  .doctor-bio-contact,
+  .doctor-bio-overlay ul {
+    grid-template-columns: 1fr;
+  }
+
+  .doctor-photo-modal {
+    padding: 14px;
+  }
+
+  .doctor-photo-modal-content {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .doctor-photo-modal-content {
+    width: min(94vw, 560px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .doctor-photo-large {
+    max-height: calc(100dvh - 88px);
+    border-radius: 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .doctor-bio-overlay span,
+  .doctor-bio-overlay p,
+  .doctor-bio-overlay small {
+    font-size: 0.77rem;
+    line-height: 1.38;
   }
 }
 

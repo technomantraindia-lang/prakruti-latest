@@ -79,6 +79,58 @@
             </div>
         </div>
 
+        <hr><h5 class="mb-3">Instagram Feed</h5>
+        <input type="hidden" name="instagram_posts_submitted" value="1">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Instagram Profile URL</label>
+                <input type="url" name="instagram_profile_url" class="form-control" value="{{ $settings['instagram_profile_url'] ?? 'https://www.instagram.com/prakrutiorganics_/' }}" placeholder="https://www.instagram.com/prakrutiorganics_/">
+                <small class="text-muted">Link where customers are redirected when clicking Instagram boxes or Follow Us.</small>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Instagram Handle</label>
+                <input type="text" name="instagram_handle" class="form-control" value="{{ $settings['instagram_handle'] ?? '@prakrutiorganics_' }}" placeholder="@prakrutiorganics_">
+                <small class="text-muted">Handle shown in the Follow Us box.</small>
+            </div>
+            <div class="col-md-12 mb-3">
+                <label class="form-label">Custom Instagram Posts &amp; Reels (Optional)</label>
+                <p class="text-muted small">Add individual post/reel URLs and image/video links. If empty, the storefront displays default curated posts linked to your Instagram account.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle" id="instagramPostsTable">
+                        <thead>
+                            <tr>
+                                <th style="width:35%;">Instagram Post / Reel URL</th>
+                                <th style="width:18%;">Type</th>
+                                <th style="width:27%;">Media URL (Image / Video)</th>
+                                <th style="width:15%;">Caption</th>
+                                <th style="width:5%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $instaPosts = json_decode($settings['instagram_posts'] ?? '[]', true) ?: [];
+                            @endphp
+                            @foreach($instaPosts as $ipost)
+                                <tr class="insta-post-row">
+                                    <td><input type="url" name="instagram_post_url[]" class="form-control form-control-sm" value="{{ $ipost['url'] ?? '' }}" placeholder="https://www.instagram.com/reel/..."></td>
+                                    <td>
+                                        <select name="instagram_post_type[]" class="form-select form-select-sm">
+                                            <option value="image" @selected(($ipost['type'] ?? '') == 'image')>Image</option>
+                                            <option value="video" @selected(($ipost['type'] ?? '') == 'video')>Video / Reel</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" name="instagram_post_media[]" class="form-control form-control-sm" value="{{ $ipost['media_url'] ?? '' }}" placeholder="Direct image/video URL"></td>
+                                    <td><input type="text" name="instagram_post_caption[]" class="form-control form-control-sm" value="{{ $ipost['caption'] ?? '' }}" placeholder="Caption"></td>
+                                    <td><button type="button" class="btn btn-outline-danger btn-sm remove-insta-post">✕</button></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="addInstaPost">+ Add Post / Reel</button>
+            </div>
+        </div>
+
         <hr><h5 class="mb-3">Admin Account</h5>
         <p class="text-muted small mb-3">Use this section only when you want to change the logged-in admin email or password.</p>
         <div class="row">
@@ -155,6 +207,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     bindRemoveButtons();
+
+    const instaTableBody = document.querySelector('#instagramPostsTable tbody');
+    const addInstaButton = document.getElementById('addInstaPost');
+
+    function bindInstaRemoveButtons() {
+        document.querySelectorAll('.remove-insta-post').forEach(function (button) {
+            button.onclick = function () {
+                button.closest('tr').remove();
+            };
+        });
+    }
+
+    if (addInstaButton && instaTableBody) {
+        addInstaButton.addEventListener('click', function () {
+            const row = document.createElement('tr');
+            row.className = 'insta-post-row';
+            row.innerHTML = `
+                <td><input type="url" name="instagram_post_url[]" class="form-control form-control-sm" placeholder="https://www.instagram.com/reel/..."></td>
+                <td>
+                    <select name="instagram_post_type[]" class="form-select form-select-sm">
+                        <option value="image">Image</option>
+                        <option value="video">Video / Reel</option>
+                    </select>
+                </td>
+                <td><input type="text" name="instagram_post_media[]" class="form-control form-control-sm" placeholder="Direct image/video URL"></td>
+                <td><input type="text" name="instagram_post_caption[]" class="form-control form-control-sm" placeholder="Caption"></td>
+                <td><button type="button" class="btn btn-outline-danger btn-sm remove-insta-post">✕</button></td>
+            `;
+            instaTableBody.appendChild(row);
+            bindInstaRemoveButtons();
+        });
+        bindInstaRemoveButtons();
+    }
 
     document.querySelectorAll('.password-eye-toggle').forEach(function (button) {
         button.addEventListener('click', function () {

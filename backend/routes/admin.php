@@ -157,6 +157,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->middleware('permission:settings.view')->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->middleware('permission:settings.manage')->name('settings.update');
 
+    // Instagram Feed Management
+    Route::get('/instagram-feed', [\App\Http\Controllers\Admin\InstagramFeedAdminController::class, 'index'])->name('instagram.index');
+    Route::post('/instagram-feed', [\App\Http\Controllers\Admin\InstagramFeedAdminController::class, 'update'])->name('instagram.update');
+    Route::post('/instagram-feed/fetch-oembed', [\App\Http\Controllers\Admin\InstagramFeedAdminController::class, 'fetchOembed'])->name('instagram.fetch');
+
 
     // Notifications
     Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');

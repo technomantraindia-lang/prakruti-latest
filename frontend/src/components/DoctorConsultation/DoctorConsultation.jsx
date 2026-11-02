@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import './DoctorConsultation.css'
 import { api } from '../../services/api'
 import doctorImg from '../../assets/images/docotr iamge.png'
@@ -42,6 +43,8 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [status, setStatus] = useState({ type: '', message: '', referenceNo: '' })
+  const [isDoctorBioOpen, setIsDoctorBioOpen] = useState(false)
+  const [isDoctorImageOpen, setIsDoctorImageOpen] = useState(false)
 
   useEffect(() => {
     if (!currentUser) return
@@ -52,6 +55,27 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
       email: currentUser.email || prev.email,
     }))
   }, [currentUser])
+
+  useEffect(() => {
+    if (!isDoctorBioOpen && !isDoctorImageOpen) return undefined
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsDoctorBioOpen(false)
+        setIsDoctorImageOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    if (isDoctorImageOpen) {
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = ''
+    }
+  }, [isDoctorBioOpen, isDoctorImageOpen])
 
   const toggleGoal = (goal) => {
     setSelectedGoals((prev) =>
@@ -188,10 +212,10 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
         <div className="doc-header">
           <div className="doc-badge">
             <span className="doc-badge-pulse"></span>
-            <span>LIFESTYLE MEDICINE &amp; WELLNESS CARE</span>
+            <span>LIFESTYLE MEDICINE EXPERT CONSULTATION</span>
           </div>
           <h2 className="doc-main-title">
-            Consult Our Life style Medicine Expert
+            Lifestyle Medicine Expert- Consultation
           </h2>
           <p className="doc-main-desc">
             Get a personalized therapeutic plan and expert guidance on transforming your pantry with wholesome, organic staples.
@@ -208,9 +232,25 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
             {/* Doctor Spotlight Card */}
             <div className="doctor-spotlight-card">
               <div
-                className="doctor-img-container"
-                tabIndex="0"
-                aria-label="View Dr. Varsha Shah biography"
+                className={`doctor-img-container${isDoctorBioOpen ? ' is-bio-open' : ''}`}
+                tabIndex={0}
+                role="button"
+                aria-haspopup="dialog"
+                aria-expanded={isDoctorBioOpen}
+                aria-label="Open Dr. Varsha Shah's profile photo"
+                onMouseEnter={() => setIsDoctorBioOpen(true)}
+                onFocus={() => setIsDoctorBioOpen(true)}
+                onClick={() => {
+                  setIsDoctorBioOpen(false)
+                  setIsDoctorImageOpen(true)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    setIsDoctorBioOpen(false)
+                    setIsDoctorImageOpen(true)
+                  }
+                }}
               >
                 <img 
                   src={doctorImg} 
@@ -220,17 +260,45 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 <div className="doctor-verified-badge">
                   <span className="verified-check">✓</span> Verified Expert
                 </div>
-                <div className="doctor-bio-overlay">
+                <div
+                  className={`doctor-bio-overlay${isDoctorBioOpen ? ' is-open' : ''}`}
+                  role="dialog"
+                  aria-label="Dr. Varsha Shah biography"
+                  onMouseEnter={() => setIsDoctorBioOpen(true)}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="doctor-bio-close"
+                    aria-label="Close Dr. Varsha Shah biography"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setIsDoctorBioOpen(false)
+                    }}
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                   <strong>Dr. Varsha Shah</strong>
                   <span>DCH, DNB (Pediatrics), MBBS</span>
                   <span>PGDLM (Lifestyle Medicine)</span>
                   <hr />
-                  <span>Email: drvarshas@yahoo.com</span>
-                  <span>Phone: +91 99090 26338</span>
-                  <span>Vadodara, Gujarat, India</span>
-                  <span>Date of Birth: 30 October 1977</span>
-                  <p>Ex-Professor at SBKS Medical Institute and Research Centre. Consultant at SHARAN and PRAKRUTI HEAL, with a special interest in nutrition, disease reversal, and holistic health.</p>
-                  <small>IAP · ISLM · PAN member</small>
+                  <div className="doctor-bio-contact">
+                    <span>Email: drvarshas@yahoo.com</span>
+                    <span>Phone: +91 99090 26338</span>
+                    <span>Location: Vadodara, Gujarat, India</span>
+                    <span>Date of Birth: 30 October 1977</span>
+                  </div>
+                  <h4>Professional Summary</h4>
+                  <p>Ex-Professor at SBKS Medical Institute and Research Centre.</p>
+                  <p>Medical Consultant (online) at SHARAN, an organisation working in disease reversal.</p>
+                  <p>Consultant at PRAKRUTI HEAL, a centre for holistic health through lifestyle.</p>
+                  <p>Special interest in Lifestyle Medicine. Passionate about nutrition, disease reversal, and holistic health. Known for delivering effective health talks and lifestyle transformation programs for individuals and groups.</p>
+                  <h4>Memberships</h4>
+                  <ul>
+                    <li>IAP (Indian Academy of Pediatrics)</li>
+                    <li>ISLM (Indian Society of Lifestyle Medicine)</li>
+                    <li>PAN (Physician Association for Nutrition)</li>
+                  </ul>
                 </div>
               </div>
 
@@ -303,6 +371,34 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
             </div>
 
           </div>
+
+          {isDoctorImageOpen && createPortal(
+            <div
+              className="doctor-photo-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Dr. Varsha Shah full-size photo"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  setIsDoctorImageOpen(false)
+                }
+              }}
+            >
+              <div className="doctor-photo-modal-content">
+                <button
+                  type="button"
+                  className="doctor-photo-modal-close"
+                  aria-label="Close full-size doctor photo"
+                  onClick={() => setIsDoctorImageOpen(false)}
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <img src={doctorImg} alt="Dr. Varsha Shah" className="doctor-photo-large" />
+                <p>Dr. Varsha Shah · Lifestyle Medicine Expert</p>
+              </div>
+            </div>,
+            document.body
+          )}
 
           {/* Right Column: High-End Booking Form / Payment / Confirmation */}
           <div className="doc-form-panel">

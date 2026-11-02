@@ -340,6 +340,140 @@
   font-weight: 800;
 }
 
+/* Keep the homepage doctor profile open after the pointer leaves the photo. */
+.doctor-profile-trigger:not(.is-doctor-bio-open) .doctor-bio-panel {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.98);
+}
+
+.doctor-profile-trigger.is-doctor-bio-open .doctor-bio-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.doctor-bio-panel {
+  text-align: left;
+  max-height: min(78vh, 560px);
+  overflow-y: auto;
+}
+
+.home-doctor-bio-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: #eef5ea;
+  color: #193a15;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.home-doctor-bio-close:hover,
+.home-doctor-bio-close:focus-visible {
+  background: #dcebd7;
+  transform: rotate(90deg);
+}
+
+.doctor-bio-panel h4 {
+  margin: 10px 0 4px;
+  color: #193a15;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.doctor-bio-panel p {
+  margin: 0 0 5px;
+}
+
+.doctor-bio-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #5f665f;
+}
+
+.doctor-bio-panel li {
+  margin: 3px 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.home-doctor-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(20, 35, 25, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.home-doctor-photo-modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: min(760px, 92vw);
+  max-height: calc(100dvh - 24px);
+  padding: clamp(12px, 2vw, 20px);
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+}
+
+.home-doctor-photo-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(25, 58, 21, 0.92);
+  color: #ffffff;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.home-doctor-photo-modal-close:hover,
+.home-doctor-photo-modal-close:focus-visible {
+  background: #2e7d32;
+}
+
+.home-doctor-photo-large {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 104px);
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+.home-doctor-photo-modal-content p {
+  margin: 12px 4px 0;
+  color: #193a15;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-align: center;
+}
+
 .usp-pure-icon {
   font-size: 1.6rem;
   line-height: 1;
@@ -605,5 +739,16 @@
     left: -4px;
     width: calc(100vw - 30px);
     padding: 20px;
+  }
+
+  .home-doctor-photo-modal-content {
+    width: min(94vw, 560px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 18px;
+  }
+
+  .home-doctor-photo-large {
+    max-height: calc(100dvh - 88px);
+    border-radius: 12px;
   }
 }

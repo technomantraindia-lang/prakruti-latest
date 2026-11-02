@@ -124,6 +124,7 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
           key: `variation-${variation.id}`,
           variantId: variation.id,
           label: variation.label || variation.package_size || variation.attributes?.Weight || 'Pack',
+          sku: variation.sku || product.sku || null,
           price: salePrice ?? regularPrice,
           regularPrice,
           availableStock: Number(variation.available_stock || 0),
@@ -137,6 +138,7 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
         key: size,
         variantId: null,
         label: size,
+        sku: product.sku || null,
         price,
         regularPrice: getOriginalPrice(product, price),
         availableStock: Number(product.available_stock || product.stock_qty || 0),
@@ -206,6 +208,7 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
 
   const priceDisplay = Number(selectedPackage?.price ?? product.price ?? 0);
   const originalPriceDisplay = Number(selectedPackage?.regularPrice ?? getOriginalPrice(product, priceDisplay));
+  const currentSku = selectedPackage?.sku || product.sku || null;
   const showGheeDetailImage = String(product?.name || '').toLowerCase().includes('a2 gir cow ghee bilona');
   const productShortDescription = product.short_description || product.short_desc || product.description || `Premium quality ${product.name} sourced from trusted organic farms.`;
   const productLongDescription = product.description || productShortDescription;
@@ -264,7 +267,14 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
           {/* Right Column: Detailed Specifications */}
           <div className="info-showcase-container">
             
-            <span className="category-green-tag">{String(product.category || 'Organic').toUpperCase()}</span>
+            <div className="product-meta-header-row">
+              <span className="category-green-tag">{String(product.category || 'Organic').toUpperCase()}</span>
+              {currentSku && (
+                <span className="product-sku-tag" title="Stock Keeping Unit">
+                  SKU: <strong>{currentSku}</strong>
+                </span>
+              )}
+            </div>
             
             <h1 className="showcase-title">{product.name}</h1>
             
@@ -434,6 +444,12 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
                   <h3>Product Information</h3>
                   <table className="specs-table-data">
                     <tbody>
+                      {currentSku && (
+                        <tr>
+                          <th>SKU Code</th>
+                          <td><span className="sku-code-value">{currentSku}</span></td>
+                        </tr>
+                      )}
                       <tr>
                         <th>Product Type</th>
                         <td>{productInformation.product_type}</td>

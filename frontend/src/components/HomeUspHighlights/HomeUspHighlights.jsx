@@ -145,40 +145,15 @@ export default function HomeUspHighlights({ onNavigateToFamilyPack, onNavigateTo
 
               {/* Main Preview Row */}
               <div className="usp-card-main">
-                <div
-                  className="doctor-profile-trigger"
-                  tabIndex="0"
-                  aria-label="View Dr. Varsha Shah profile"
-                >
+                <div className="doctor-profile-trigger">
                   <div className="usp-icon-thumb doctor-thumb">
                     <img src={doctorImage} alt="Dr. Varsha Shah" className="doctor-profile-image" />
-                    <span className="doctor-profile-hint">View bio</span>
-                  </div>
-                  <div className="doctor-bio-panel">
-                    <div className="doctor-bio-heading">
-                      <img src={doctorImage} alt="" className="doctor-bio-avatar" />
-                      <div>
-                        <strong>Dr. Varsha Shah</strong>
-                        <span>DCH, DNB (Pediatrics), MBBS</span>
-                        <span>PGDLM (Lifestyle Medicine)</span>
-                      </div>
-                    </div>
-                    <div className="doctor-bio-contact">
-                      <span>Email: drvarshas@yahoo.com</span>
-                      <span>Phone: +91 99090 26338</span>
-                      <span>Vadodara, Gujarat, India</span>
-                      <span>Date of Birth: 30 October 1977</span>
-                    </div>
-                    <p>
-                      Ex-Professor at SBKS Medical Institute and Research Centre. Medical Consultant at SHARAN and PRAKRUTI HEAL, with a special interest in lifestyle medicine, nutrition, disease reversal, and holistic health.
-                    </p>
-                    <small>IAP · ISLM · PAN member</small>
                   </div>
                 </div>
                 <div className="usp-main-info">
-                  <h3 className="usp-card-title">Lifestyle &amp; Doctor Consultation</h3>
+                  <h3 className="usp-card-title">Lifestyle Medicine Expert- Consultation</h3>
                   <p className="usp-card-tagline">
-                    Dedicated clinical nutritionist &amp; lifestyle doctor for metabolic health, gut restoration &amp; organic diet.
+                    Dedicated lifestyle medicine expert for metabolic health, gut restoration &amp; organic diet.
                   </p>
                 </div>
               </div>

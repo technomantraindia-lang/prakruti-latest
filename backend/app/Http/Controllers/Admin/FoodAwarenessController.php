@@ -45,23 +45,24 @@ class FoodAwarenessController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateAlert($request);
-        $data['category'] = $data['category'] ?? 'spices';
+        $data['category'] = $data['category'] ?? 'general';
         $data['severity'] = $data['severity'] ?? 'warning';
-        $data['media_type'] = $data['media_type'] ?? 'image';
+        $data['media_type'] = $data['media_type'] ?? 'video';
         $data['is_active'] = $request->boolean('is_active', true);
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
-        $data['category_label'] = $this->categories()[$data['category']] ?? ucfirst($data['category']);
+        $data['category_label'] = 'Food Safety Watch';
+
+        // Store Instagram or video link in video column
+        if ($request->filled('video_url')) {
+            $data['video'] = trim($request->input('video_url'));
+        } elseif ($request->hasFile('video')) {
+            $data['video'] = $this->uploadVideo($request->file('video'));
+        }
 
         if ($request->hasFile('image')) {
             $data['image'] = $this->uploader->upload($request->file('image'), 'food-awareness');
         } elseif ($request->filled('image_url')) {
             $data['image'] = trim($request->input('image_url'));
-        }
-
-        if ($request->hasFile('video')) {
-            $data['video'] = $this->uploadVideo($request->file('video'));
-        } elseif ($request->filled('video_url')) {
-            $data['video'] = trim($request->input('video_url'));
         }
 
         FoodAwarenessAlert::create($data);
@@ -80,12 +81,21 @@ class FoodAwarenessController extends Controller
     public function update(Request $request, FoodAwarenessAlert $foodAwareness)
     {
         $data = $this->validateAlert($request, $foodAwareness->id);
-        $data['category'] = $data['category'] ?? $foodAwareness->category ?? 'spices';
+        $data['category'] = $data['category'] ?? $foodAwareness->category ?? 'general';
         $data['severity'] = $data['severity'] ?? $foodAwareness->severity ?? 'warning';
-        $data['media_type'] = $data['media_type'] ?? $foodAwareness->media_type ?? 'image';
+        $data['media_type'] = $data['media_type'] ?? $foodAwareness->media_type ?? 'video';
         $data['is_active'] = $request->boolean('is_active');
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
-        $data['category_label'] = $this->categories()[$data['category']] ?? ucfirst($data['category']);
+        $data['category_label'] = 'Food Safety Watch';
+
+        if ($request->filled('video_url')) {
+            $data['video'] = trim($request->input('video_url'));
+        } elseif ($request->hasFile('video')) {
+            if ($foodAwareness->video && !str_starts_with($foodAwareness->video, 'http')) {
+                Storage::disk('public')->delete($foodAwareness->video);
+            }
+            $data['video'] = $this->uploadVideo($request->file('video'));
+        }
 
         if ($request->hasFile('image')) {
             if ($foodAwareness->image && !str_starts_with($foodAwareness->image, 'http')) {
@@ -94,15 +104,6 @@ class FoodAwarenessController extends Controller
             $data['image'] = $this->uploader->upload($request->file('image'), 'food-awareness');
         } elseif ($request->filled('image_url')) {
             $data['image'] = trim($request->input('image_url'));
-        }
-
-        if ($request->hasFile('video')) {
-            if ($foodAwareness->video && !str_starts_with($foodAwareness->video, 'http')) {
-                Storage::disk('public')->delete($foodAwareness->video);
-            }
-            $data['video'] = $this->uploadVideo($request->file('video'));
-        } elseif ($request->filled('video_url')) {
-            $data['video'] = trim($request->input('video_url'));
         }
 
         $foodAwareness->update($data);
@@ -155,12 +156,12 @@ class FoodAwarenessController extends Controller
     private function categories(): array
     {
         return [
+            'general' => 'General Food Adulteration',
             'spices' => 'Spices & Masalas',
             'ghee_dairy' => 'Ghee, Milk & Dairy',
             'produce' => 'Fruits & Vegetables',
             'grains_pulses' => 'Grains, Dals & Pulses',
             'oils_fats' => 'Cooking Oils & Fats',
-            'general' => 'General Food Adulteration',
         ];
     }
 }

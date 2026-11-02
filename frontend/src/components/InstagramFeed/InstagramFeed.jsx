@@ -1,54 +1,95 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './InstagramFeed.css'
+import { apiClient } from '../../api/client'
+import prakrutiLogo from '../../assets/images/Prakruti Logo_cc.png'
 
-// Import official Prakruti product & packaging media assets
-import packingVideo from '../../assets/videos_ghee/ghee_video_2.mp4'
-import newPackingImg from '../../assets/images/new packing .png'
-import girGheeImg from '../../assets/images/gir_ghee.png'
-import spicesImg from '../../assets/images/indian spices.png'
-import packageEcoImg from '../../assets/images/packge.png'
-import masalaImg from '../../assets/images/masala.png'
+const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/prakrutiorganics_/'
+const DEFAULT_INSTAGRAM_HANDLE = '@prakrutiorganics_'
 
-const instagramPosts = [
-  {
-    id: 1,
-    type: 'video',
-    video: packingVideo,
-    alt: 'Prakruti fresh organic packaging process video'
-  },
-  {
-    id: 2,
-    type: 'image',
-    image: newPackingImg,
-    alt: 'Prakruti Vacuum Sealed Freshness Packaging'
-  },
-  {
-    id: 3,
-    type: 'image',
-    image: girGheeImg,
-    alt: 'Traditional Vedic Bilona A2 Gir Cow Ghee'
-  },
-  {
-    id: 4,
-    type: 'image',
-    image: spicesImg,
-    alt: 'Authentic 100% Pure Organic Spices'
-  },
-  {
-    id: 5,
-    type: 'image',
-    image: packageEcoImg,
-    alt: 'Eco-Friendly Certified Organic Food Packaging'
-  },
-  {
-    id: 6,
-    type: 'image',
-    image: masalaImg,
-    alt: 'Nutrient-Dense Handpicked Seeds & Natural Masalas'
-  }
-]
+const initialBoxes = Array.from({ length: 6 }, (_, i) => ({
+  slot: i + 1,
+  url: DEFAULT_INSTAGRAM_URL,
+  shortcode: '',
+  embed_url: '',
+  type: 'image',
+  is_empty: true,
+}))
 
 const InstagramFeed = () => {
+  const [profileUrl, setProfileUrl] = useState(DEFAULT_INSTAGRAM_URL)
+  const [handle, setHandle] = useState(DEFAULT_INSTAGRAM_HANDLE)
+  const [boxes, setBoxes] = useState(initialBoxes)
+  const [embedScale, setEmbedScale] = useState(0.52)
+  const rowRef = useRef(null)
+
+  // Dynamically calculate exact scale to crop out Instagram's top header & fill square box
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (!rowRef.current) return
+      const firstCard = rowRef.current.querySelector('.instagram-post')
+      if (firstCard) {
+        const w = firstCard.offsetWidth || 160
+        // Instagram embed inner width is standard 326px
+        setEmbedScale(Math.max(0.35, w / 326))
+      }
+    }
+
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [boxes])
+
+  useEffect(() => {
+    let mounted = true
+    apiClient('/instagram-feed')
+      .then((res) => {
+        if (!mounted || !res || !res.success) return
+
+        const payload = (res.data && typeof res.data === 'object' && res.data.boxes) ? res.data : res
+        const rawBoxes = payload.boxes || res.boxes || (Array.isArray(res.data) ? res.data : [])
+        const profile = payload.profile_url || res.profile_url || DEFAULT_INSTAGRAM_URL
+        const h = payload.handle || res.handle || DEFAULT_INSTAGRAM_HANDLE
+
+        if (profile) setProfileUrl(profile)
+        if (h) setHandle(h)
+
+        if (Array.isArray(rawBoxes) && rawBoxes.length > 0) {
+          const fullBoxes = Array.from({ length: 6 }, (_, i) => {
+            const b = rawBoxes[i]
+            if (b && (!b.is_empty || b.embed_url || b.shortcode || (b.url && b.url !== profile))) {
+              const url = b.url || profile
+              const shortcode = b.shortcode || ''
+              const embedUrl = b.embed_url || (shortcode ? `https://www.instagram.com/p/${shortcode}/embed/` : '')
+              const isEmpty = !embedUrl && Boolean(b.is_empty)
+
+              return {
+                slot: i + 1,
+                url,
+                shortcode,
+                embed_url: embedUrl,
+                type: b.type === 'video' ? 'video' : 'image',
+                is_empty: isEmpty,
+              }
+            }
+            return {
+              slot: i + 1,
+              url: profile,
+              shortcode: '',
+              embed_url: '',
+              type: 'image',
+              is_empty: true,
+            }
+          })
+          setBoxes(fullBoxes)
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching Instagram feed:', err)
+      })
+
+    return () => { mounted = false }
+  }, [])
+
   return (
     <section className="instagram-feed">
       <div className="container">
@@ -56,55 +97,82 @@ const InstagramFeed = () => {
           <h2 className="section-title">From Our Instagram</h2>
         </div>
 
-        <div className="instagram-row">
-          {instagramPosts.map((post) => (
-            <div key={post.id} className="instagram-post">
-              <div className="post-image-wrap">
-                {post.type === 'video' ? (
-                  <>
-                    <video
-                      src={post.video}
-                      className="post-video"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      aria-label={post.alt}
-                    />
-                    <div className="video-reel-indicator">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                      <span>Reel</span>
+        <div className="instagram-row" ref={rowRef}>
+          {boxes.map((box) => {
+            const hasEmbed = !box.is_empty && Boolean(box.embed_url)
+            const targetUrl = (!box.is_empty && box.url) ? box.url : profileUrl
+
+            return (
+              <a
+                key={box.slot}
+                href={targetUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`instagram-post ${!hasEmbed ? 'instagram-post-empty' : 'instagram-post-live'}`}
+                aria-label={hasEmbed ? `Prakruti Instagram Post ${box.slot}` : 'Visit Prakruti on Instagram'}
+              >
+                <div className="post-image-wrap">
+                  {hasEmbed ? (
+                    <>
+                      <div className="instagram-embed-holder">
+                        <iframe
+                          src={box.embed_url}
+                          className="instagram-feed-iframe"
+                          title={`Instagram Post ${box.slot}`}
+                          frameBorder="0"
+                          scrolling="no"
+                          allowTransparency="true"
+                          style={{
+                            width: '326px',
+                            height: '460px',
+                            transform: `scale(${embedScale})`,
+                            transformOrigin: 'top left',
+                            marginTop: `-${Math.round(54 * embedScale)}px`,
+                          }}
+                        />
+                      </div>
+                      {box.type === 'video' && (
+                        <div className="video-reel-indicator">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                          <span>Reel</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* Empty box: Displays official Prakruti logo with brand tag */
+                    <div className="instagram-empty-box">
+                      <img
+                        src={prakrutiLogo}
+                        alt="Prakruti Organic"
+                        className="empty-box-logo"
+                        loading="lazy"
+                      />
+                      <span className="empty-box-tag">Prakruti</span>
                     </div>
-                  </>
-                ) : (
-                  <img
-                    src={post.image}
-                    alt={post.alt}
-                    className="post-image"
-                    loading="lazy"
-                  />
-                )}
-                <div className="post-overlay">
-                  <svg
-                    className="instagram-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                  </svg>
+                  )}
+
+                  {/* Hover Overlay with Instagram Icon */}
+                  <div className="post-overlay">
+                    <svg
+                      className="instagram-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </a>
+            )
+          })}
 
           {/* 7th: Instagram Follow Us CTA Card */}
           <div className="instagram-follow-card">
@@ -117,10 +185,10 @@ const InstagramFeed = () => {
                 </svg>
               </div>
               <p className="follow-text">
-                Follow <span className="insta-handle">@prakruti</span> for daily wellness inspiration!
+                Follow <span className="insta-handle">{handle}</span> for daily wellness inspiration!
               </p>
               <a 
-                href="https://instagram.com/prakruti" 
+                href={profileUrl} 
                 className="btn btn-primary follow-btn"
                 target="_blank"
                 rel="noopener noreferrer"

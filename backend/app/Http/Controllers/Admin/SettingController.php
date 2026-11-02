@@ -24,6 +24,8 @@ class SettingController extends Controller
             'company_address' => 'nullable|string',
             'company_phone' => 'nullable|string|max:20',
             'company_email' => 'nullable|email|max:255',
+            'instagram_profile_url' => 'nullable|url|max:255',
+            'instagram_handle' => 'nullable|string|max:100',
             'gst_number' => 'nullable|string|max:50',
             'currency' => 'nullable|string|max:10',
             'order_prefix' => 'nullable|string|max:20',
@@ -85,6 +87,28 @@ class SettingController extends Controller
 
         Setting::set('bill_discount_enabled', $request->boolean('bill_discount_enabled') ? '1' : '0');
         Setting::set('bill_discount_rules', json_encode($this->discountRules($request)));
+
+        if ($request->has('instagram_posts_submitted')) {
+            $postUrls = $request->input('instagram_post_url', []);
+            $postTypes = $request->input('instagram_post_type', []);
+            $postMedia = $request->input('instagram_post_media', []);
+            $postCaptions = $request->input('instagram_post_caption', []);
+
+            $savedPosts = [];
+            foreach ($postUrls as $idx => $url) {
+                $mUrl = $postMedia[$idx] ?? '';
+                if (!empty($url) || !empty($mUrl)) {
+                    $savedPosts[] = [
+                        'id' => $idx + 1,
+                        'url' => $url ?: '',
+                        'type' => $postTypes[$idx] ?? 'image',
+                        'media_url' => $mUrl,
+                        'caption' => $postCaptions[$idx] ?? '',
+                    ];
+                }
+            }
+            Setting::set('instagram_posts', json_encode($savedPosts));
+        }
 
         unset(
             $data['bill_discount_min_amount'],

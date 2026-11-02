@@ -1854,10 +1854,19 @@
 
 .food-awareness-main-title {
   font-family: var(--font-heading, serif);
-  font-size: clamp(2.1rem, 3.6vw, 2.85rem);
+  font-size: clamp(1.1rem, 1.4vw, 1.35rem);
   color: #193a15;
   font-weight: 800;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+}
+
+@media (max-width: 680px) {
+  .food-awareness-main-title {
+    white-space: normal;
+    font-size: 1.15rem;
+  }
 }
 
 .food-awareness-desc {
@@ -1931,39 +1940,69 @@
   to { transform: rotate(360deg); }
 }
 
-/* Cards Grid */
+/* Cards Grid - 3 cards in one row, compact size */
 .awareness-cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 1180px;
-  margin: 0 auto 48px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
 }
 
 .awareness-card {
   background: #ffffff;
   border: 1.5px solid #ecdcc6;
-  border-radius: 22px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(43, 34, 22, 0.07);
+  box-shadow: 0 8px 24px rgba(43, 34, 22, 0.05);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  text-decoration: none;
 }
 
 .awareness-card:hover {
-  border-color: #c79a54;
-  box-shadow: 0 24px 55px rgba(43, 34, 22, 0.14);
+  border-color: #2d5a27;
+  box-shadow: 0 16px 36px rgba(43, 34, 22, 0.12);
+  transform: translateY(-5px);
+}
+
+.awareness-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /* Card Media */
 .awareness-card-media-wrapper {
   position: relative;
   width: 100%;
-  height: 220px;
+  aspect-ratio: 16 / 11;
   overflow: hidden;
-  background: #111e10;
-  cursor: pointer;
+  background: #111a14;
+}
+
+/* Live Instagram Embed inside Food Awareness Card */
+.awareness-instagram-holder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111a14;
+}
+
+.awareness-instagram-iframe {
+  position: absolute;
+  left: 0;
+  top: -52px; /* Crops out Instagram's top header */
+  width: 100%;
+  height: calc(100% + 54px);
+  border: 0;
+  pointer-events: none;
 }
 
 .awareness-media-asset {
@@ -1971,6 +2010,7 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
 }
 
 .awareness-card:hover .awareness-media-asset {
@@ -1987,7 +2027,64 @@
 .awareness-media-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+  background: rgba(30, 60, 26, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  color: #ffffff;
+  transition: opacity 0.25s ease;
+  z-index: 3;
+}
+
+.awareness-card:hover .awareness-media-overlay {
+  opacity: 1;
+}
+
+.awareness-view-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Card Body - ONLY Title and Short Paragraph */
+.awareness-card-body {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+}
+
+.awareness-card-title {
+  font-family: var(--font-heading, serif);
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #1a3317;
+  line-height: 1.35;
+  margin: 0;
+  transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.awareness-card:hover .awareness-card-title {
+  color: #2d5a27;
+}
+
+.awareness-card-summary {
+  font-size: 0.86rem;
+  color: #555e52;
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2397,7 +2494,8 @@
 /* Responsive updates for Awareness section & modals */
 @media (max-width: 1024px) {
   .awareness-cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
   .prakruti-shield-banner {
     grid-template-columns: 1fr;
@@ -2408,9 +2506,16 @@
   }
 }
 
+@media (max-width: 640px) {
+  .awareness-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .food-awareness-main-title {
-    font-size: 1.85rem;
+    font-size: 1.25rem;
   }
   .awareness-card-body {
     padding: 20px 20px;

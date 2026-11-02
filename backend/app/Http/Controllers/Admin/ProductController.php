@@ -143,6 +143,10 @@ class ProductController extends Controller
             $data['slug'] = $this->uniqueSlug($data['name'], 'products', 'slug', $product->id);
         }
 
+        if (empty($data['sku'])) {
+            $data['sku'] = $product->sku ?: $this->generateSku($data['name']);
+        }
+
         if ($request->hasFile('image')) {
             $this->uploader->delete($product->image);
             $data['image'] = $this->uploader->upload($request->file('image'), 'products');
@@ -541,6 +545,7 @@ class ProductController extends Controller
             // preserved even when this screen does not manage them.
             'packages' => $id ? 'nullable|array' : 'required|array|min:1',
             'packages.*.id' => 'nullable|integer|exists:product_variations,id',
+            'packages.*.sku' => 'nullable|string|max:100',
             'packages.*.label' => 'required|string|max:100|distinct',
             'packages.*.price' => 'required|numeric|min:0',
             'packages.*.sale_price' => 'nullable|numeric|min:0',
@@ -808,6 +813,7 @@ class ProductController extends Controller
             }
 
             $targetStock = $package['stock_qty'];
+            $packageSku = !empty($package['sku']) ? trim($package['sku']) : $this->generateVariationSku($product, $package['label'], $variation?->id);
             $payload = [
                 'product_id' => $product->id,
                 // Keep the variation's original attribute. The product edit
@@ -815,7 +821,7 @@ class ProductController extends Controller
                 // Color/Size/custom variations into Weight variations.
                 'attr_id' => $variation ? $variation->attr_id : $weightAttribute->id,
                 'attr_val' => $package['label'],
-                'sku' => $this->generateVariationSku($product, $package['label'], $variation?->id),
+                'sku' => $packageSku,
                 'price' => $package['price'],
                 'sale_price' => $package['sale_price'],
                 'status' => $package['status'],

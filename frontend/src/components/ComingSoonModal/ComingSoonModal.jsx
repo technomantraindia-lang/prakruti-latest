@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './ComingSoonModal.css'
 import prakrutiLogo from '../../assets/images/Prakruti Logo_cc.png'
 
 const ComingSoonModal = ({ isOpen, onClose, onContinueBrowsing }) => {
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
-
   // Listen for Escape key and lock body scroll when open
   useEffect(() => {
     if (!isOpen) return
@@ -26,24 +23,6 @@ const ComingSoonModal = ({ isOpen, onClose, onContinueBrowsing }) => {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, onClose])
-
-  const handleNotifySubmit = (e) => {
-    e.preventDefault()
-    if (!email || !email.includes('@')) return
-    try {
-      const existing = JSON.parse(localStorage.getItem('prakruti_launch_subscribers') || '[]')
-      if (!existing.includes(email)) {
-        existing.push(email)
-        localStorage.setItem('prakruti_launch_subscribers', JSON.stringify(existing))
-      }
-    } catch {
-      // Ignore storage errors
-    }
-    setSubscribed(true)
-    setTimeout(() => {
-      setEmail('')
-    }, 2000)
-  }
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -136,33 +115,39 @@ const ComingSoonModal = ({ isOpen, onClose, onContinueBrowsing }) => {
               </div>
             </div>
 
-            {/* Interactive Section: Get Notified at Launch */}
-            <div className="prakruti-cs-notify-box">
-              {subscribed ? (
-                <div className="prakruti-cs-notify-success">
-                  <span className="prakruti-cs-success-icon">✓</span>
-                  <span>Thank you! We will notify you the moment orders open.</span>
-                </div>
-              ) : (
-                <form onSubmit={handleNotifySubmit} className="prakruti-cs-notify-form">
-                  <label htmlFor="prakruti-notify-email" className="prakruti-cs-notify-label">
-                    Be the first to know when we start accepting orders:
-                  </label>
-                  <div className="prakruti-cs-input-group">
-                    <input
-                      id="prakruti-notify-email"
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                    <button type="submit" className="prakruti-cs-notify-btn">
-                      Notify Me
-                    </button>
-                  </div>
-                </form>
-              )}
+            {/* WhatsApp Direct Contact Section */}
+            <div className="prakruti-cs-whatsapp-box">
+              <div className="prakruti-cs-whatsapp-header">
+                <span className="prakruti-cs-wa-badge">
+                  <svg className="prakruti-cs-wa-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67ZM8.83 7.35C8.63 7.35 8.33 7.42 8.08 7.69C7.83 7.96 7.12 8.63 7.12 9.99C7.12 11.35 8.11 12.66 8.25 12.85C8.39 13.04 10.18 15.81 12.94 17C15.23 17.99 15.7 17.79 16.19 17.74C16.68 17.69 17.79 17.08 18.02 16.44C18.25 15.8 18.25 15.25 18.18 15.13C18.11 15.01 17.94 14.94 17.69 14.82C17.44 14.7 16.21 14.09 15.98 14C15.75 13.91 15.58 13.87 15.41 14.12C15.24 14.37 14.75 14.94 14.6 15.11C14.45 15.28 14.3 15.3 14.05 15.18C13.8 15.06 12.75 14.71 11.51 13.6C10.54 12.74 9.89 11.67 9.77 11.46C9.65 11.25 9.76 11.14 9.88 11.02C9.99 10.91 10.13 10.73 10.27 10.57C10.41 10.41 10.46 10.29 10.55 10.11C10.64 9.93 10.59 9.78 10.53 9.66C10.47 9.54 9.98 8.35 9.77 7.86C9.57 7.38 9.37 7.44 9.21 7.43C9.06 7.42 8.88 7.35 8.83 7.35Z"/>
+                  </svg>
+                  <span>WhatsApp Orders &amp; Support</span>
+                </span>
+              </div>
+              <p className="prakruti-cs-whatsapp-note">
+                "Pls connect with this number via WhatsApp till we come live"
+              </p>
+              <div className="prakruti-cs-whatsapp-actions">
+                <a
+                  href="https://wa.me/919898714271?text=Hi%20Prakruti%2C%20I%20want%20to%20place%20an%20order"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="prakruti-cs-wa-btn"
+                >
+                  <span className="prakruti-cs-wa-num">9898714271</span>
+                  <span className="prakruti-cs-wa-sub">Chat on WhatsApp ➔</span>
+                </a>
+                <a
+                  href="https://wa.me/919274683460?text=Hi%20Prakruti%2C%20I%20want%20to%20place%20an%20order"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="prakruti-cs-wa-btn"
+                >
+                  <span className="prakruti-cs-wa-num">+91 92746 83460</span>
+                  <span className="prakruti-cs-wa-sub">Chat on WhatsApp ➔</span>
+                </a>
+              </div>
             </div>
 
             {/* Actions */}

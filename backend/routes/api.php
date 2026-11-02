@@ -41,6 +41,7 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
     Route::get('/food-awareness', [FoodAwarenessApiController::class, 'index']);
     Route::get('/guidelines', [\App\Http\Controllers\Api\V1\GuidelineApiController::class, 'index']);
     Route::get('/guidelines/{guideline}/download', [\App\Http\Controllers\Api\V1\GuidelineApiController::class, 'download']);
+    Route::get('/instagram-feed', [\App\Http\Controllers\Api\V1\InstagramApiController::class, 'index']);
 
 
     // Public Shipping & Tax APIs
