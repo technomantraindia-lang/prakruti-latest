@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 use App\Services\InventoryService;
+use App\Services\ProductNutritionService;
 
 class ProductController extends Controller
 {
@@ -26,7 +27,8 @@ class ProductController extends Controller
 
     public function __construct(
         private ImageUploadService $uploader,
-        private InventoryService $inventoryService
+        private InventoryService $inventoryService,
+        private ProductNutritionService $nutritionService
     ) {}
 
     public function index(Request $request)
@@ -83,6 +85,29 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $data['image'] = $this->uploader->upload($request->file('image'), 'products');
         }
+
+        $category = !empty($data['category_id']) ? Category::find($data['category_id']) : null;
+        $categoryName = $category?->name;
+        $ingredients = $data['product_information']['ingredient'] ?? null;
+        $nutriRaw = $request->input('nutritional_info');
+        $forcedSource = $request->input('nutrition_source');
+        $packagingProof = null;
+        $isOcr = false;
+
+        if ($request->hasFile('nutrition_image')) {
+            $packagingProof = $this->uploader->upload($request->file('nutrition_image'), 'nutrition_labels');
+            $isOcr = true;
+        }
+
+        $data['nutritional_info'] = $this->nutritionService->buildStructuredPayload(
+            $nutriRaw,
+            $data['name'],
+            $categoryName,
+            $ingredients,
+            $forcedSource,
+            $isOcr,
+            $packagingProof
+        );
 
         $product = Product::create($data);
         $this->syncPackageVariants($product, $packages);
@@ -158,6 +183,32 @@ class ProductController extends Controller
         } elseif ($request->input('remove_main_image') == '1') {
             $data['image'] = null;
         }
+
+        $category = !empty($data['category_id']) ? Category::find($data['category_id']) : null;
+        $categoryName = $category?->name;
+        $ingredients = $data['product_information']['ingredient'] ?? null;
+        $nutriRaw = $request->input('nutritional_info');
+        $forcedSource = $request->input('nutrition_source');
+        $packagingProof = $product->nutritional_info['packaging_proof'] ?? null;
+        $isOcr = false;
+
+        if ($request->hasFile('nutrition_image')) {
+            if ($packagingProof) {
+                $this->uploader->delete($packagingProof);
+            }
+            $packagingProof = $this->uploader->upload($request->file('nutrition_image'), 'nutrition_labels');
+            $isOcr = true;
+        }
+
+        $data['nutritional_info'] = $this->nutritionService->buildStructuredPayload(
+            $nutriRaw,
+            $data['name'],
+            $categoryName,
+            $ingredients,
+            $forcedSource,
+            $isOcr,
+            $packagingProof
+        );
 
         $product->update($data);
         $this->syncPackageVariants($product, $packages, $removedPackageIds);
@@ -555,7 +606,9 @@ class ProductController extends Controller
             'removed_packages.*' => 'integer|exists:product_variations,id',
             'short_desc' => 'nullable|string',
             'description' => 'nullable|string',
-            'nutritional_info' => 'nullable|string',
+            'nutritional_info' => 'nullable',
+            'nutrition_source' => 'nullable|string|in:packaging_verified,ifct_reference_estimate,needs_review,unverified',
+            'nutrition_image' => 'nullable|image|max:10240',
             'product_information' => 'nullable|array',
             'product_information.product_type' => 'nullable|string|max:255',
             'product_information.shelf_life' => 'nullable|string|max:255',

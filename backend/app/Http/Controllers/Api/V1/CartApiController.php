@@ -17,7 +17,7 @@ class CartApiController extends Controller
 {
     private function getOrCreateCart(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user() ?: auth()->user();
         $sessionId = $request->header('X-Session-ID') ?: $request->cookie('cart_session');
 
         if ($user) {
@@ -65,16 +65,39 @@ class CartApiController extends Controller
         );
     }
 
+    /**
+     * Authoritative single source of truth for effective unit price calculation.
+     * Respects verified sale discounts only when sale_price > 0 and strictly less than regular price.
+     */
+    public static function resolveEffectivePrice(?float $salePrice, ?float $regularPrice): float
+    {
+        $sale = (float) ($salePrice ?? 0);
+        $regular = (float) ($regularPrice ?? 0);
+
+        if ($sale > 0 && ($regular <= 0 || $sale < $regular)) {
+            return $sale;
+        }
+
+        return max(0.0, $regular);
+    }
+
     private function unitPrice($item): float
     {
         $product = $item->product;
         $variation = $item->variation;
 
         if ($variation) {
-            return (float) ($variation->sale_price ?? $variation->price ?? $product->sale_price ?? $product->price ?? 0);
+            $varPrice = self::resolveEffectivePrice($variation->sale_price, $variation->price);
+            if ($varPrice > 0) {
+                return $varPrice;
+            }
         }
 
-        return (float) ($product->sale_price ?? $product->price ?? $item->sale_price ?? $item->price ?? 0);
+        if ($product) {
+            return self::resolveEffectivePrice($product->sale_price, $product->price);
+        }
+
+        return self::resolveEffectivePrice($item->sale_price ?? null, $item->price ?? null);
     }
 
     private function serializeCart(Cart $cart): array
@@ -84,9 +107,7 @@ class CartApiController extends Controller
         $items = $cart->items->map(function ($item) {
             $product = $item->product;
             $displayVariation = $item->variation ?: $product?->variations?->where('status', 'active')->first();
-            $price = $displayVariation
-                ? (float) ($displayVariation->sale_price ?? $displayVariation->price ?? $product->sale_price ?? $product->price ?? 0)
-                : $this->unitPrice($item);
+            $price = $this->unitPrice($item);
             $gstPct = $product ? app(GstService::class)->productGstPercentage($product) : 0;
             $packageLabel = $displayVariation?->attr_val
                 ?: ($displayVariation?->weight ? rtrim(rtrim(number_format((float) $displayVariation->weight, 2, '.', ''), '0'), '.') . ' kg' : null);
@@ -189,8 +210,8 @@ class CartApiController extends Controller
 
         $cart = $this->getOrCreateCart($request);
         $unitPrice = $variation
-            ? (float) ($variation->sale_price ?? $variation->price ?? $product->sale_price ?? $product->price)
-            : (float) ($product->sale_price ?? $product->price);
+            ? (self::resolveEffectivePrice($variation->sale_price, $variation->price) ?: self::resolveEffectivePrice($product->sale_price, $product->price))
+            : self::resolveEffectivePrice($product->sale_price, $product->price);
 
         $cartItem = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $product->id)

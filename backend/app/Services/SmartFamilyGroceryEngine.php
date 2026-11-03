@@ -5,35 +5,38 @@ namespace App\Services;
 class SmartFamilyGroceryEngine
 {
     /**
-     * ICMR-NIN 2024 Reference Baseline Table (g/day per profile)
+     * ICMR-NIN 2024 Reference Baseline Table (g/day and daily nutrient targets per profile)
      */
     public const REFERENCE_TABLE = [
-        'C46'    => ['label' => 'Child 4–6',       'sex' => 'any',    'min_age' => 4,  'max_age' => 6,   'activity' => 'any',       'cereals' => 160, 'pulses' => 60,  'nuts' => 15, 'oil' => 20, 'sugar' => 20, 'salt' => 5],
-        'C79'    => ['label' => 'Child 7–9',       'sex' => 'any',    'min_age' => 7,  'max_age' => 9,   'activity' => 'any',       'cereals' => 200, 'pulses' => 65,  'nuts' => 20, 'oil' => 25, 'sugar' => 20, 'salt' => 5],
-        'M1012'  => ['label' => 'Boy 10–12',       'sex' => 'male',   'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 280, 'pulses' => 90,  'nuts' => 30, 'oil' => 35, 'sugar' => 20, 'salt' => 5],
-        'F1012'  => ['label' => 'Girl 10–12',      'sex' => 'female', 'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5],
-        'M1315'  => ['label' => 'Boy 13–15',       'sex' => 'male',   'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 390, 'pulses' => 130, 'nuts' => 40, 'oil' => 45, 'sugar' => 20, 'salt' => 5],
-        'F1315'  => ['label' => 'Girl 13–15',      'sex' => 'female', 'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 300, 'pulses' => 100, 'nuts' => 35, 'oil' => 40, 'sugar' => 20, 'salt' => 5],
-        'M1618'  => ['label' => 'Boy 16–18',       'sex' => 'male',   'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 450, 'pulses' => 150, 'nuts' => 50, 'oil' => 55, 'sugar' => 20, 'salt' => 5],
-        'F1618'  => ['label' => 'Girl 16–18',      'sex' => 'female', 'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 315, 'pulses' => 105, 'nuts' => 40, 'oil' => 40, 'sugar' => 20, 'salt' => 5],
-        'M1949S' => ['label' => 'Adult 19–49 Male (Sedentary)', 'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 230, 'pulses' => 75,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5],
-        'M1949M' => ['label' => 'Adult 19–49 Male (Moderate)',  'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 320, 'pulses' => 105, 'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5],
-        'F1949S' => ['label' => 'Adult 19–49 Female (Sedentary)','sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 180, 'pulses' => 60,  'nuts' => 25, 'oil' => 25, 'sugar' => 20, 'salt' => 5],
-        'F1949M' => ['label' => 'Adult 19–49 Female (Moderate)', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5],
-        'M5060'  => ['label' => 'Adult 50–59 Male', 'sex' => 'male',   'min_age' => 50, 'max_age' => 59,  'activity' => 'any',       'cereals' => 200, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5],
-        'F5060'  => ['label' => 'Adult 50–59 Female', 'sex' => 'female', 'min_age' => 50, 'max_age' => 59, 'activity' => 'any',       'cereals' => 165, 'pulses' => 70,  'nuts' => 25, 'oil' => 20, 'sugar' => 20, 'salt' => 5],
-        'M60'    => ['label' => 'Older adult 60+ Male', 'sex' => 'male', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',       'cereals' => 170, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5],
-        'F60'    => ['label' => 'Older adult 60+ Female', 'sex' => 'female', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',   'cereals' => 140, 'pulses' => 70,  'nuts' => 30, 'oil' => 15, 'sugar' => 20, 'salt' => 5],
-        'PREG'   => ['label' => 'Pregnant Female',  'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 220, 'pulses' => 75,  'nuts' => 40, 'oil' => 30, 'sugar' => 20, 'salt' => 5],
-        'LACT'   => ['label' => 'Lactating Female', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 260, 'pulses' => 85,  'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5],
+        'C13'    => ['label' => 'Toddler 1–3',       'sex' => 'any',    'min_age' => 1,  'max_age' => 3,   'activity' => 'any',       'cereals' => 120, 'pulses' => 40,  'nuts' => 10, 'oil' => 15, 'sugar' => 15, 'salt' => 3, 'energy' => 1010, 'protein' => 11.3, 'carbs' => 130, 'fat' => 27, 'fiber' => 15],
+        'C46'    => ['label' => 'Child 4–6',         'sex' => 'any',    'min_age' => 4,  'max_age' => 6,   'activity' => 'any',       'cereals' => 160, 'pulses' => 60,  'nuts' => 15, 'oil' => 20, 'sugar' => 20, 'salt' => 5, 'energy' => 1360, 'protein' => 16.0, 'carbs' => 175, 'fat' => 30, 'fiber' => 18],
+        'C79'    => ['label' => 'Child 7–9',         'sex' => 'any',    'min_age' => 7,  'max_age' => 9,   'activity' => 'any',       'cereals' => 200, 'pulses' => 65,  'nuts' => 20, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1700, 'protein' => 23.0, 'carbs' => 220, 'fat' => 35, 'fiber' => 22],
+        'M1012'  => ['label' => 'Boy 10–12',         'sex' => 'male',   'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 280, 'pulses' => 90,  'nuts' => 30, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2220, 'protein' => 32.0, 'carbs' => 290, 'fat' => 40, 'fiber' => 28],
+        'F1012'  => ['label' => 'Girl 10–12',        'sex' => 'female', 'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2060, 'protein' => 33.0, 'carbs' => 270, 'fat' => 38, 'fiber' => 28],
+        'M1315'  => ['label' => 'Boy 13–15',         'sex' => 'male',   'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 390, 'pulses' => 130, 'nuts' => 40, 'oil' => 45, 'sugar' => 20, 'salt' => 5, 'energy' => 2860, 'protein' => 45.0, 'carbs' => 370, 'fat' => 45, 'fiber' => 35],
+        'F1315'  => ['label' => 'Girl 13–15',        'sex' => 'female', 'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 300, 'pulses' => 100, 'nuts' => 35, 'oil' => 40, 'sugar' => 20, 'salt' => 5, 'energy' => 2400, 'protein' => 43.0, 'carbs' => 310, 'fat' => 40, 'fiber' => 30],
+        'M1618'  => ['label' => 'Boy 16–18',         'sex' => 'male',   'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 450, 'pulses' => 150, 'nuts' => 50, 'oil' => 55, 'sugar' => 20, 'salt' => 5, 'energy' => 3320, 'protein' => 55.0, 'carbs' => 430, 'fat' => 50, 'fiber' => 40],
+        'F1618'  => ['label' => 'Girl 16–18',        'sex' => 'female', 'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 315, 'pulses' => 105, 'nuts' => 40, 'oil' => 40, 'sugar' => 20, 'salt' => 5, 'energy' => 2500, 'protein' => 46.0, 'carbs' => 320, 'fat' => 40, 'fiber' => 32],
+        'M1949S' => ['label' => 'Adult 19–49 Male (Sedentary)', 'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 230, 'pulses' => 75,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2110, 'protein' => 54.0, 'carbs' => 275, 'fat' => 30, 'fiber' => 30],
+        'M1949M' => ['label' => 'Adult 19–49 Male (Moderate)',  'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 320, 'pulses' => 105, 'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2710, 'protein' => 65.0, 'carbs' => 350, 'fat' => 35, 'fiber' => 40],
+        'M1949H' => ['label' => 'Adult 19–49 Male (High Physical / Manual)', 'sex' => 'male', 'min_age' => 19, 'max_age' => 49, 'activity' => 'high', 'cereals' => 400, 'pulses' => 130, 'nuts' => 45, 'oil' => 45, 'sugar' => 20, 'salt' => 5, 'energy' => 3470, 'protein' => 78.0, 'carbs' => 450, 'fat' => 45, 'fiber' => 50],
+        'F1949S' => ['label' => 'Adult 19–49 Female (Sedentary)','sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 180, 'pulses' => 60,  'nuts' => 25, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1660, 'protein' => 46.0, 'carbs' => 215, 'fat' => 25, 'fiber' => 25],
+        'F1949M' => ['label' => 'Adult 19–49 Female (Moderate)', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2130, 'protein' => 55.0, 'carbs' => 275, 'fat' => 30, 'fiber' => 30],
+        'F1949H' => ['label' => 'Adult 19–49 Female (High Physical / Manual)', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49, 'activity' => 'high', 'cereals' => 320, 'pulses' => 105, 'nuts' => 35, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2720, 'protein' => 65.0, 'carbs' => 350, 'fat' => 38, 'fiber' => 38],
+        'M5060'  => ['label' => 'Adult 50–59 Male', 'sex' => 'male',   'min_age' => 50, 'max_age' => 59,  'activity' => 'any',       'cereals' => 200, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 2000, 'protein' => 54.0, 'carbs' => 260, 'fat' => 28, 'fiber' => 30],
+        'F5060'  => ['label' => 'Adult 50–59 Female', 'sex' => 'female', 'min_age' => 50, 'max_age' => 59, 'activity' => 'any',       'cereals' => 165, 'pulses' => 70,  'nuts' => 25, 'oil' => 20, 'sugar' => 20, 'salt' => 5, 'energy' => 1600, 'protein' => 46.0, 'carbs' => 210, 'fat' => 25, 'fiber' => 25],
+        'M60'    => ['label' => 'Older adult 60+ Male', 'sex' => 'male', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',       'cereals' => 170, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1750, 'protein' => 54.0, 'carbs' => 230, 'fat' => 25, 'fiber' => 28],
+        'F60'    => ['label' => 'Older adult 60+ Female', 'sex' => 'female', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',   'cereals' => 140, 'pulses' => 70,  'nuts' => 30, 'oil' => 15, 'sugar' => 20, 'salt' => 5, 'energy' => 1450, 'protein' => 46.0, 'carbs' => 190, 'fat' => 22, 'fiber' => 25],
+        'PREG'   => ['label' => 'Pregnant Female',  'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 220, 'pulses' => 85,  'nuts' => 40, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2010, 'protein' => 61.0, 'carbs' => 245, 'fat' => 35, 'fiber' => 28],
+        'LACT'   => ['label' => 'Lactating Female', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 260, 'pulses' => 95,  'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2180, 'protein' => 65.0, 'carbs' => 255, 'fat' => 37, 'fiber' => 30],
     ];
 
     /**
      * Engine Multiplier Parameters
      */
     public const MONTH_DAYS = 30;
-    public const FACTOR_HIGH_ACTIVITY_CEREAL = 1.10;
-    public const FACTOR_ATHLETE_CEREAL = 1.20;
+    public const FACTOR_HIGH_ACTIVITY_CEREAL = 1.15;
+    public const FACTOR_ATHLETE_CEREAL = 1.25;
     public const FACTOR_HIGH_ACTIVITY_PROTEIN = 1.15;
     public const FACTOR_ATHLETE_PROTEIN = 1.25;
     public const FACTOR_ADOLESCENT_PROTEIN = 1.10;
@@ -68,6 +71,11 @@ class SmartFamilyGroceryEngine
             }
         }
 
+        // Early childhood (1–3 years)
+        if ($age < 4) {
+            return ['key' => 'C13', 'baseline' => self::REFERENCE_TABLE['C13']];
+        }
+
         // Children and Adolescents
         if ($age < 7) {
             return ['key' => 'C46', 'baseline' => self::REFERENCE_TABLE['C46']];
@@ -91,10 +99,11 @@ class SmartFamilyGroceryEngine
         // Adults 19-49
         if ($age <= 49) {
             $isSedentary = ($activity === 'sedentary');
+            $isHigh = ($activity === 'high' || $activity === 'athlete' || $activity === 'heavy');
             if ($sex === 'female') {
-                $key = $isSedentary ? 'F1949S' : 'F1949M';
+                $key = $isSedentary ? 'F1949S' : ($isHigh ? 'F1949H' : 'F1949M');
             } else {
-                $key = $isSedentary ? 'M1949S' : 'M1949M';
+                $key = $isSedentary ? 'M1949S' : ($isHigh ? 'M1949H' : 'M1949M');
             }
             return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
         }
@@ -129,7 +138,7 @@ class SmartFamilyGroceryEngine
             $heightM = ($totalInches * 2.54) / 100.0;
         }
 
-        if ($heightM < 0.5 || $weightKg < 5) {
+        if ($heightM < 0.5 || $weightKg < 1 || $weightKg > 180) {
             return null;
         }
 
@@ -137,7 +146,7 @@ class SmartFamilyGroceryEngine
     }
 
     /**
-     * Member-level quantity assessment first (avoiding single average family member)
+     * Member-level quantity and nutrient assessment
      */
     public function assessMember(array $member): array
     {
@@ -152,16 +161,27 @@ class SmartFamilyGroceryEngine
 
         $cerealMult = 1.0;
         $proteinMult = 1.0;
+        $energyMult = 1.0;
 
-        // Activity Adjustments for Cereals & Protein foods
+        $isAdult1949 = ($age >= 19 && $age <= 49);
+
+        // Activity Adjustments
+        // Note: For adults 19-49, ICMR-NIN 2024 provides distinct baseline profiles (Sedentary, Moderate, Heavy).
+        // Therefore, we must NOT double-multiply for Sedentary, Moderate, or High adults 19-49.
         if ($activity === 'athlete') {
-            $cerealMult *= self::FACTOR_ATHLETE_CEREAL;
-            $proteinMult *= self::FACTOR_ATHLETE_PROTEIN;
-        } elseif ($activity === 'high') {
-            $cerealMult *= self::FACTOR_HIGH_ACTIVITY_CEREAL;
-            $proteinMult *= self::FACTOR_HIGH_ACTIVITY_PROTEIN;
-        } elseif ($activity === 'sedentary') {
-            $cerealMult *= self::FACTOR_SEDENTARY_CEREAL;
+            $energyMult = 1.10;
+            $cerealMult *= 1.10;
+            $proteinMult *= 1.15;
+        } elseif (!$isAdult1949) {
+            // Apply activity scaling only to age groups without activity-stratified NIN tables (e.g. 50+, children)
+            if ($activity === 'high' || $activity === 'heavy') {
+                $energyMult = 1.10;
+                $cerealMult *= 1.10;
+                $proteinMult *= 1.10;
+            } elseif ($activity === 'sedentary') {
+                $energyMult = 0.95;
+                $cerealMult *= 0.95;
+            }
         }
 
         // Adolescent Growth Factor
@@ -172,6 +192,7 @@ class SmartFamilyGroceryEngine
         // Weight Management Cereal Factor (Only for Adult with BMI >= 25 and weight-management goal)
         if ($age >= 19 && $bmi !== null && $bmi >= 25.0 && ($goal === 'weight_loss' || $goal === 'weight_management')) {
             $cerealMult *= self::FACTOR_WEIGHT_GOAL_CEREAL;
+            $energyMult *= 0.92;
         }
 
         $dailyCereals = round($base['cereals'] * $cerealMult, 1);
@@ -181,6 +202,18 @@ class SmartFamilyGroceryEngine
         $dailySugar   = round($base['sugar'], 1);
         $dailySalt    = round($base['salt'], 1);
 
+        $dailyEnergy  = round($base['energy'] * $energyMult);
+        $dailyProtein = round($base['protein'] * $proteinMult, 1);
+        $dailyCarbs   = round($base['carbs'] * $cerealMult, 1);
+        $dailyFat     = round($base['fat'], 1);
+        $dailyFiber   = round($base['fiber'], 1);
+
+        $bmiNote = $bmi !== null 
+            ? "BMI: {$bmi}" 
+            : ($age < 19 
+                ? "Pediatric Growth Reference Applied" 
+                : "ICMR-NIN 2024 Reference Standard Indian Adult (" . ($member['sex'] === 'female' ? '55 kg' : '65 kg') . ") applied.");
+
         return [
             'member_id'    => $member['id'] ?? null,
             'name'         => $member['name'] ?? 'Member',
@@ -189,6 +222,7 @@ class SmartFamilyGroceryEngine
             'profile_key'  => $profileKey,
             'profile_label'=> $base['label'],
             'bmi'          => $bmi,
+            'bmi_note'     => $bmiNote,
             'activity'     => $activity,
             'goal'         => $goal,
             'health_flags' => [
@@ -205,6 +239,13 @@ class SmartFamilyGroceryEngine
                 'sugar'   => $dailySugar,
                 'salt'    => $dailySalt,
             ],
+            'daily_nutrients' => [
+                'energy_kcal' => $dailyEnergy,
+                'protein_g'   => $dailyProtein,
+                'carbs_g'     => $dailyCarbs,
+                'fat_g'       => $dailyFat,
+                'fiber_g'     => $dailyFiber,
+            ],
         ];
     }
 
@@ -217,7 +258,9 @@ class SmartFamilyGroceryEngine
             return [
                 'members_assessed' => [],
                 'daily_household_grams' => [],
+                'daily_household_nutrients' => [],
                 'monthly_kg' => [],
+                'monthly_nutrients' => [],
                 'interpretation' => 'No family members entered.',
                 'safety_alerts' => [],
             ];
@@ -230,6 +273,12 @@ class SmartFamilyGroceryEngine
         $totDailyOil     = 0.0;
         $totDailySugar   = 0.0;
         $totDailySalt    = 0.0;
+
+        $totDailyEnergy  = 0.0;
+        $totDailyProtein = 0.0;
+        $totDailyCarbs   = 0.0;
+        $totDailyFat     = 0.0;
+        $totDailyFiber   = 0.0;
 
         $hasDiabetes = false;
         $hasBp       = false;
@@ -250,12 +299,18 @@ class SmartFamilyGroceryEngine
             $totDailySugar   += $assessed['daily_grams']['sugar'];
             $totDailySalt    += $assessed['daily_grams']['salt'];
 
+            $totDailyEnergy  += $assessed['daily_nutrients']['energy_kcal'];
+            $totDailyProtein += $assessed['daily_nutrients']['protein_g'];
+            $totDailyCarbs   += $assessed['daily_nutrients']['carbs_g'];
+            $totDailyFat     += $assessed['daily_nutrients']['fat_g'];
+            $totDailyFiber   += $assessed['daily_nutrients']['fiber_g'];
+
             if (!empty($assessed['health_flags']['diabetes'])) $hasDiabetes = true;
             if (!empty($assessed['health_flags']['bp']))       $hasBp = true;
             if (!empty($assessed['health_flags']['heart']))    $hasHeart = true;
             if (!empty($assessed['health_flags']['kidney']))   $hasKidney = true;
 
-            if ($assessed['activity'] === 'athlete') $hasAthlete = true;
+            if ($assessed['activity'] === 'athlete' || $assessed['activity'] === 'high') $hasAthlete = true;
             if ($assessed['age'] >= 10 && $assessed['age'] <= 18) $hasTeen = true;
             if ($assessed['age'] >= 60) $hasSenior = true;
         }
@@ -340,12 +395,19 @@ class SmartFamilyGroceryEngine
         if ($hasBp) {
             $safetyAlerts[] = [
                 'type'    => 'info',
-                'title'   => 'Salt-Mindful Planning',
-                'message' => 'Blood pressure flag detected: salt purchase signal reduced to support a mindful intake below WHO recommended thresholds.',
+                'title'   => 'Salt-Mindful Planning (Sodium Notice)',
+                'message' => 'Blood pressure flag detected: salt purchase recommendation reduced to support mindful intake (< 5g/day per adult). Note: Sendha Namak (Pink Rock Salt) is naturally unrefined but consists of ~98% sodium chloride and must still be used in moderation.',
+            ];
+        }
+        if ($hasHeart) {
+            $safetyAlerts[] = [
+                'type'    => 'info',
+                'title'   => 'Cardiovascular Fat Balance Guidance',
+                'message' => 'Heart / lipid profile flag detected: cold-pressed unsaturated vegetable oils (Groundnut, Sesame, Sunflower, Olive) prioritized (85–90%); saturated fats (A2 Desi Cow Ghee) moderated to 10–15% of total added fats.',
             ];
         }
 
-        // Customer-Facing Multi-Parameter Interpretation Report (aligned with Image 4 & 5)
+        // Customer-Facing Multi-Parameter Interpretation Report
         $priorities = [];
         if ($hasAthlete) $priorities[] = 'high-performance athletic activity';
         if ($hasTeen)    $priorities[] = 'adolescent growth stage';
@@ -376,6 +438,13 @@ class SmartFamilyGroceryEngine
                 'sugar'   => round($totDailySugar, 1),
                 'salt'    => round($totDailySalt, 1),
             ],
+            'daily_household_nutrients' => [
+                'energy_kcal' => round($totDailyEnergy),
+                'protein_g'   => round($totDailyProtein, 1),
+                'carbs_g'     => round($totDailyCarbs, 1),
+                'fat_g'       => round($totDailyFat, 1),
+                'fiber_g'     => round($totDailyFiber, 1),
+            ],
             'monthly_requirements' => [
                 'cereals_kg' => round($monthlyCerealsKg, 2),
                 'pulses_kg'  => round($monthlyPulsesKg, 2),
@@ -383,6 +452,13 @@ class SmartFamilyGroceryEngine
                 'oil_liters' => round($monthlyOilLiters, 2),
                 'sugar_kg'   => round($monthlySugarKg, 2),
                 'salt_kg'    => round($monthlySaltKg, 2),
+            ],
+            'monthly_nutrients' => [
+                'energy_kcal' => round($totDailyEnergy * self::MONTH_DAYS),
+                'protein_g'   => round($totDailyProtein * self::MONTH_DAYS, 1),
+                'carbs_g'     => round($totDailyCarbs * self::MONTH_DAYS, 1),
+                'fat_g'       => round($totDailyFat * self::MONTH_DAYS, 1),
+                'fiber_g'     => round($totDailyFiber * self::MONTH_DAYS, 1),
             ],
             'interpretation' => $interpretation,
             'safety_alerts'  => $safetyAlerts,

@@ -307,7 +307,8 @@ export default function EducationPage({ onShopClick, onNavigate }) {
   const handleSeeAnswer = (customQ) => {
     const rawQuestion = (typeof customQ === 'string' ? customQ : searchMyth).trim()
     const question = rawQuestion || 'Why does diabetes happen and what is the best diet for it?'
-    const prompt = question
+    const prefix = 'Think deeply. Go in deep search. Evaluate all the details available and answer this in clear simple language. '
+    const prompt = `${prefix}${question}`
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(prompt).catch(() => {})

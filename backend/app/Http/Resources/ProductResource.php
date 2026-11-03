@@ -38,6 +38,25 @@ class ProductResource extends JsonResource
 
         $images = array_slice(array_values(array_unique($images)), 0, 7);
 
+        $nutritionalInfo = $this->nutritional_info;
+        if (is_array($nutritionalInfo)) {
+            if (empty($nutritionalInfo['food_group'])) {
+                $nutritionService = app(\App\Services\ProductNutritionService::class);
+                $classification = $nutritionService->classifyFoodGroup(
+                    $this->name,
+                    $this->category?->name,
+                    $customProductInformation['ingredient'] ?? null,
+                    $nutritionalInfo['per_100g'] ?? []
+                );
+                $nutritionalInfo['food_group'] = $classification['food_group'];
+                $nutritionalInfo['food_subgroup'] = $classification['food_subgroup'];
+                $nutritionalInfo['group_label'] = $classification['group_label'];
+            }
+            if (!isset($nutritionalInfo['verified'])) {
+                $nutritionalInfo['verified'] = ($nutritionalInfo['source'] ?? '') === 'packaging_verified';
+            }
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -45,7 +64,7 @@ class ProductResource extends JsonResource
             'sku' => $this->sku,
             'description' => $this->description,
             'short_description' => $this->short_desc ?? $this->short_description ?? null,
-            'nutritional_info' => $this->nutritional_info,
+            'nutritional_info' => $nutritionalInfo,
             'product_information' => $productInformation,
             'price' => $displayPrice,
             'regular_price' => (float) $this->price,

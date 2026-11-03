@@ -12,7 +12,12 @@ export const productsApi = {
     if (params.min_price) query.append('min_price', params.min_price);
     if (params.max_price) query.append('max_price', params.max_price);
     if (params.sort) query.append('sort', params.sort);
-    query.append('per_page', params.per_page || 100);
+    if (params.page) query.append('page', params.page);
+    if (params.all) {
+      query.append('all', 'true');
+    } else {
+      query.append('per_page', params.per_page || 100);
+    }
 
     const queryString = query.toString();
     const res = await apiClient(`/products${queryString ? `?${queryString}` : ''}`);
@@ -36,6 +41,45 @@ export const productsApi = {
       items = items.slice(0, 6);
     }
     return { success: true, fromFallback: true, data: items };
+  },
+
+  /**
+   * Fetch all active products across all pages with automatic pagination traversal
+   * to support unlimited admin-added products in Family Pack and catalog calculations
+   */
+  getAllProducts: async (params = {}) => {
+    // 1. Try single unpaginated query with all: true
+    const firstRes = await productsApi.getProducts({ ...params, all: true, per_page: 100 });
+    if (firstRes.success && Array.isArray(firstRes.data)) {
+      const totalPages = Number(firstRes?.pagination?.total_pages || 1);
+      // If backend served everything in one response, return immediately
+      if (totalPages <= 1) {
+        return firstRes;
+      }
+
+      // If backend responded with paginated pages, traverse all remaining pages
+      let allItems = [...firstRes.data];
+      for (let p = 2; p <= totalPages; p++) {
+        const pageRes = await productsApi.getProducts({ ...params, page: p, per_page: 100 });
+        if (pageRes.success && Array.isArray(pageRes.data)) {
+          allItems = allItems.concat(pageRes.data);
+        }
+      }
+
+      return {
+        ...firstRes,
+        data: allItems,
+        pagination: {
+          ...firstRes.pagination,
+          count: allItems.length,
+          total: allItems.length,
+          current_page: 1,
+          total_pages: 1,
+        },
+      };
+    }
+
+    return firstRes;
   },
 
   getProductBySlug: async (slugOrId) => {

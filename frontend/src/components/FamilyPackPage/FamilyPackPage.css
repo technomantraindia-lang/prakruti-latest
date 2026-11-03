@@ -307,24 +307,24 @@
 
 /* 2. Common Step Container & Cards */
 .fp-section-container {
-  margin-top: 36px;
+  margin-top: 22px;
 }
 
 .fp-card {
   background: #ffffff;
   border: 1px solid rgba(23, 56, 38, 0.09);
-  border-radius: 24px;
-  padding: 36px 38px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
 }
 
 .fp-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 26px;
-  padding-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(23, 56, 38, 0.08);
 }
 
@@ -332,35 +332,35 @@
   display: inline-block;
   background-color: rgba(23, 56, 38, 0.08);
   color: #173826;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 14px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .fp-card-header h2 {
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #173826;
-  margin: 0 0 6px;
-  line-height: 1.2;
+  margin: 0 0 3px;
+  line-height: 1.25;
 }
 
 .fp-card-header p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: #617b66;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* Member Quick Add Buttons */
 .member-quick-add {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -369,10 +369,10 @@
   border: 1px solid rgba(23, 56, 38, 0.2);
   color: #173826;
   font-family: var(--font-body);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 9px 16px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -387,33 +387,33 @@
 /* Member Chips Row */
 .member-chips-row {
   display: flex;
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 8px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: #fbf9f4;
   border: 1px solid rgba(23, 56, 38, 0.1);
-  padding: 8px 16px;
-  border-radius: 12px;
+  padding: 5px 11px;
+  border-radius: 9px;
 }
 
 .chip-icon {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
 }
 
 .chip-count {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #173826;
 }
 
 .chip-label {
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: #617b66;
 }
@@ -424,20 +424,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  margin-top: 22px;
-  padding: 14px 16px;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 9px 12px;
   border: 1px solid rgba(39, 98, 65, 0.14);
-  border-radius: 14px;
+  border-radius: 10px;
   background: rgba(39, 98, 65, 0.045);
 }
 
 .bmi-note-kicker {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   color: #276241;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bmi-planner-note p {
+  margin: 0;
+  color: #617b66;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -545,15 +555,15 @@
 .basket-total-badge {
   background: #173826;
   color: #ffffff;
-  padding: 12px 24px;
-  border-radius: 16px;
+  padding: 8px 18px;
+  border-radius: 12px;
   text-align: right;
-  box-shadow: 0 4px 16px rgba(23, 56, 38, 0.2);
+  box-shadow: 0 3px 12px rgba(23, 56, 38, 0.15);
 }
 
 .basket-total-badge span {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #bbf7d0;
   text-transform: uppercase;
@@ -563,7 +573,7 @@
 .basket-total-badge strong {
   display: block;
   font-family: var(--font-body);
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   font-weight: 800;
   line-height: 1.1;
   margin-top: 2px;
@@ -573,18 +583,18 @@
 .basket-items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .basket-item-row {
   display: grid;
-  grid-template-columns: 36px 64px minmax(0, 1.4fr) 110px 120px 120px 36px;
+  grid-template-columns: 32px 50px minmax(0, 1.4fr) 100px 110px 110px 32px;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   background: #faf8f3;
   border: 1px solid rgba(23, 56, 38, 0.08);
-  border-radius: 16px;
-  padding: 12px 18px;
+  border-radius: 12px;
+  padding: 8px 14px;
   transition: all 0.2s ease;
 }
 
@@ -595,18 +605,18 @@
 }
 
 .item-num {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #94a3b8;
 }
 
 .item-thumb-box {
-  width: 58px;
-  height: 58px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   background: #f7f4ed;
   border: 1px solid rgba(23, 56, 38, 0.08);
-  padding: 4px;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1680,11 +1690,11 @@
 /* Member Grid List Container */
 .member-grid-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 420px));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 310px));
   justify-content: flex-start;
-  gap: 24px;
+  gap: 12px;
   width: 100%;
-  margin-top: 18px;
+  margin-top: 12px;
   box-sizing: border-box;
 }
 
@@ -1694,21 +1704,21 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  max-width: 420px;
+  max-width: 310px;
   box-sizing: border-box;
-  gap: 16px;
-  padding: 22px 20px;
+  gap: 8px;
+  padding: 12px 14px;
   background: #ffffff;
   border: 1.5px solid #e5dcce;
-  border-radius: 20px;
-  box-shadow: 0 4px 18px rgba(23, 56, 38, 0.05);
-  transition: all 0.25s ease;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(23, 56, 38, 0.04);
+  transition: all 0.2s ease;
 }
 
 .member-card-item.detailed-profile:hover {
   border-color: #276241;
-  box-shadow: 0 10px 28px rgba(23, 56, 38, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(23, 56, 38, 0.08);
+  transform: translateY(-1px);
 }
 
 /* Card Header */
@@ -1717,44 +1727,44 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #f0e9dc;
-  padding-bottom: 12px;
+  padding-bottom: 6px;
   width: 100%;
   box-sizing: border-box;
-  gap: 10px;
+  gap: 6px;
 }
 
 .member-top-left-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .member-index-tag {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #173826;
   background: #eaf4ed;
   border: 1px solid #cce5d5;
-  padding: 4px 9px;
-  border-radius: 6px;
+  padding: 2px 7px;
+  border-radius: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
 .member-profile-code {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #6b6356;
-  background: #f7f3ec;
-  border: 1px solid #ebdcc5;
-  padding: 4px 9px;
-  border-radius: 6px;
+  color: #2b5435;
+  background: #f0f7f2;
+  border: 1px solid #d2e7d7;
+  padding: 2px 8px;
+  border-radius: 5px;
 }
 
 .btn-remove-member {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 1px solid #ded5c5;
   background: #faf8f5;
@@ -1762,7 +1772,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -1775,50 +1785,85 @@
   transform: scale(1.08);
 }
 
-/* Demographics Grid (2-row structured form) */
+/* Demographics Grid (Compact structured form) */
 .member-demographics-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.member-demographics-grid .name-wrap {
-  grid-column: 1 / -1;
+.member-demographics-grid .name-wrap,
+.member-demographics-grid .sex-wrap {
   width: 100%;
 }
 
-.member-demographics-grid .sex-wrap,
-.member-demographics-grid .age-wrap,
-.member-demographics-grid .height-wrap,
-.member-demographics-grid .weight-wrap {
+/* Prominent Male / Female Selector Buttons */
+.sex-toggle-group {
+  display: flex;
+  gap: 6px;
   width: 100%;
-  min-width: 0;
+}
+
+.sex-toggle-btn {
+  flex: 1;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid #ded5c5;
+  background: #fdfbf7;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #555047;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.sex-toggle-btn:hover {
+  border-color: #276241;
+  background: #f3efe6;
+}
+
+.sex-toggle-btn.active {
+  background: #173826;
+  color: #ffffff;
+  border-color: #173826;
+  box-shadow: 0 2px 6px rgba(23, 56, 38, 0.2);
+}
+
+/* 3-column inline metrics: Age, Height, Weight */
+.member-metrics-inline-row {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: 6px;
+  width: 100%;
   box-sizing: border-box;
 }
 
 .member-demographics-grid .input-wrap label,
 .member-lifestyle-grid .input-wrap label {
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-weight: 800;
   color: #4f6354;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 3px;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
   display: block;
 }
 
 .member-demographics-grid input,
-.member-demographics-grid select,
 .member-lifestyle-grid select {
   width: 100%;
-  height: 40px;
+  height: 30px;
   border: 1.5px solid #ded5c5;
-  border-radius: 10px;
-  padding: 0 11px;
+  border-radius: 7px;
+  padding: 0 8px;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #173826;
   background: #fdfbf7;
@@ -1828,18 +1873,17 @@
 }
 
 .member-demographics-grid input:focus,
-.member-demographics-grid select:focus,
 .member-lifestyle-grid select:focus {
   border-color: #173826;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(23, 56, 38, 0.08);
+  box-shadow: 0 0 0 2px rgba(23, 56, 38, 0.08);
 }
 
 .ft-in-flex {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1847,19 +1891,20 @@
 .ft-in-flex input {
   width: 100%;
   text-align: center;
+  padding: 0 4px;
 }
 
 .ft-in-divider {
   color: #9c8e7b;
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 /* Lifestyle & Goals */
 .member-lifestyle-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1878,19 +1923,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fcf9f2;
-  border: 1.5px solid #ebdcc5;
-  border-radius: 12px;
-  padding: 10px 14px;
+  background: #fbf9f4;
+  border: 1px solid #ebdcc5;
+  border-radius: 8px;
+  padding: 5px 10px;
   width: 100%;
   box-sizing: border-box;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .bmi-strip-left {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -1900,11 +1946,10 @@
   color: #766a58;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .bmi-strip-value {
-  font-size: 1.22rem;
+  font-size: 1.05rem;
   font-weight: 900;
   color: #173826;
   line-height: 1;
@@ -1914,13 +1959,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .bmi-status-badge.normal {
@@ -1963,9 +2007,9 @@
 .member-health-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   border-top: 1px solid #f0e9dc;
-  padding-top: 12px;
+  padding-top: 6px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1978,34 +2022,34 @@
 }
 
 .health-section-header .flags-label {
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 800;
   color: #173826;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .health-section-header .flags-hint {
-  font-size: 0.68rem;
+  font-size: 0.6rem;
   color: #887a68;
 }
 
 .health-flags-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
 }
 
 .health-flag-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: #faf7f2;
   border: 1.5px solid #ded5c5;
-  padding: 5px 10px;
-  border-radius: 16px;
-  font-size: 0.76rem;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #444c43;
   cursor: pointer;
@@ -2015,9 +2059,10 @@
 
 .health-flag-chip input[type="checkbox"] {
   cursor: pointer;
-  width: 13px;
-  height: 13px;
+  width: 11px;
+  height: 11px;
   accent-color: #173826;
+  margin: 0;
 }
 
 .health-flag-chip:hover {
@@ -2029,33 +2074,33 @@
   background: #eaf4ed;
   border-color: #276241;
   color: #173826;
-  box-shadow: 0 2px 8px rgba(39, 98, 65, 0.12);
+  box-shadow: 0 2px 6px rgba(39, 98, 65, 0.12);
 }
 
 .health-flag-chip.danger.active {
   background: #fee2e2;
   border-color: #ef4444;
   color: #991b1b;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.12);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.12);
 }
 
 /* Household Habits Grid */
 .household-habits-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 12px;
   width: 100%;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .habit-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   background: #faf7f0;
   border: 1.5px solid #ebdcc5;
-  border-radius: 16px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 10px 14px;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -2066,19 +2111,19 @@
 }
 
 .habit-item label {
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: #173826;
   letter-spacing: 0.01em;
 }
 
 .habit-item select {
-  height: 42px;
-  border-radius: 10px;
+  height: 32px;
+  border-radius: 8px;
   border: 1.5px solid #ded5c5;
   background: #ffffff;
-  padding: 0 12px;
-  font-size: 0.9rem;
+  padding: 0 10px;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #173826;
   outline: none;
@@ -2089,80 +2134,80 @@
 
 .habit-item select:focus {
   border-color: #173826;
-  box-shadow: 0 0 0 3px rgba(23, 56, 38, 0.08);
+  box-shadow: 0 0 0 2px rgba(23, 56, 38, 0.08);
 }
 
 /* 6-Col Nutrition Cards Grid */
 .nutrition-cards-grid.six-col {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
+  gap: 10px;
   width: 100%;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .nutrition-stat-card {
   background: #ffffff;
   border: 1.5px solid #ebdcc5;
-  border-radius: 18px;
-  padding: 22px 14px;
+  border-radius: 12px;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(23, 56, 38, 0.04);
-  transition: all 0.25s ease;
+  gap: 4px;
+  box-shadow: 0 2px 10px rgba(23, 56, 38, 0.03);
+  transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .nutrition-stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(23, 56, 38, 0.09);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(23, 56, 38, 0.08);
   border-color: #276241;
 }
 
 .nutrition-stat-card .nutri-icon {
-  font-size: 2rem;
+  font-size: 1.35rem;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .nutrition-stat-card .nutri-label {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 800;
   color: #536456;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  min-height: 32px;
+  letter-spacing: 0.03em;
+  min-height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .nutrition-stat-card .nutri-val {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 900;
   color: #173826;
   font-feature-settings: "tnum";
 }
 
 .nutrition-stat-card .nutri-val small {
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #687a6b;
   margin-left: 2px;
 }
 
 .nutrition-stat-card .nutri-sub {
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 800;
   color: #1b4d31;
   background: #eaf4ed;
   border: 1px solid #cce5d5;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-top: 2px;
 }
 
 .nutrition-stat-card.grains {
@@ -2219,6 +2264,328 @@
   }
   .member-card-item.detailed-profile {
     padding: 16px;
+  }
+}
+
+/* ==========================================================================
+   ICMR-NIN 2024 Macro-Nutrient & Basket Coverage Dashboard
+   ========================================================================== */
+
+.macro-coverage-dashboard {
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: linear-gradient(180deg, #fbfdfa 0%, #f4f8f4 100%);
+  border: 1.5px solid #d2e4d6;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(23, 56, 38, 0.04);
+}
+
+.macro-coverage-header {
+  margin-bottom: 14px;
+}
+
+.coverage-title-group .coverage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 10px;
+  background-color: #e4efe7;
+  color: #1b4d31;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.coverage-title-group h3 {
+  font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+  font-size: 1.25rem;
+  color: #173826;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.coverage-title-group p {
+  font-size: 0.82rem;
+  color: #55695a;
+  line-height: 1.4;
+  margin: 0;
+  max-width: 820px;
+}
+
+.macro-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.macro-metric-card {
+  background: #ffffff;
+  border: 1.5px solid #e2ece4;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(23, 56, 38, 0.03);
+  transition: all 0.2s ease;
+}
+
+.macro-metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(23, 56, 38, 0.07);
+  border-color: #276241;
+}
+
+.macro-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.macro-name {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #2d4533;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.macro-coverage-tag {
+  font-size: 0.66rem;
+  font-weight: 800;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 1px 6px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  white-space: nowrap;
+}
+
+.macro-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.macro-num-block small {
+  display: block;
+  font-size: 0.62rem;
+  color: #718096;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.macro-num-block strong {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #173826;
+  font-feature-settings: "tnum";
+}
+
+.macro-num-block.target span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #718096;
+}
+
+.macro-num-block .unit {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.macro-divider {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.macro-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: #eef3ef;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.macro-bar-fill.energy {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.macro-bar-fill.protein {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.macro-bar-fill.fiber {
+  background: linear-gradient(90deg, #84cc16 0%, #65a30d 100%);
+}
+
+.macro-bar-fill.carbs {
+  background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+.macro-bar-fill.fat {
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+}
+
+.macro-card-sub {
+  font-size: 0.72rem;
+  color: #627566;
+  line-height: 1.35;
+}
+
+.coverage-explanation-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px dashed #93c5a0;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.coverage-banner-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.coverage-banner-text {
+  font-size: 0.84rem;
+  color: #3b5040;
+  line-height: 1.5;
+}
+
+.coverage-banner-text strong {
+  color: #173826;
+}
+
+/* Enhanced Basket Row Details */
+.item-details-top-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.item-nutrition-pill {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f8f3;
+  color: #1b4d31;
+  border: 1px solid #cce5d5;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+.item-scientific-reason {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #4b6352;
+  background: #fbfdfa;
+  border-left: 3px solid #2d5a27;
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+  margin: 6px 0 8px;
+}
+
+.item-scientific-reason strong {
+  color: #173826;
+}
+
+.macro-coverage-tag.surplus {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.macro-coverage-tag.gap {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+.macro-coverage-tag.optimal {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.stock-shortfall-alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+.stock-shortfall-alert-box .alert-box-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.stock-shortfall-alert-box ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+.tree-nuts-education-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fdfaf5;
+  border: 1px dashed #d9b88f;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  color: #5c4424;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.tree-nuts-education-card .nuts-card-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.tree-nuts-education-card strong {
+  color: #3e280f;
+}
+
+@media (max-width: 1200px) {
+  .macro-metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .macro-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .macro-coverage-dashboard {
+    padding: 20px 16px;
   }
 }
 

@@ -43,17 +43,53 @@
   height: 100%;
 }
 
+.editorial-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
 .editorial-badge {
   background-color: rgba(255, 255, 255, 0.15);
   color: var(--color-cream-dark);
   font-size: 0.72rem;
   font-weight: 800;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   width: max-content;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 28px;
+  margin-bottom: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.editorial-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.editorial-logo-badge:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+.editorial-header-logo {
+  height: 44px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  display: block;
 }
 
 .editorial-title {
@@ -135,6 +171,20 @@
 
 .form-header-box {
   margin-bottom: 24px;
+}
+
+.form-brand-header {
+  display: none; /* Hide on desktop to avoid duplication with editorial badge */
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.form-brand-logo {
+  height: 48px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
 }
 
 .form-main-title {
@@ -469,6 +519,10 @@
 
   .auth-editorial-panel {
     display: none; /* Hide editorial showcase on tablet/mobile for focus */
+  }
+
+  .form-brand-header {
+    display: flex; /* Show logo in form on mobile when editorial panel is hidden */
   }
 
   .auth-form-panel {

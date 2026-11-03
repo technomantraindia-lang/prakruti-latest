@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 
 // Import background images/assets
 import authBgImg from '../../assets/images/first banner.png';
+import prakrutiLogo from '../../assets/images/Prakruti Logo_cc.png';
 
 const REMEMBERED_EMAIL_KEY = 'prakruti_remembered_customer_email';
 
@@ -101,7 +102,12 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
           style={{ backgroundImage: `linear-gradient(to bottom, rgba(19, 44, 21, 0.93), rgba(36, 91, 42, 0.8)), url(${authBgImg})` }}
         >
           <div className="editorial-inner">
-            <span className="editorial-badge">Pure & Trusted</span>
+            <div className="editorial-top-row">
+              <span className="editorial-badge">Pure & Trusted</span>
+              <div className="editorial-logo-badge" title="Prakruti - Crafted Traditionally. Tested Scientifically.">
+                <img src={prakrutiLogo} alt="Prakruti Logo" className="editorial-header-logo" />
+              </div>
+            </div>
             <h2 className="editorial-title">Prakruti</h2>
             <p className="editorial-text">
               Crafted Traditionally. Tested Scientifically. Join our community for a healthier, chemical-free lifestyle.
@@ -136,6 +142,9 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
             
             {/* Header/Switch tabs */}
             <div className="form-header-box">
+              <div className="form-brand-header">
+                <img src={prakrutiLogo} alt="Prakruti Logo" className="form-brand-logo" />
+              </div>
               <h1 className="form-main-title">
                 {isForgot ? 'Forgot Password' : isReset ? 'Reset Password' : isRegister ? 'Create Account' : 'Welcome Back'}
               </h1>

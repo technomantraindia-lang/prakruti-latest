@@ -145,11 +145,67 @@
                     @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="mb-0">
-                    <label class="form-label">Nutritional Info</label>
-                    <textarea name="nutritional_info" class="form-control @error('nutritional_info') is-invalid @enderror" rows="6" placeholder="Example: Energy: 343 kcal&#10;Protein: 22g&#10;Carbohydrates: 60g">{{ old('nutritional_info', $product->nutritional_info ?? '') }}</textarea>
-                    <small class="text-muted">This content appears in the Nutritional Info tab on the product detail page.</small>
-                    @error('nutritional_info')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="card border-success-subtle bg-light mb-4 mt-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0"><i class="fas fa-apple-alt text-success me-2"></i>Nutritional Facts &amp; Verification</h5>
+                            <small class="text-muted">Powers Family Pack nutrition engine and product detail nutrition tab.</small>
+                        </div>
+                        @php
+                            $currentNutri = old('nutritional_info', $product->nutritional_info ?? null);
+                            $source = is_array($currentNutri) ? ($currentNutri['source'] ?? 'unverified') : 'unverified';
+                            $verifiedLabel = is_array($currentNutri) ? ($currentNutri['verified_label'] ?? '') : '';
+                            $proofImage = is_array($currentNutri) ? ($currentNutri['packaging_proof'] ?? null) : null;
+                        @endphp
+                        <span class="badge {{ $source === 'packaging_verified' ? 'bg-success' : ($source === 'ifct_reference_estimate' ? 'bg-primary' : 'bg-warning text-dark') }}">
+                            {{ $source === 'packaging_verified' ? '🔬 Packaging Verified' : ($source === 'ifct_reference_estimate' ? '📚 IFCT Reference' : '⚠️ Review Required') }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Verification Source</label>
+                                <select name="nutrition_source" class="form-select form-select-sm">
+                                    <option value="packaging_verified" @selected(old('nutrition_source', $source) === 'packaging_verified')>🔬 Verified from Packaging (Lab Fact)</option>
+                                    <option value="ifct_reference_estimate" @selected(old('nutrition_source', $source) === 'ifct_reference_estimate')>📚 IFCT 2024 Reference Standard</option>
+                                    <option value="needs_review" @selected(old('nutrition_source', $source) === 'needs_review')>⚠️ Extracted / Review Required</option>
+                                    <option value="unverified" @selected(old('nutrition_source', $source) === 'unverified')>❓ Pending Lab Verification</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Packaging Image (OCR / Proof)</label>
+                                <input type="file" name="nutrition_image" class="form-control form-control-sm" accept="image/*">
+                                @if($proofImage)
+                                    <small class="text-success"><i class="fas fa-check-circle"></i> Packaging proof attached (<a href="{{ asset('storage/' . ltrim($proofImage, '/')) }}" target="_blank">View</a>)</small>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Nutritional Values (Paste table, enter text, or JSON)</label>
+                                @php
+                                    $nutriText = '';
+                                    if (is_array($currentNutri)) {
+                                        if (isset($currentNutri['per_100g']) && is_array($currentNutri['per_100g'])) {
+                                            $p = $currentNutri['per_100g'];
+                                            $nutriText = "Energy: " . ($p['energy_kcal'] ?? 0) . " kcal\n"
+                                                       . "Protein: " . ($p['protein_g'] ?? 0) . "g\n"
+                                                       . "Carbohydrates: " . ($p['carbs_g'] ?? 0) . "g\n"
+                                                       . "Total Fat: " . ($p['fat_g'] ?? 0) . "g\n"
+                                                       . "Dietary Fibre: " . ($p['fiber_g'] ?? 0) . "g\n"
+                                                       . "Sodium: " . ($p['sodium_mg'] ?? 0) . "mg\n"
+                                                       . "Serving Size: " . ($currentNutri['serving_size'] ?? '100g');
+                                        } else {
+                                            $nutriText = json_encode($currentNutri, JSON_PRETTY_PRINT);
+                                        }
+                                    } elseif (is_string($currentNutri)) {
+                                        $nutriText = $currentNutri;
+                                    }
+                                @endphp
+                                <textarea name="nutritional_info" class="form-control @error('nutritional_info') is-invalid @enderror" rows="7" placeholder="Example:&#10;Energy: 345 kcal&#10;Protein: 22g&#10;Carbohydrates: 63g&#10;Total Fat: 1.0g&#10;Dietary Fibre: 15g&#10;Sodium: 17mg&#10;Serving Size: 100g">{{ old('nutritional_info', $nutriText) }}</textarea>
+                                @error('nutritional_info')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <small class="text-muted">Values are automatically normalized to per 100g and validated before saving. Uncertain or incomplete information is flagged for review.</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="card border-0 bg-light mt-4">

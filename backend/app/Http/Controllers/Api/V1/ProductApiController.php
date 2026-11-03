@@ -136,10 +136,26 @@ class ProductApiController extends Controller
                 break;
         }
 
-        // 8. Pagination with cap
+        // 8. Pagination or Full Catalog Query (supports unlimited products for engines & catalog planners)
+        if ($request->boolean('all') || $request->get('per_page') === 'all') {
+            $allProducts = $query->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Products fetched successfully.',
+                'data' => ProductResource::collection($allProducts),
+                'pagination' => [
+                    'total' => $allProducts->count(),
+                    'count' => $allProducts->count(),
+                    'per_page' => $allProducts->count(),
+                    'current_page' => 1,
+                    'total_pages' => 1,
+                ],
+            ]);
+        }
+
         $perPage = (int) $request->get('per_page', 20);
         if ($perPage <= 0) $perPage = 20;
-        if ($perPage > 100) $perPage = 100; // Cap maximum to prevent memory exhaustion
+        if ($perPage > 100) $perPage = 100; // Cap maximum for standard page requests
 
         $products = $query->paginate($perPage)->withQueryString();
 

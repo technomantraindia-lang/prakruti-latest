@@ -14,7 +14,7 @@ const pillars = [
     subtitle: 'Scope Certificate',
     desc: 'Cultivated in pesticide-free soils using non-GMO native seeds nurtured with natural bio-compost across 500+ farmer cooperatives.'
   },
-  {
+    {
     image: laboratoryImage,
     title: 'Laboratory Tested',
     titleLines: ['Laboratory', 'Tested'],

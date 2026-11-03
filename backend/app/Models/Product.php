@@ -22,6 +22,7 @@ class Product extends Model
         'cost_price' => 'decimal:2',
         'featured' => 'boolean',
         'product_information' => 'array',
+        'nutritional_info' => 'array',
     ];
 
     protected $hidden = [

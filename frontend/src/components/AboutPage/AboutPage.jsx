@@ -460,25 +460,30 @@ const AboutPage = ({ onShopClick }) => {
         </div>
       </section>
 
-      {/* 6. Purity Certifications Strip */}
+      {/* 6. Official Quality Accreditations (Big & Prominent - Same as Homepage) */}
       <section className="about-certifications-section">
         <div className="container">
-          <div className="certifications-shell">
-            <div className="cert-header">
-              <span className="section-eyebrow">ACCREDITED STANDARDS</span>
-              <h3 className="cert-title">Certified for Purity &amp; Quality</h3>
-              <p className="certification-note">
-                Responsibly Sourced &amp; Packed at a Certified Organic Facility
-              </p>
+          <div className="trust-accreditations-wrap">
+            <div className="trust-logos-panel">
+              <span className="accred-eyebrow">OUR QUALITY MARKS</span>
+              <div className="trust-logos-grid">
+                {certificationBadges
+                  .filter((badge) => badge.label !== 'HACCP Food Safety Certified')
+                  .map((badge) => (
+                    <div className="trust-logo-card" key={badge.label}>
+                      <img src={badge.image} alt={badge.label} loading="lazy" />
+                      <span>{badge.label}</span>
+                    </div>
+                  ))}
+              </div>
             </div>
-
-            <div className="cert-badges-grid">
-              {certificationBadges.map((badge) => (
-                <div className="cert-badge-box" key={badge.label}>
-                  <img src={badge.image} alt={badge.label} />
-                  <span>{badge.label}</span>
-                </div>
-              ))}
+            <div className="trust-accreditations-copy">
+              <span className="accred-eyebrow">A STANDARD WE LIVE BY</span>
+              <h3>Responsibly Sourced &amp; Packed at a Certified Organic Facility</h3>
+              <p>
+                At Prakruti, we believe quality begins with responsible sourcing and careful handling. Our products are sourced with attention to quality, authenticity and traceability. They are packed at a certified organic facility, following appropriate hygiene and quality practices to maintain product integrity. Every step reflects our commitment to responsible practices and consumer trust.
+              </p>
+              <span className="trust-copy-rule" aria-hidden="true" />
             </div>
           </div>
         </div>

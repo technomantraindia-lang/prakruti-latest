@@ -8,6 +8,14 @@ const AccountPage = ({ currentUser, onLoginClick, onShopClick, onFamilyPackClick
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
 
+  // Edit details state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState('');
+  const [updateSuccess, setUpdateSuccess] = useState('');
+
   useEffect(() => {
     let mounted = true;
 
@@ -74,6 +82,64 @@ const AccountPage = ({ currentUser, onLoginClick, onShopClick, onFamilyPackClick
     .slice(0, 2)
     .toUpperCase();
 
+  const handleStartEdit = () => {
+    setEditName(displayUser.name || '');
+    setEditPhone(displayUser.phone || '');
+    setUpdateError('');
+    setUpdateSuccess('');
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setUpdateError('');
+    setUpdateSuccess('');
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    if (!editName.trim()) {
+      setUpdateError('Please enter your full name.');
+      return;
+    }
+
+    setUpdating(true);
+    setUpdateError('');
+    setUpdateSuccess('');
+
+    try {
+      const res = await accountApi.updateProfile({
+        name: editName.trim(),
+        phone: editPhone.trim(),
+      });
+
+      if (res && res.success) {
+        const updated = res.data || { ...displayUser, name: editName.trim(), phone: editPhone.trim() };
+        setProfile(updated);
+
+        try {
+          const stored = localStorage.getItem('prakruti_customer_user');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            localStorage.setItem('prakruti_customer_user', JSON.stringify({ ...parsed, ...updated }));
+          }
+        } catch (_) {}
+
+        setUpdateSuccess('Profile details updated successfully!');
+        setTimeout(() => {
+          setIsEditing(false);
+          setUpdateSuccess('');
+        }, 1200);
+      } else {
+        setUpdateError(res?.message || 'Failed to update details. Please try again.');
+      }
+    } catch (err) {
+      setUpdateError('An error occurred while updating profile.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
     <div className="account-page">
       <div className="container account-container">
@@ -113,27 +179,101 @@ const AccountPage = ({ currentUser, onLoginClick, onShopClick, onFamilyPackClick
           <section className="account-card">
             <div className="account-card-heading">
               <span>Profile Details</span>
-              {loading && <small>Loading...</small>}
+              <div className="account-heading-actions">
+                {loading && <small>Loading...</small>}
+                {!isEditing ? (
+                  <button
+                    type="button"
+                    className="btn-edit-details"
+                    onClick={handleStartEdit}
+                  >
+                    ✏️ Edit Details
+                  </button>
+                ) : (
+                  <span className="badge-editing">Editing</span>
+                )}
+              </div>
             </div>
 
-            <div className="account-detail-list">
-              <div className="account-detail-row">
-                <span>Name</span>
-                <strong>{displayUser.name || '-'}</strong>
+            {isEditing ? (
+              <form className="account-edit-form" onSubmit={handleSaveProfile}>
+                <div className="edit-form-field">
+                  <label htmlFor="edit_customer_name">Full Name *</label>
+                  <input
+                    id="edit_customer_name"
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+
+                <div className="edit-form-field">
+                  <label htmlFor="edit_customer_phone">Mobile Number</label>
+                  <input
+                    id="edit_customer_phone"
+                    type="tel"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="Enter 10-digit mobile number"
+                  />
+                </div>
+
+                <div className="edit-form-field">
+                  <label htmlFor="edit_customer_email">
+                    Email Address <small>(Registered)</small>
+                  </label>
+                  <input
+                    id="edit_customer_email"
+                    type="email"
+                    value={displayUser.email || ''}
+                    disabled
+                    className="input-disabled"
+                  />
+                </div>
+
+                {updateError && <div className="edit-alert error">{updateError}</div>}
+                {updateSuccess && <div className="edit-alert success">{updateSuccess}</div>}
+
+                <div className="edit-form-buttons">
+                  <button
+                    type="submit"
+                    className="btn-save-details"
+                    disabled={updating}
+                  >
+                    {updating ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-cancel-edit"
+                    onClick={handleCancelEdit}
+                    disabled={updating}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="account-detail-list">
+                <div className="account-detail-row">
+                  <span>Name</span>
+                  <strong>{displayUser.name || '-'}</strong>
+                </div>
+                <div className="account-detail-row">
+                  <span>Email</span>
+                  <strong>{displayUser.email || '-'}</strong>
+                </div>
+                <div className="account-detail-row">
+                  <span>Mobile</span>
+                  <strong>{displayUser.phone || 'Not added'}</strong>
+                </div>
+                <div className="account-detail-row">
+                  <span>Status</span>
+                  <strong className="account-status">{displayUser.status || 'Active'}</strong>
+                </div>
               </div>
-              <div className="account-detail-row">
-                <span>Email</span>
-                <strong>{displayUser.email || '-'}</strong>
-              </div>
-              <div className="account-detail-row">
-                <span>Mobile</span>
-                <strong>{displayUser.phone || 'Not added'}</strong>
-              </div>
-              <div className="account-detail-row">
-                <span>Status</span>
-                <strong className="account-status">{displayUser.status || 'Active'}</strong>
-              </div>
-            </div>
+            )}
           </section>
 
           <section className="account-card">
@@ -142,6 +282,10 @@ const AccountPage = ({ currentUser, onLoginClick, onShopClick, onFamilyPackClick
             </div>
 
             <div className="account-actions">
+              <button type="button" onClick={handleStartEdit}>
+                <span>✏️ Edit Profile Details</span>
+                <small>Update your name & phone</small>
+              </button>
               <button type="button" onClick={onShopClick}>
                 <span>Shop Products</span>
                 <small>Browse organic staples</small>
