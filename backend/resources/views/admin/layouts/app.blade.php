@@ -154,6 +154,12 @@
         .btn-outline-primary:hover { background-color: #2d5a27 !important; color: white !important; }
         .bg-primary { background-color: #2d5a27 !important; }
         .text-primary { color: #2d5a27 !important; }
+        @media (min-width: 1200px) {
+            .admin-layout-row { display: grid; grid-template-columns: clamp(250px, 16.6667vw, 320px) minmax(0, 1fr); }
+            .admin-layout-row > .admin-sidebar,
+            .admin-layout-row > .admin-main-column { width: auto; max-width: none; flex: none; }
+            .admin-main-column > .navbar { margin-left: clamp(0px, .45vw, 8px); margin-right: clamp(0px, .45vw, 8px); }
+        }
         @media (max-width: 1199.98px) {
             .admin-layout-row { display: block; }
             .admin-sidebar { position: fixed; inset: 0 auto 0 0; width: min(86vw, 280px); max-width: 280px; height: 100dvh; min-height: 100dvh; padding: 16px; transform: translateX(-105%); transition: transform .25s ease; }
@@ -244,7 +250,7 @@
                     <i class="fas fa-truck-loading"></i> Vendors
                 </a>
                 <a href="{{ route('admin.inventory.batches') }}" class="@if(request()->routeIs('admin.inventory.batches')) active @endif">
-                    <i class="fas fa-clock-rotate-left"></i> Batches &amp; Expiry
+                    <i class="fas fa-clock-rotate-left"></i> Inventory &amp; Expiry Date
                 </a>
                 <a href="{{ route('admin.purchase-returns.index') }}" class="@if(request()->routeIs('admin.purchase-returns.*')) active @endif">
                     <i class="fas fa-undo-alt text-warning"></i> Purchase Returns (RTV)
@@ -384,7 +390,7 @@
                                         @endif
                                     </div>
                                     <div class="p-2 border-top bg-light text-center rounded-bottom">
-                                        <a href="{{ route('admin.dashboard') }}" class="text-decoration-none small fw-semibold text-primary">View Dashboard Overview</a>
+                        <a href="{{ route('admin.notifications.index') }}" class="text-decoration-none small fw-semibold text-primary">View all notifications</a>
                                     </div>
                                 </div>
                             </div>
@@ -476,7 +482,6 @@
         </div>
     </div>
 
-    @stack('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Responsive admin navigation

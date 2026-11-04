@@ -39,8 +39,29 @@ class ProductVariation extends Model
         return $this->hasMany(VariationAttributeValue::class, 'product_variation_id');
     }
 
+    public function batches(): HasMany
+    {
+        return $this->hasMany(ProductBatch::class, 'product_variation_id');
+    }
+
     public function getAvailableStockAttribute(): int
     {
+        if ($this->relationLoaded('batches') && $this->batches->isNotEmpty()) {
+            $cutoff = now()->addDays(60);
+            $batchQty = (int) $this->batches
+                ->filter(fn (ProductBatch $batch) => $batch->status === 'active'
+                    && (int) $batch->current_qty > 0
+                    && (! $batch->expiry_date || $batch->expiry_date->gt($cutoff)))
+                ->sum('current_qty');
+
+            return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
+        }
+
+        if ($this->batches()->exists()) {
+            $batchQty = (int) $this->batches()->availableForSale()->sum('current_qty');
+            return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
+        }
+
         return max((int) $this->stock_qty - (int) ($this->reserved_stock ?? 0), 0);
     }
 

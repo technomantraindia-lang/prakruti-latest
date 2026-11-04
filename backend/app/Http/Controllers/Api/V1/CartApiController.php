@@ -126,7 +126,7 @@ class CartApiController extends Controller
                 'quantity' => (int) $item->qty,
                 'line_total' => round($price * $item->qty, 2),
                 'gst_pct' => $gstPct,
-                'stock_qty' => $displayVariation ? (int) $displayVariation->stock_qty : ($product ? (int) $product->stock_qty : 0),
+                'stock_qty' => $displayVariation ? (int) $displayVariation->available_stock : ($product ? (int) $product->available_stock : 0),
             ];
         })->values();
 
@@ -188,13 +188,22 @@ class CartApiController extends Controller
                 ], 422);
             }
         } else {
-            $variation = $product->variations()
+            $activeVariations = $product->variations()
                 ->where('status', 'active')
                 ->orderBy('id')
-                ->first();
+                ->get();
+
+            if ($activeVariations->count() > 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select a package size before adding this product.',
+                ], 422);
+            }
+
+            $variation = $activeVariations->first();
         }
 
-        $stockQty = $variation ? (int) $variation->stock_qty : (int) $product->stock_qty;
+        $stockQty = $variation ? (int) $variation->available_stock : (int) $product->available_stock;
         if ($stockQty <= 0) {
             return response()->json([
                 'success' => false,
@@ -251,7 +260,7 @@ class CartApiController extends Controller
         $cartItem = CartItem::where('cart_id', $cart->id)->findOrFail($id);
         $product = $cartItem->product;
         $variation = $cartItem->variation;
-        $stockQty = $variation ? (int) $variation->stock_qty : ($product ? (int) $product->stock_qty : 0);
+        $stockQty = $variation ? (int) $variation->available_stock : ($product ? (int) $product->available_stock : 0);
 
         if (($product || $variation) && $stockQty < $validated['qty']) {
             return response()->json([

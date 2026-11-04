@@ -148,7 +148,7 @@ class Product extends Model
 
     public function isLowStock(): bool
     {
-        return $this->stock_qty <= $this->low_stock_qty;
+        return $this->available_stock <= $this->low_stock_qty;
     }
 
     public function scopeActive($query)

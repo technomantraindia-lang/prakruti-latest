@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\ShippingMethod;
+use App\Models\User;
 use App\Services\BillDiscountService;
 use App\Services\GstService;
 use App\Services\InventoryService;
@@ -65,15 +66,21 @@ class CheckoutApiController extends Controller
                         throw new \Exception("Selected package for '{$product->name}' is unavailable.");
                     }
                 } else {
-                    $variation = ProductVariation::where('product_id', $product->id)
+                    $activeVariations = ProductVariation::where('product_id', $product->id)
                         ->where('status', 'active')
                         ->orderBy('id')
                         ->lockForUpdate()
-                        ->first();
+                        ->get();
+
+                    if ($activeVariations->count() > 1) {
+                        throw new \Exception("Please select a package size for '{$product->name}'.");
+                    }
+
+                    $variation = $activeVariations->first();
                 }
 
                 $stockItem = $variation ?: $product;
-                $availableStock = (int) $stockItem->stock_qty;
+                $availableStock = (int) $stockItem->available_stock;
                 if ($availableStock <= 0) {
                     throw new \Exception("Product '{$product->name}' is currently out of stock.");
                 }
@@ -168,6 +175,12 @@ class CheckoutApiController extends Controller
 
             $order = Order::create($orderPayload);
 
+            // Notify every active admin immediately in the notification bell and by email.
+            User::whereHas('role', fn ($query) => $query->whereIn('name', ['Admin', 'Super Admin']))
+                ->where('status', 'active')
+                ->get()
+                ->each(fn (User $admin) => $admin->notify(new \App\Notifications\OrderPlacedNotification($order->load('user'))));
+
             // 6. Create Order Items & Deduct Stock using FEFO Batch Allocation
             $inventoryService = app(InventoryService::class);
             $totalCogs = 0.0;
@@ -180,10 +193,10 @@ class CheckoutApiController extends Controller
                     $order
                 );
 
-                if (!empty($fefoResult['allocations'])) {
-                    foreach ($fefoResult['allocations'] as $alloc) {
-                        $cost = (float) ($alloc['batch']->effective_unit_cost ?? $alloc['batch']->unit_cost ?? $itemData['price']);
-                        $totalCogs += ((int) $alloc['deducted'] * $cost);
+                if (!empty($fefoResult['used_batches'])) {
+                    foreach ($fefoResult['used_batches'] as $allocation) {
+                        $cost = (float) ($allocation['landed_unit_cost'] ?? $itemData['price']);
+                        $totalCogs += ((int) $allocation['deducted_qty'] * $cost);
                     }
                 }
 

@@ -5,11 +5,11 @@
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
     <div>
-        <h2 class="mb-1">Import Products (CSV)</h2>
-        <p class="text-muted mb-0">Import the same core product, package, pricing, stock, and detail information used by the Add Product form.</p>
+        <h2 class="mb-1">Import Products (Excel)</h2>
+        <p class="text-muted mb-0">Upload the provided Excel template with the same product and package fields used by the current Products form.</p>
     </div>
     <a href="{{ route('admin.products.importTemplate') }}" class="btn btn-outline-primary">
-        <i class="fas fa-download"></i> Download CSV Template
+        <i class="fas fa-download"></i> Download Excel Template
     </a>
 </div>
 
@@ -17,7 +17,7 @@
     <div class="col-lg-7">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h5 class="mb-0">Upload CSV</h5>
+                <h5 class="mb-0">Upload Excel file</h5>
             </div>
             <div class="card-body">
                 <div class="alert alert-info">
@@ -28,10 +28,10 @@
                 <form action="{{ route('admin.products.importStore') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">CSV File *</label>
-                        <input type="file" name="csv_file" class="form-control @error('csv_file') is-invalid @enderror" accept=".csv,.txt" required>
+                        <label class="form-label">Excel / CSV File *</label>
+                        <input type="file" name="csv_file" class="form-control @error('csv_file') is-invalid @enderror" accept=".xlsx,.csv,.txt" required>
                         @error('csv_file')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        <div class="form-text">Maximum file size: 2 MB. Use UTF-8 CSV and keep the first row as the column header.</div>
+                        <div class="form-text">Maximum file size: 2 MB. Keep the first row as the column header. XLSX and UTF-8 CSV are supported.</div>
                     </div>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-file-import"></i> Import Products</button>
                     <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
@@ -63,7 +63,7 @@
             <div class="card-body">
                 <p class="small text-muted mb-2"><strong>Required:</strong> name, sku, category</p>
                 <p class="small text-muted mb-2"><strong>Product:</strong> slug, brand, hsn_code, price, sale_price, cost_price, gst_percentage, stock_qty, low_stock_qty, unit, min_order_qty, weight, status, featured</p>
-                <p class="small text-muted mb-0"><strong>Frontend details:</strong> short_desc, description, nutritional_info, product_type, shelf_life, ingredient, packaging_type, storage, seo_title, seo_desc, seo_keywords</p>
+                <p class="small text-muted mb-0"><strong>Current product details:</strong> short_desc, description, nutritional_info, product_type, shelf_life, ingredient, packaging_type, storage</p>
             </div>
         </div>
 

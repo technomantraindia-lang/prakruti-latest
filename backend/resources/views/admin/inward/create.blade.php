@@ -1,5 +1,37 @@
 @extends('admin.layouts.app')
 @section('title', 'New Inward Stock (GRN)')
+@push('styles')
+<style>
+    .inward-line-card { border: 1px solid #dce5df; border-left: 4px solid #2d7a46; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(33, 65, 45, .06); }
+    .inward-line-header { background: #f5faf6; border-bottom: 1px solid #e1ebe4; border-radius: 9px 9px 0 0; }
+    .inward-line-card .form-label { color: #33443a; font-size: .82rem; margin-bottom: .35rem; }
+    .inward-line-card .form-control, .inward-line-card .form-select { min-height: 42px; }
+    .line-total-box { min-height: 42px; display: flex; align-items: center; justify-content: flex-end; padding: .5rem .75rem; border: 1px solid #dbe7dd; border-radius: .375rem; background: #f7fbf8; }
+    .inward-help { border: 1px dashed #a9cdb2; background: #f2faf4; color: #356344; }
+    #itemsTable { border: 0; }
+    #itemsTable thead { display: none; }
+    #itemsTable tbody { display: flex; flex-direction: column; gap: 1rem; }
+    #itemsTable tr.item-row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; padding: 1rem; border: 1px solid #dce5df; border-left: 4px solid #2d7a46; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(33, 65, 45, .06); }
+    #itemsTable tr.item-row::before { content: 'Stock line'; grid-column: 1 / -1; color: #2d7a46; font-size: .9rem; font-weight: 700; border-bottom: 1px solid #e1ebe4; padding-bottom: .65rem; }
+    #itemsTable td { border: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+    #itemsTable td::before { color: #33443a; font-size: .78rem; font-weight: 700; margin-bottom: .35rem; }
+    #itemsTable td:nth-child(1) { grid-column: span 4; } #itemsTable td:nth-child(1)::before { content: 'Product *'; }
+    #itemsTable td:nth-child(2) { grid-column: span 4; } #itemsTable td:nth-child(2)::before { content: 'Packaging / Size'; }
+    #itemsTable td:nth-child(3) { grid-column: span 4; } #itemsTable td:nth-child(3)::before { content: 'Batch Number *'; }
+    #itemsTable td:nth-child(4) { grid-column: span 3; } #itemsTable td:nth-child(4)::before { content: 'Manufacturing Date'; }
+    #itemsTable td:nth-child(5) { grid-column: span 3; } #itemsTable td:nth-child(5)::before { content: 'Expiry Date'; }
+    #itemsTable td:nth-child(6) { grid-column: span 2; } #itemsTable td:nth-child(6)::before { content: 'Received Qty *'; }
+    #itemsTable td:nth-child(7) { grid-column: span 2; } #itemsTable td:nth-child(7)::before { content: 'Accepted Qty *'; }
+    #itemsTable td:nth-child(8) { grid-column: span 3; } #itemsTable td:nth-child(8)::before { content: 'Purchase Rate (₹) *'; }
+    #itemsTable td:nth-child(9) { grid-column: span 3; } #itemsTable td:nth-child(9)::before { content: 'MRP (₹) *'; }
+    #itemsTable td:nth-child(10) { grid-column: span 2; } #itemsTable td:nth-child(10)::before { content: 'GST Rate'; }
+    #itemsTable td:nth-child(11) { grid-column: span 3; } #itemsTable td:nth-child(11)::before { content: 'Line Total'; }
+    #itemsTable td:nth-child(12) { grid-column: span 1; align-items: flex-end; justify-content: flex-end; } #itemsTable td:nth-child(12)::before { content: ''; }
+    #itemsTable td:nth-child(11) .line-total { display: block; width: 100%; padding: .65rem .75rem; border: 1px solid #dbe7dd; border-radius: .375rem; background: #f7fbf8; text-align: right; }
+    @media (max-width: 991.98px) { #itemsTable tr.item-row { grid-template-columns: repeat(6, minmax(0, 1fr)); } #itemsTable td:nth-child(1), #itemsTable td:nth-child(2), #itemsTable td:nth-child(3) { grid-column: span 6; } #itemsTable td:nth-child(4), #itemsTable td:nth-child(5) { grid-column: span 3; } #itemsTable td:nth-child(6), #itemsTable td:nth-child(7), #itemsTable td:nth-child(8), #itemsTable td:nth-child(9), #itemsTable td:nth-child(10), #itemsTable td:nth-child(11), #itemsTable td:nth-child(12) { grid-column: span 3; } #itemsTable td:nth-child(12) { align-items: stretch; } }
+    @media (max-width: 575.98px) { #itemsTable tr.item-row { display: flex; flex-direction: column; } #itemsTable td, #itemsTable td:nth-child(n) { width: 100%; } #itemsTable td:nth-child(12) { align-items: stretch; } .inward-line-header { align-items: flex-start !important; } .inward-line-header .remove-row-btn { white-space: nowrap; } }
+</style>
+@endpush
 @section('content')
 <div class="mb-4">
     <a href="{{ route('admin.inward.index') }}" class="btn btn-outline-secondary btn-sm mb-2"><i class="fas fa-arrow-left me-1"></i> Back to Inward List</a>
@@ -77,20 +109,26 @@
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0"><i class="fas fa-boxes me-2 text-success"></i> Stock Line Items, Batches & Expiry Dates</h5>
             <button type="button" class="btn btn-sm btn-outline-success" id="addRowBtn">
-                <i class="fas fa-plus me-1"></i> Add Another Item
+                <i class="fas fa-plus me-1"></i> Add Package / Batch Line
             </button>
         </div>
-        <div class="card-body p-0 table-responsive">
+        <div class="card-body">
+            <div class="inward-help rounded-3 p-3 mb-3 small">
+                <i class="fas fa-circle-info me-1"></i>
+                Add one line for each product packaging and batch. For example, enter 250g, 500g, and 1kg as three separate lines so each package can have its own quantity, batch, purchase rate, MRP, and expiry date.
+            </div>
             <table class="table table-bordered align-middle mb-0" id="itemsTable">
                 <thead class="table-light">
                     <tr>
                         <th style="min-width: 220px;">Product <span class="text-danger">*</span></th>
+                        <th style="min-width: 160px;">Packaging</th>
                         <th style="min-width: 140px;">Batch No <span class="text-danger">*</span></th>
                         <th style="min-width: 130px;">Mfg Date</th>
                         <th style="min-width: 130px;">Expiry Date</th>
                         <th style="width: 100px;">Recv Qty</th>
                         <th style="width: 100px;">Accept Qty <span class="text-danger">*</span></th>
                         <th style="width: 110px;">Purchase Rate (₹)</th>
+                        <th style="width: 110px;">MRP (₹)</th>
                         <th style="width: 100px;">GST %</th>
                         <th style="width: 120px;" class="text-end">Line Total (₹)</th>
                         <th style="width: 50px;"></th>
@@ -105,7 +143,15 @@
                                 @foreach($products as $p)
                                     <option value="{{ $p->id }}" data-price="{{ $p->price }}">{{ $p->name }} ({{ $p->sku }})</option>
                                 @endforeach
+                                <option value="__add_new_product__">+ Add New Product</option>
                             </select>
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm package-select" multiple size="1" aria-label="Select one or more packaging sizes">
+                                <option value="">Choose product first...</option>
+                            </select>
+                            <input type="hidden" name="items[0][product_variation_id]" class="package-id-input" value="">
+                            <small class="text-muted package-help">Choose one or more sizes; use Ctrl/Command for multiple.</small>
                         </td>
                         <td>
                             <input type="text" name="items[0][batch_number]" class="form-control form-control-sm font-monospace batch-input" placeholder="e.g. B-{{ date('ymd') }}-01" value="B-{{ date('ymd') }}-01" required>
@@ -124,6 +170,9 @@
                         </td>
                         <td>
                             <input type="number" step="0.01" name="items[0][unit_purchase_price]" class="form-control form-control-sm unit-price" min="0" value="100.00" required>
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" name="items[0][mrp]" class="form-control form-control-sm mrp-input" min="0" value="0.00" required>
                         </td>
                         <td>
                             <select name="items[0][tax_rate]" class="form-select form-select-sm tax-rate">
@@ -189,6 +238,88 @@ document.addEventListener('DOMContentLoaded', function () {
     const addRowBtn = document.getElementById('addRowBtn');
     const freightInput = document.getElementById('freightInput');
     const handlingInput = document.getElementById('handlingInput');
+    const productCatalog = @json($productOptions);
+    const addProductUrl = @json(route('admin.products.create'));
+
+    function syncPackaging(row, updateMrp = true) {
+        const productSelect = row.querySelector('.product-select');
+        const packageSelect = row.querySelector('.package-select');
+        const packageIdInput = row.querySelector('.package-id-input');
+        const mrpInput = row.querySelector('.mrp-input');
+        const productId = productSelect.value;
+
+        if (productId === '__add_new_product__') {
+            window.location.href = addProductUrl;
+            return;
+        }
+
+        const product = productCatalog[productId];
+        const variations = product?.variations || [];
+        packageSelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = variations.length ? 'Select one or more packaging sizes...' : 'Default product package';
+        packageSelect.appendChild(defaultOption);
+
+        variations.forEach((variation) => {
+            const option = document.createElement('option');
+            option.value = variation.id;
+            option.dataset.mrp = variation.mrp;
+            option.textContent = `${variation.label || 'Package'}${variation.sku ? ` (${variation.sku})` : ''}`;
+            packageSelect.appendChild(option);
+        });
+
+        packageSelect.disabled = variations.length === 0;
+        packageSelect.multiple = variations.length > 0;
+        packageSelect.size = variations.length > 0 ? Math.min(Math.max(variations.length + 1, 3), 5) : 1;
+        packageSelect.required = false;
+        if (packageIdInput) packageIdInput.value = '';
+
+        if (updateMrp && mrpInput) {
+            mrpInput.value = variations.length ? '0.00' : Number(product?.mrp ?? 0).toFixed(2);
+        }
+    }
+
+    function setPackageSelection(row, variationId) {
+        const packageSelect = row.querySelector('.package-select');
+        const packageIdInput = row.querySelector('.package-id-input');
+        const mrpInput = row.querySelector('.mrp-input');
+        const selectedOption = Array.from(packageSelect.options).find((option) => String(option.value) === String(variationId));
+
+        packageSelect.multiple = false;
+        packageSelect.size = 1;
+        packageSelect.value = selectedOption ? String(variationId) : '';
+        if (packageIdInput) packageIdInput.value = selectedOption ? String(variationId) : '';
+        if (mrpInput) mrpInput.value = Number(selectedOption?.dataset.mrp || 0).toFixed(2);
+    }
+
+    function splitPackageSelections(row) {
+        const packageSelect = row.querySelector('.package-select');
+        const selectedOptions = Array.from(packageSelect.selectedOptions).filter((option) => option.value);
+        if (!selectedOptions.length) {
+            row.querySelector('.package-id-input').value = '';
+            row.querySelector('.mrp-input').value = '0.00';
+            return;
+        }
+
+        const productId = row.querySelector('.product-select').value;
+        setPackageSelection(row, selectedOptions[0].value);
+        selectedOptions.slice(1).forEach((option) => addRow(productId, option.value));
+        updateRemoveButtons();
+    }
+
+    function syncMrpFromPackaging(row) {
+        const product = productCatalog[row.querySelector('.product-select').value];
+        const packageSelect = row.querySelector('.package-select');
+        const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+        const packageIdInput = row.querySelector('.package-id-input');
+        const mrpInput = row.querySelector('.mrp-input');
+        if (!mrpInput) return;
+
+        if (packageIdInput) packageIdInput.value = selectedOption?.value || '';
+        mrpInput.value = Number(selectedOption?.dataset.mrp ?? product?.mrp ?? 0).toFixed(2);
+    }
 
     function updateRowTotals() {
         let totalTaxable = 0;
@@ -220,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('summaryLanded').textContent = '₹' + totalLanded.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
-    addRowBtn.addEventListener('click', function () {
+    function addRow(initialProductId = '', initialVariationId = '') {
         const tr = document.createElement('tr');
         tr.className = 'item-row';
         tr.innerHTML = `
@@ -230,7 +361,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     @foreach($products as $p)
                         <option value="{{ $p->id }}" data-price="{{ $p->price }}">{{ $p->name }} ({{ $p->sku }})</option>
                     @endforeach
+                    <option value="__add_new_product__">+ Add New Product</option>
                 </select>
+            </td>
+            <td>
+                <select class="form-select form-select-sm package-select" multiple size="1" aria-label="Select one or more packaging sizes">
+                    <option value="">Choose product first...</option>
+                </select>
+                <input type="hidden" name="items[${rowIndex}][product_variation_id]" class="package-id-input" value="">
+                <small class="text-muted package-help">Choose one or more sizes; use Ctrl/Command for multiple.</small>
             </td>
             <td>
                 <input type="text" name="items[${rowIndex}][batch_number]" class="form-control form-control-sm font-monospace batch-input" placeholder="Batch No" value="B-{{ date('ymd') }}-0${rowIndex + 1}" required>
@@ -251,6 +390,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="number" step="0.01" name="items[${rowIndex}][unit_purchase_price]" class="form-control form-control-sm unit-price" min="0" value="100.00" required>
             </td>
             <td>
+                <input type="number" step="0.01" name="items[${rowIndex}][mrp]" class="form-control form-control-sm mrp-input" min="0" value="0.00" required>
+            </td>
+            <td>
                 <select name="items[${rowIndex}][tax_rate]" class="form-select form-select-sm tax-rate">
                     <option value="0">0%</option>
                     <option value="5" selected>5%</option>
@@ -269,14 +411,47 @@ document.addEventListener('DOMContentLoaded', function () {
         itemsBody.appendChild(tr);
         rowIndex++;
         attachRowEvents(tr);
+        if (initialProductId) {
+            tr.querySelector('.product-select').value = String(initialProductId);
+            syncPackaging(tr);
+            if (initialVariationId) setPackageSelection(tr, initialVariationId);
+        }
         updateRowTotals();
         updateRemoveButtons();
+    }
+
+    addRowBtn.addEventListener('click', function () {
+        addRow();
+    });
+
+    document.getElementById('inwardForm').addEventListener('submit', function (event) {
+        const incompletePackage = Array.from(document.querySelectorAll('.item-row')).some((row) => {
+            const packageSelect = row.querySelector('.package-select');
+            const packageId = row.querySelector('.package-id-input')?.value;
+            return !packageSelect.disabled && !packageId;
+        });
+
+        if (incompletePackage) {
+            event.preventDefault();
+            alert('Please select at least one packaging size for every product line.');
+        }
     });
 
     function attachRowEvents(row) {
         row.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', updateRowTotals);
             input.addEventListener('change', updateRowTotals);
+        });
+
+        row.querySelector('.product-select').addEventListener('change', function () {
+            syncPackaging(row);
+        });
+        row.querySelector('.package-select').addEventListener('change', function () {
+            if (this.multiple) {
+                splitPackageSelections(row);
+            } else {
+                syncMrpFromPackaging(row);
+            }
         });
 
         const qtyRecv = row.querySelector('.qty-recv');
@@ -304,7 +479,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    document.querySelectorAll('.item-row').forEach(attachRowEvents);
+    document.querySelectorAll('.item-row').forEach((row) => {
+        attachRowEvents(row);
+        syncPackaging(row, false);
+    });
     freightInput.addEventListener('input', updateRowTotals);
     handlingInput.addEventListener('input', updateRowTotals);
     updateRowTotals();

@@ -7,8 +7,31 @@
         <p class="text-muted mb-0">Record incoming stock from vendors, create batches with expiry dates, calculate landed costs, and update live store inventory.</p>
     </div>
     <div class="d-flex gap-2">
-        <a href="{{ route('admin.inventory.batches') }}" class="btn btn-outline-info"><i class="fas fa-clock-rotate-left me-1"></i> Batches & Expiry</a>
+        <a href="{{ route('admin.inventory.batches') }}" class="btn btn-outline-info"><i class="fas fa-clock-rotate-left me-1"></i> Inventory & Expiry Date</a>
         <a href="{{ route('admin.inward.create') }}" class="btn btn-success"><i class="fas fa-plus me-1"></i> New Inward Entry</a>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm border-0 border-start border-success border-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+                <h5 class="mb-1"><i class="fas fa-file-excel me-2 text-success"></i>Bulk inward import</h5>
+                <p class="text-muted small mb-2">Upload one row per product/package/batch. Use the same <strong>grn_group</strong> value on multiple rows to create one GRN with multiple items.</p>
+                <div class="small text-muted"><i class="fas fa-circle-info me-1"></i>Use exact <strong>vendor_id</strong>, <strong>product_sku</strong>, and optional <strong>variation_sku</strong> from Products. Dates must be YYYY-MM-DD.</div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('admin.inward.importTemplate') }}" class="btn btn-outline-success"><i class="fas fa-download me-1"></i> Download Excel template</a>
+                <form method="POST" action="{{ route('admin.inward.importStore') }}" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+                    @csrf
+                    <input type="file" name="file" class="form-control" accept=".xlsx,.csv" required>
+                    <button class="btn btn-success text-nowrap"><i class="fas fa-upload me-1"></i> Import &amp; update stock</button>
+                </form>
+            </div>
+        </div>
+        @if($errors->has('file'))
+            <div class="alert alert-danger mt-3 mb-0 small">{{ $errors->first('file') }}</div>
+        @endif
     </div>
 </div>
 

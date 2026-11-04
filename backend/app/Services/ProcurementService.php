@@ -85,6 +85,7 @@ class ProcurementService
                     'mfg_date' => ! empty($row['mfg_date']) ? $row['mfg_date'] : null,
                     'expiry_date' => ! empty($row['expiry_date']) ? $row['expiry_date'] : null,
                     'unit_purchase_price' => $unitPrice,
+                    'mrp' => array_key_exists('mrp', $row) && $row['mrp'] !== '' ? (float) $row['mrp'] : null,
                     'tax_rate' => $taxRate,
                     'tax_amount' => $lineTax,
                     'line_taxable' => $lineTaxable,
@@ -166,9 +167,29 @@ class ProcurementService
                         'status' => 'active',
                     ]);
 
+                    $targetProduct = Product::findOrFail($item['product_id']);
                     $targetItem = ! empty($item['product_variation_id'])
-                        ? ProductVariation::findOrFail($item['product_variation_id'])
-                        : Product::findOrFail($item['product_id']);
+                        ? ProductVariation::whereKey($item['product_variation_id'])
+                            ->where('product_id', $targetProduct->id)
+                            ->firstOrFail()
+                        : $targetProduct;
+
+                    if ($item['mrp'] !== null) {
+                        $targetItem->update(['price' => $item['mrp']]);
+
+                        // The parent product price represents its first active
+                        // package in the storefront. Keep it aligned when
+                        // that package's MRP is changed through inward stock.
+                        if ($targetItem instanceof ProductVariation) {
+                            $firstPackageId = $targetProduct->variations()
+                                ->where('status', 'active')
+                                ->orderBy('id')
+                                ->value('id');
+                            if ((int) $firstPackageId === (int) $targetItem->id) {
+                                $targetProduct->update(['price' => $item['mrp']]);
+                            }
+                        }
+                    }
 
                     $this->inventoryService->increaseStock(
                         $targetItem,

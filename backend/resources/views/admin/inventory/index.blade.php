@@ -17,10 +17,23 @@
                 <td><strong>{{ $product->name }}</strong></td>
                 <td>{{ $product->sku }}</td>
                 <td>{{ $product->category?->name ?? '-' }}</td>
-                <td><strong>{{ $product->stock_qty }}</strong> {{ $product->unit ?? 'pcs' }}</td>
+                <td>
+                    <strong>{{ $product->stock_qty }}</strong> {{ $product->unit ?? 'pcs' }}
+                    @foreach($product->variations as $variation)
+                        <br><small class="text-muted">{{ $variation->attr_val ?: ($variation->weight ? $variation->weight . ' kg' : 'Package') }}: <strong>{{ $variation->stock_qty }}</strong></small>
+                    @endforeach
+                </td>
                 <td>
                     <form action="{{ route('admin.inventory.update', $product) }}" method="POST" class="d-flex gap-1 flex-wrap">
                         @csrf @method('PUT')
+                        @if($product->variations->isNotEmpty())
+                            <select name="variation_id" class="form-select form-select-sm" style="width:150px" required>
+                                <option value="">Select package</option>
+                                @foreach($product->variations as $variation)
+                                    <option value="{{ $variation->id }}">{{ $variation->attr_val ?: ($variation->weight ? $variation->weight . ' kg' : 'Package') }} ({{ $variation->stock_qty }})</option>
+                                @endforeach
+                            </select>
+                        @endif
                         <select name="action" class="form-select form-select-sm" style="width:90px">
                             <option value="add">Add</option><option value="reduce">Reduce</option><option value="set">Set</option>
                         </select>

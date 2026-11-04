@@ -10,8 +10,10 @@ use App\Models\ProductAttribute;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use App\Services\ImageUploadService;
+use App\Services\InwardStockImportService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -28,12 +30,25 @@ class ProductController extends Controller
     public function __construct(
         private ImageUploadService $uploader,
         private InventoryService $inventoryService,
-        private ProductNutritionService $nutritionService
+        private ProductNutritionService $nutritionService,
+        private InwardStockImportService $spreadsheetReader
     ) {}
 
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand'])->latest();
+        $lowStockOnly = $request->boolean('low_stock');
+        $query = Product::with([
+            'category',
+            'brand',
+            'variations' => fn ($variationQuery) => $variationQuery
+                ->where('status', 'active')
+                ->with(['batches' => fn ($batchQuery) => $batchQuery
+                    ->where('current_qty', '>', 0)
+                    ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END, expiry_date ASC, id ASC')]),
+            'activeBatches' => fn ($batchQuery) => $batchQuery
+                ->where('current_qty', '>', 0)
+                ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END, expiry_date ASC, id ASC'),
+        ])->latest();
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -45,8 +60,20 @@ class ProductController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
-        $products = $query->paginate(15)->withQueryString();
+        if ($lowStockOnly) {
+            $matchingProducts = $query->get()->filter(fn (Product $product) => $product->isLowStock())->values();
+            $perPage = 15;
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $products = new LengthAwarePaginator(
+                $matchingProducts->forPage($page, $perPage)->values(),
+                $matchingProducts->count(),
+                $perPage,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            $products = $query->paginate(15)->withQueryString();
+        }
         $categories = Category::where('status', 'active')->orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'categories'));
@@ -126,7 +153,19 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['category', 'subCategory', 'subSubCategory', 'brand', 'images', 'inventoryLogs.user']);
+        $product->load([
+            'category',
+            'subCategory',
+            'subSubCategory',
+            'brand',
+            'images',
+            'variations' => fn ($variationQuery) => $variationQuery
+                ->where('status', 'active')
+                ->with(['batches' => fn ($batchQuery) => $batchQuery
+                    ->where('current_qty', '>', 0)
+                    ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END, expiry_date ASC, id ASC')]),
+            'inventoryLogs.user',
+        ]);
 
         return view('admin.products.show', compact('product'));
     }
@@ -325,74 +364,44 @@ class ProductController extends Controller
 
     public function downloadImportTemplate()
     {
-        return response()->streamDownload(
-            function () {
-                $output = fopen('php://output', 'w');
-                fputcsv($output, [
-                    'name', 'slug', 'sku', 'category', 'brand', 'hsn_code', 'price', 'sale_price', 'cost_price',
-                    'gst_percentage', 'stock_qty', 'low_stock_qty', 'unit', 'min_order_qty', 'weight', 'short_desc',
-                    'description', 'nutritional_info', 'product_type', 'shelf_life', 'ingredient', 'packaging_type',
-                    'storage', 'seo_title', 'seo_desc', 'seo_keywords', 'status', 'featured',
-                    'package_1_label', 'package_1_price', 'package_1_sale_price', 'package_1_stock_qty', 'package_1_status',
-                    'package_2_label', 'package_2_price', 'package_2_sale_price', 'package_2_stock_qty', 'package_2_status',
-                ]);
-                fputcsv($output, [
-                    'Masoor Dal / Pink Lentil Split', 'masoor-dal-pink-lentil-split', 'PRK-CSV-001', 'Cereal & Pulses',
-                    'Prakruti Organic', '', 120, 108, '', 5, 100, 5, 'packet', 1, 1,
-                    'Soft, naturally processed dal', 'Clean split masoor dal for everyday cooking.', 'Energy: 343 kcal; Protein: 22g',
-                    'Dal', '12 Months', 'Masoor Dal', 'Food Grade Standing Pouch', 'Store in a dry airtight container',
-                    '', '', '', 'active', 1, '500g', 120, 108, 50, 'active', '1kg', 220, 198, 50, 'active',
-                ]);
-                fclose($output);
-            },
-            'prakruti-products-import-template.csv',
-            ['Content-Type' => 'text/csv; charset=UTF-8']
-        );
+        $path = storage_path('app/templates/products-import-template.xlsx');
+        abort_unless(is_file($path), 404, 'Product import template is not available.');
+
+        return response()->download($path, 'prakruti-products-import-template.xlsx');
     }
 
     public function importStore(Request $request)
     {
-        $request->validate(['csv_file' => 'required|file|mimes:csv,txt|max:2048']);
+        $request->validate(['csv_file' => 'required|file|mimes:csv,txt,xlsx|max:2048']);
 
-        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
-        if (! $file) {
-            return back()->with('error', 'The CSV file could not be opened.');
+        try {
+            $rows = $this->spreadsheetReader->readSpreadsheetRows($request->file('csv_file'));
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'The product spreadsheet could not be opened: ' . $e->getMessage());
         }
 
-        $rawHeader = fgetcsv($file);
-        $header = collect($rawHeader ?: [])->map(function ($column) {
-            $column = preg_replace('/^\\xEF\\xBB\\xBF/', '', (string) $column);
-            return Str::lower(trim($column));
-        })->all();
+        if (empty($rows)) {
+            return back()->withInput()->with('error', 'The product spreadsheet has no data rows.');
+        }
+
+        $header = array_keys($rows[0]['data']);
 
         $requiredColumns = ['name', 'sku', 'category'];
         $missingColumns = array_values(array_diff($requiredColumns, $header));
         if ($missingColumns || count($header) !== count(array_unique($header))) {
-            fclose($file);
             $message = $missingColumns
-                ? 'CSV is missing required columns: ' . implode(', ', $missingColumns) . '.'
-                : 'CSV contains duplicate column names. Please use the supplied template.';
+                ? 'Spreadsheet is missing required columns: ' . implode(', ', $missingColumns) . '.'
+                : 'Spreadsheet contains duplicate column names. Please use the supplied template.';
 
             return back()->withInput()->with('error', $message);
         }
 
         $count = 0;
         $skipped = [];
-        $rowNumber = 1;
-
-        DB::transaction(function () use ($file, $header, &$count, &$skipped, &$rowNumber) {
-            while (($row = fgetcsv($file)) !== false) {
-                $rowNumber++;
-                if (count($row) === 1 && trim((string) $row[0]) === '') {
-                    continue;
-                }
-
-                if (count($row) !== count($header)) {
-                    $skipped[] = "Row {$rowNumber}: column count does not match the header.";
-                    continue;
-                }
-
-                $data = array_combine($header, $row);
+        DB::transaction(function () use ($rows, &$count, &$skipped) {
+            foreach ($rows as $rowRecord) {
+                $rowNumber = $rowRecord['line'];
+                $data = $rowRecord['data'];
                 $name = trim((string) ($data['name'] ?? ''));
                 $sku = trim((string) ($data['sku'] ?? ''));
                 $category = $this->resolveImportCategory($data['category'] ?? '');
@@ -478,9 +487,8 @@ class ProductController extends Controller
                 $count++;
             }
         });
-        fclose($file);
 
-        $message = "{$count} product(s) imported successfully.";
+        $message = "{$count} product(s) imported successfully from the spreadsheet.";
         if ($skipped) {
             $message .= ' ' . count($skipped) . ' row(s) skipped.';
         }
@@ -545,6 +553,7 @@ class ProductController extends Controller
             $packages[] = [
                 'id' => null,
                 'label' => $label,
+                'sku' => trim((string) ($data["package_{$index}_sku"] ?? '')) ?: null,
                 'price' => $this->csvNumber($data["package_{$index}_price"] ?? '', $defaultPrice),
                 'sale_price' => $this->csvNumber($data["package_{$index}_sale_price"] ?? '', $defaultSalePrice),
                 'stock_qty' => $this->csvInteger($data["package_{$index}_stock_qty"] ?? '', $defaultStock),

@@ -40,6 +40,10 @@ class ProductBatchController extends Controller
                   ->where('expiry_date', '<', now());
         }
 
+        if ($request->boolean('near_expiry_only')) {
+            $query->where('current_qty', '>', 0);
+        }
+
         $batches = $query->latest('id')->paginate(20)->withQueryString();
 
         $stats = [

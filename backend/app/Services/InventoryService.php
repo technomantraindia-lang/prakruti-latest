@@ -28,26 +28,15 @@ class InventoryService
 
         return DB::transaction(function () use ($item, $qty, $reason, $reference, $byUser, $metadata) {
             $model = $this->lockItem($item);
+            $this->assertProductIsStandalone($model);
             $previousStock = (int) $model->stock_qty;
             $newStock = $previousStock + $qty;
 
             $model->stock_qty = $newStock;
             $model->save();
 
-            // Synchronize parent product and variations
             if ($model instanceof ProductVariation) {
-                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
-                if ($parentProduct) {
-                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
-                    $parentProduct->stock_qty = max(0, $totalVariationStock);
-                    $parentProduct->save();
-                }
-            } elseif ($model instanceof Product) {
-                $firstVar = ProductVariation::where('product_id', $model->id)->where('status', 'active')->orderBy('id')->lockForUpdate()->first();
-                if ($firstVar) {
-                    $firstVar->stock_qty = (int) $firstVar->stock_qty + $qty;
-                    $firstVar->save();
-                }
+                $this->syncParentProductStock($model);
             }
 
             return $this->recordTransaction($model, 'purchase', $qty, $previousStock, $newStock, $reason, $reference, $byUser, $metadata);
@@ -68,6 +57,7 @@ class InventoryService
 
         return DB::transaction(function () use ($item, $qty, $reason, $reference, $byUser, $metadata) {
             $model = $this->lockItem($item);
+            $this->assertProductIsStandalone($model);
             $previousStock = (int) $model->stock_qty;
             $newStock = max(0, $previousStock - $qty);
 
@@ -78,20 +68,8 @@ class InventoryService
             $model->stock_qty = $newStock;
             $model->save();
 
-            // Synchronize parent product and variations
             if ($model instanceof ProductVariation) {
-                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
-                if ($parentProduct) {
-                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
-                    $parentProduct->stock_qty = max(0, $totalVariationStock);
-                    $parentProduct->save();
-                }
-            } elseif ($model instanceof Product) {
-                $firstVar = ProductVariation::where('product_id', $model->id)->where('status', 'active')->orderBy('id')->lockForUpdate()->first();
-                if ($firstVar) {
-                    $firstVar->stock_qty = max(0, (int) $firstVar->stock_qty - $qty);
-                    $firstVar->save();
-                }
+                $this->syncParentProductStock($model);
             }
 
             return $this->recordTransaction($model, 'sale', -$qty, $previousStock, $newStock, $reason, $reference, $byUser, $metadata);
@@ -113,20 +91,29 @@ class InventoryService
             $productId = $item instanceof Product ? $item->id : $item->product_id;
             $variationId = $item instanceof ProductVariation ? $item->id : null;
 
-            // Fetch active, compliant batches (>60 days until expiry) in FEFO order
-            $batchQuery = \App\Models\ProductBatch::where('product_id', $productId)
+            $this->assertProductIsStandalone($item);
+
+            // A batch belongs to one exact saleable package. Never use an
+            // unassigned batch for a selected variation, otherwise 250 g and
+            // 1 kg stock can be mixed together.
+            $trackedBatchQuery = \App\Models\ProductBatch::where('product_id', $productId);
+            if ($variationId) {
+                $trackedBatchQuery->where('product_variation_id', $variationId);
+            } else {
+                $trackedBatchQuery->whereNull('product_variation_id');
+            }
+
+            $hasTrackedBatches = (clone $trackedBatchQuery)->exists();
+            $batchQuery = (clone $trackedBatchQuery)
                 ->availableForSale()
                 ->fefoOrder()
                 ->lockForUpdate();
 
-            if ($variationId) {
-                $batchQuery->where(function ($q) use ($variationId) {
-                    $q->where('product_variation_id', $variationId)
-                      ->orWhereNull('product_variation_id');
-                });
+            $batches = $batchQuery->get();
+            if ($hasTrackedBatches && (int) $batches->sum('current_qty') < $qty) {
+                throw new InvalidArgumentException('This package does not have enough saleable stock in its active batches.');
             }
 
-            $batches = $batchQuery->get();
             $remainingToDeduct = $qty;
             $usedBatches = [];
 
@@ -151,6 +138,10 @@ class InventoryService
                 ];
 
                 $remainingToDeduct -= $deductFromBatch;
+            }
+
+            if ($hasTrackedBatches && $remainingToDeduct > 0) {
+                throw new InvalidArgumentException('Insufficient saleable stock for this package.');
             }
 
             $transaction = $this->decreaseStock(
@@ -245,19 +236,36 @@ class InventoryService
         return DB::transaction(function () use ($item, $newQty, $reason, $reference, $byUser, $metadata) {
             $model = $this->lockItem($item);
             $previousStock = (int) $model->stock_qty;
+
+            if ($model instanceof Product && $this->hasActiveVariations($model->id)) {
+                $aggregateStock = $this->activeVariationStock($model->id);
+                if ($newQty !== $aggregateStock) {
+                    throw new InvalidArgumentException('This product has packages. Set stock on the exact package; product stock is the package total.');
+                }
+
+                $model->stock_qty = $aggregateStock;
+                $model->save();
+
+                return $this->recordTransaction(
+                    $model,
+                    'adjustment',
+                    $aggregateStock - $previousStock,
+                    $previousStock,
+                    $aggregateStock,
+                    $reason,
+                    $reference,
+                    $byUser,
+                    $metadata
+                );
+            }
+
             $changeQty = $newQty - $previousStock;
 
             $model->stock_qty = $newQty;
             $model->save();
 
-            // Synchronize parent product and variations
             if ($model instanceof ProductVariation) {
-                $parentProduct = Product::where('id', $model->product_id)->lockForUpdate()->first();
-                if ($parentProduct) {
-                    $totalVariationStock = (int) ProductVariation::where('product_id', $parentProduct->id)->where('status', 'active')->sum('stock_qty');
-                    $parentProduct->stock_qty = max(0, $totalVariationStock);
-                    $parentProduct->save();
-                }
+                $this->syncParentProductStock($model);
             }
 
             return $this->recordTransaction($model, 'adjustment', $changeQty, $previousStock, $newQty, $reason, $reference, $byUser, $metadata);
@@ -268,6 +276,38 @@ class InventoryService
     {
         $class = get_class($item);
         return $class::where('id', $item->id)->lockForUpdate()->firstOrFail();
+    }
+
+    private function hasActiveVariations(int $productId): bool
+    {
+        return ProductVariation::where('product_id', $productId)
+            ->where('status', 'active')
+            ->exists();
+    }
+
+    private function activeVariationStock(int $productId): int
+    {
+        return (int) ProductVariation::where('product_id', $productId)
+            ->where('status', 'active')
+            ->sum('stock_qty');
+    }
+
+    private function syncParentProductStock(ProductVariation $variation): void
+    {
+        $parentProduct = Product::whereKey($variation->product_id)->lockForUpdate()->first();
+        if (! $parentProduct) {
+            return;
+        }
+
+        $parentProduct->stock_qty = $this->activeVariationStock($parentProduct->id);
+        $parentProduct->save();
+    }
+
+    private function assertProductIsStandalone(Product|ProductVariation $item): void
+    {
+        if ($item instanceof Product && $this->hasActiveVariations($item->id)) {
+            throw new InvalidArgumentException('This product has packages. Select the exact package before changing stock.');
+        }
     }
 
     private function recordTransaction(

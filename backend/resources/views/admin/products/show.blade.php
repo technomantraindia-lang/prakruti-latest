@@ -89,6 +89,33 @@
     </div>
 </div>
 
+@if($product->variations->count())
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Package inventory</h5>
+        <span class="text-muted small">Stock is tracked separately for every weight/packing</span>
+    </div>
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead><tr><th>Package / Weight</th><th>SKU</th><th>MRP</th><th>Physical stock</th><th>Available</th><th>Expiry</th></tr></thead>
+            <tbody>
+                @foreach($product->variations as $variation)
+                    @php($packageBatch = $variation->batches->first())
+                    <tr>
+                        <td><strong>{{ $variation->attr_val ?: ($variation->weight ? $variation->weight . ' kg' : 'Package') }}</strong></td>
+                        <td>{{ $variation->sku ?: '-' }}</td>
+                        <td>&#8377;{{ number_format((float) ($variation->sale_price ?: $variation->price), 2) }}</td>
+                        <td>{{ $variation->stock_qty }}</td>
+                        <td class="{{ $variation->available_stock <= $product->low_stock_qty ? 'text-danger fw-bold' : 'text-success fw-bold' }}">{{ $variation->available_stock }}</td>
+                        <td>{{ $packageBatch?->expiry_date?->format('d M Y') ?: 'Not recorded' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
 @if($product->inventoryLogs->count())
 <div class="card"><div class="card-header"><h5 class="mb-0">Inventory History</h5></div><div class="card-body p-0">
     <table class="table table-sm mb-0">

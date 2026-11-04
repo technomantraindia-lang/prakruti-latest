@@ -70,6 +70,8 @@ Route::middleware('admin')->group(function () {
 
     // Inward Stock (Goods Received Notes - GRN)
     Route::get('/inward-stock', [GoodsReceivedNoteController::class, 'index'])->name('inward.index');
+    Route::get('/inward-stock/import-template', [GoodsReceivedNoteController::class, 'downloadImportTemplate'])->name('inward.importTemplate');
+    Route::post('/inward-stock/import', [GoodsReceivedNoteController::class, 'importStore'])->name('inward.importStore');
     Route::get('/inward-stock/create', [GoodsReceivedNoteController::class, 'create'])->name('inward.create');
     Route::post('/inward-stock', [GoodsReceivedNoteController::class, 'store'])->name('inward.store');
     Route::get('/inward-stock/{grn}', [GoodsReceivedNoteController::class, 'show'])->name('inward.show');

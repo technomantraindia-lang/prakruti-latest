@@ -1,9 +1,9 @@
 @extends('admin.layouts.app')
-@section('title', 'Batch Inventory & Expiry Tracking')
+@section('title', 'Inventory & Expiry Date')
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h2 class="mb-1"><i class="fas fa-clock-rotate-left me-2 text-primary"></i> Batch Inventory & Expiry Tracking</h2>
+        <h2 class="mb-1"><i class="fas fa-clock-rotate-left me-2 text-primary"></i> Inventory & Expiry Date</h2>
         <p class="text-muted mb-0">Track physical inventory batch numbers, manufacturing dates, and 60-day near-expiry quarantine items.</p>
     </div>
     <div class="d-flex gap-2">
