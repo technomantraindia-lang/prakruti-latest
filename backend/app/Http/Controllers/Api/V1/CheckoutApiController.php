@@ -89,9 +89,7 @@ class CheckoutApiController extends Controller
                 }
 
                 // Authoritative Database Price (MRP - Inclusive of GST)
-                $itemPrice = $variation
-                    ? (float) ($variation->sale_price ?? $variation->price ?? $product->sale_price ?? $product->price)
-                    : (float) ($product->sale_price ?? $product->price);
+                $itemPrice = \App\Support\PriceRules::forItem($product, $variation);
                 $lineTotal = $itemPrice * $itemReq['qty'];
                 $subtotal += $lineTotal;
 

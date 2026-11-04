@@ -71,30 +71,13 @@ class CartApiController extends Controller
      */
     public static function resolveEffectivePrice(?float $salePrice, ?float $regularPrice): float
     {
-        $sale = (float) ($salePrice ?? 0);
-        $regular = (float) ($regularPrice ?? 0);
-
-        if ($sale > 0 && ($regular <= 0 || $sale < $regular)) {
-            return $sale;
-        }
-
-        return max(0.0, $regular);
+        return \App\Support\PriceRules::effective($salePrice, $regularPrice);
     }
 
     private function unitPrice($item): float
     {
-        $product = $item->product;
-        $variation = $item->variation;
-
-        if ($variation) {
-            $varPrice = self::resolveEffectivePrice($variation->sale_price, $variation->price);
-            if ($varPrice > 0) {
-                return $varPrice;
-            }
-        }
-
-        if ($product) {
-            return self::resolveEffectivePrice($product->sale_price, $product->price);
+        if ($item->product || $item->variation) {
+            return \App\Support\PriceRules::forItem($item->product, $item->variation);
         }
 
         return self::resolveEffectivePrice($item->sale_price ?? null, $item->price ?? null);
@@ -218,9 +201,7 @@ class CartApiController extends Controller
         }
 
         $cart = $this->getOrCreateCart($request);
-        $unitPrice = $variation
-            ? (self::resolveEffectivePrice($variation->sale_price, $variation->price) ?: self::resolveEffectivePrice($product->sale_price, $product->price))
-            : self::resolveEffectivePrice($product->sale_price, $product->price);
+        $unitPrice = \App\Support\PriceRules::forItem($product, $variation);
 
         $cartItem = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $product->id)

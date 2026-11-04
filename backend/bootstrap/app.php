@@ -30,6 +30,12 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
         $exceptions->render(function (Throwable $e, Request $request) {
+            // Let Laravel render these itself: 422 with field errors, 401 and 403 (they were all turned into 500 before).
+            if ($e instanceof \Illuminate\Validation\ValidationException
+                || $e instanceof \Illuminate\Auth\AuthenticationException
+                || $e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                return null;
+            }
             if ($request->is('api/*')) {
                 $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
                 $message = config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.';

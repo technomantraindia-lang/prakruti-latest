@@ -22,7 +22,7 @@ class CartController extends Controller
                 continue;
             }
 
-            $price = (float) ($product->sale_price ?? $product->price);
+            $price = \App\Support\PriceRules::effective($product->sale_price, $product->price);
             $qty = (int) ($row['qty'] ?? 1);
             $lineTotal = $price * $qty;
             $subtotal += $lineTotal;

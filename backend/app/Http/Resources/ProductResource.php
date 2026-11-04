@@ -23,7 +23,7 @@ class ProductResource extends JsonResource
             }
         }
 
-        $displayPrice = (float) ($this->sale_price ?? $this->price);
+        $displayPrice = \App\Support\PriceRules::effective($this->sale_price, $this->price);
         $activeVariations = $this->relationLoaded('variations')
             ? $this->variations->where('status', 'active')->values()
             : null;

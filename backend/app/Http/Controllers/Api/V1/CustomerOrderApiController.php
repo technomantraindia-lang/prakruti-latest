@@ -135,9 +135,7 @@ class CustomerOrderApiController extends Controller
                     ->first();
             }
 
-            $itemPrice = $variation
-                ? ($variation->sale_price ?? $variation->price ?? $product->sale_price ?? $product->price)
-                : ($product->sale_price ?? $product->price);
+            $itemPrice = \App\Support\PriceRules::forItem($product, $variation);
             $lineSubtotal = $itemPrice * $item['qty'];
             $subtotal += $lineSubtotal;
 

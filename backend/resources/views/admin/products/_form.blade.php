@@ -157,19 +157,27 @@
                             $verifiedLabel = is_array($currentNutri) ? ($currentNutri['verified_label'] ?? '') : '';
                             $proofImage = is_array($currentNutri) ? ($currentNutri['packaging_proof'] ?? null) : null;
                         @endphp
-                        <span class="badge {{ $source === 'packaging_verified' ? 'bg-success' : ($source === 'ifct_reference_estimate' ? 'bg-primary' : 'bg-warning text-dark') }}">
-                            {{ $source === 'packaging_verified' ? '🔬 Packaging Verified' : ($source === 'ifct_reference_estimate' ? '📚 IFCT Reference' : '⚠️ Review Required') }}
+                        <span class="badge {{ $source === 'packaging_verified' ? 'bg-success' : ($source === 'label_unreviewed' ? 'bg-info text-dark' : ($source === 'ifct_reference_estimate' ? 'bg-primary' : 'bg-warning text-dark')) }}">
+                            {{ $source === 'packaging_verified' ? 'Verified against packaging' : ($source === 'label_unreviewed' ? 'From label (not reviewed)' : ($source === 'ifct_reference_estimate' ? 'Reference estimate' : 'Incomplete / missing')) }}
                         </span>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold">Verification Source</label>
+                                <label class="form-label small fw-bold">Status of these values</label>
                                 <select name="nutrition_source" class="form-select form-select-sm">
-                                    <option value="packaging_verified" @selected(old('nutrition_source', $source) === 'packaging_verified')>🔬 Verified from Packaging (Lab Fact)</option>
-                                    <option value="ifct_reference_estimate" @selected(old('nutrition_source', $source) === 'ifct_reference_estimate')>📚 IFCT 2024 Reference Standard</option>
-                                    <option value="needs_review" @selected(old('nutrition_source', $source) === 'needs_review')>⚠️ Extracted / Review Required</option>
-                                    <option value="unverified" @selected(old('nutrition_source', $source) === 'unverified')>❓ Pending Lab Verification</option>
+                                    <option value="label_unreviewed" @selected(in_array(old('nutrition_source', $source), ['label_unreviewed', 'needs_review', 'unverified'], true))>Automatic: entered or read from the label (not reviewed)</option>
+                                    <option value="packaging_verified" @selected(old('nutrition_source', $source) === 'packaging_verified')>I have checked these values against the pack</option>
+                                    <option value="ifct_reference_estimate" @selected(old('nutrition_source', $source) === 'ifct_reference_estimate')>These are reference-table estimates, not label values</option>
+                                </select>
+                                <small class="text-muted">Values are never shown as "verified" unless you choose it here.</small>
+                                @php $currentGroup = is_array($currentNutri) && ! empty($currentNutri['manual_group']) ? ($currentNutri['food_group'] ?? '') : ''; @endphp
+                                <label class="form-label small fw-bold mt-2">Food group for Family Pack</label>
+                                <select name="food_group" class="form-select form-select-sm">
+                                    <option value="">Automatic (from product name)</option>
+                                    @foreach (\App\Services\ProductNutritionService::FOOD_GROUPS as $gKey => $gLabel)
+                                        <option value="{{ $gKey }}" @selected(old('food_group', $currentGroup) === $gKey)>{{ $gLabel }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-6">

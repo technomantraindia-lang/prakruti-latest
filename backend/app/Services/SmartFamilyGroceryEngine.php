@@ -2,467 +2,460 @@
 
 namespace App\Services;
 
+use InvalidArgumentException;
+
+/**
+ * Turns a list of family members into daily nutrition targets and 30-day grocery quantities.
+ *
+ * All reference numbers live in config/family_pack.php together with their source.
+ * This class contains only the rules for combining them. It never touches the database.
+ *
+ * This is a grocery planning tool. It is not a diagnosis, treatment or medical diet.
+ */
 class SmartFamilyGroceryEngine
 {
-    /**
-     * ICMR-NIN 2024 Reference Baseline Table (g/day and daily nutrient targets per profile)
-     */
-    public const REFERENCE_TABLE = [
-        'C13'    => ['label' => 'Toddler 1–3',       'sex' => 'any',    'min_age' => 1,  'max_age' => 3,   'activity' => 'any',       'cereals' => 120, 'pulses' => 40,  'nuts' => 10, 'oil' => 15, 'sugar' => 15, 'salt' => 3, 'energy' => 1010, 'protein' => 11.3, 'carbs' => 130, 'fat' => 27, 'fiber' => 15],
-        'C46'    => ['label' => 'Child 4–6',         'sex' => 'any',    'min_age' => 4,  'max_age' => 6,   'activity' => 'any',       'cereals' => 160, 'pulses' => 60,  'nuts' => 15, 'oil' => 20, 'sugar' => 20, 'salt' => 5, 'energy' => 1360, 'protein' => 16.0, 'carbs' => 175, 'fat' => 30, 'fiber' => 18],
-        'C79'    => ['label' => 'Child 7–9',         'sex' => 'any',    'min_age' => 7,  'max_age' => 9,   'activity' => 'any',       'cereals' => 200, 'pulses' => 65,  'nuts' => 20, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1700, 'protein' => 23.0, 'carbs' => 220, 'fat' => 35, 'fiber' => 22],
-        'M1012'  => ['label' => 'Boy 10–12',         'sex' => 'male',   'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 280, 'pulses' => 90,  'nuts' => 30, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2220, 'protein' => 32.0, 'carbs' => 290, 'fat' => 40, 'fiber' => 28],
-        'F1012'  => ['label' => 'Girl 10–12',        'sex' => 'female', 'min_age' => 10, 'max_age' => 12,  'activity' => 'any',       'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2060, 'protein' => 33.0, 'carbs' => 270, 'fat' => 38, 'fiber' => 28],
-        'M1315'  => ['label' => 'Boy 13–15',         'sex' => 'male',   'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 390, 'pulses' => 130, 'nuts' => 40, 'oil' => 45, 'sugar' => 20, 'salt' => 5, 'energy' => 2860, 'protein' => 45.0, 'carbs' => 370, 'fat' => 45, 'fiber' => 35],
-        'F1315'  => ['label' => 'Girl 13–15',        'sex' => 'female', 'min_age' => 13, 'max_age' => 15,  'activity' => 'any',       'cereals' => 300, 'pulses' => 100, 'nuts' => 35, 'oil' => 40, 'sugar' => 20, 'salt' => 5, 'energy' => 2400, 'protein' => 43.0, 'carbs' => 310, 'fat' => 40, 'fiber' => 30],
-        'M1618'  => ['label' => 'Boy 16–18',         'sex' => 'male',   'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 450, 'pulses' => 150, 'nuts' => 50, 'oil' => 55, 'sugar' => 20, 'salt' => 5, 'energy' => 3320, 'protein' => 55.0, 'carbs' => 430, 'fat' => 50, 'fiber' => 40],
-        'F1618'  => ['label' => 'Girl 16–18',        'sex' => 'female', 'min_age' => 16, 'max_age' => 18,  'activity' => 'any',       'cereals' => 315, 'pulses' => 105, 'nuts' => 40, 'oil' => 40, 'sugar' => 20, 'salt' => 5, 'energy' => 2500, 'protein' => 46.0, 'carbs' => 320, 'fat' => 40, 'fiber' => 32],
-        'M1949S' => ['label' => 'Adult 19–49 Male (Sedentary)', 'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 230, 'pulses' => 75,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2110, 'protein' => 54.0, 'carbs' => 275, 'fat' => 30, 'fiber' => 30],
-        'M1949M' => ['label' => 'Adult 19–49 Male (Moderate)',  'sex' => 'male',   'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 320, 'pulses' => 105, 'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2710, 'protein' => 65.0, 'carbs' => 350, 'fat' => 35, 'fiber' => 40],
-        'M1949H' => ['label' => 'Adult 19–49 Male (High Physical / Manual)', 'sex' => 'male', 'min_age' => 19, 'max_age' => 49, 'activity' => 'high', 'cereals' => 400, 'pulses' => 130, 'nuts' => 45, 'oil' => 45, 'sugar' => 20, 'salt' => 5, 'energy' => 3470, 'protein' => 78.0, 'carbs' => 450, 'fat' => 45, 'fiber' => 50],
-        'F1949S' => ['label' => 'Adult 19–49 Female (Sedentary)','sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'sedentary', 'cereals' => 180, 'pulses' => 60,  'nuts' => 25, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1660, 'protein' => 46.0, 'carbs' => 215, 'fat' => 25, 'fiber' => 25],
-        'F1949M' => ['label' => 'Adult 19–49 Female (Moderate)', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'moderate',  'cereals' => 250, 'pulses' => 85,  'nuts' => 30, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2130, 'protein' => 55.0, 'carbs' => 275, 'fat' => 30, 'fiber' => 30],
-        'F1949H' => ['label' => 'Adult 19–49 Female (High Physical / Manual)', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49, 'activity' => 'high', 'cereals' => 320, 'pulses' => 105, 'nuts' => 35, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2720, 'protein' => 65.0, 'carbs' => 350, 'fat' => 38, 'fiber' => 38],
-        'M5060'  => ['label' => 'Adult 50–59 Male', 'sex' => 'male',   'min_age' => 50, 'max_age' => 59,  'activity' => 'any',       'cereals' => 200, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 2000, 'protein' => 54.0, 'carbs' => 260, 'fat' => 28, 'fiber' => 30],
-        'F5060'  => ['label' => 'Adult 50–59 Female', 'sex' => 'female', 'min_age' => 50, 'max_age' => 59, 'activity' => 'any',       'cereals' => 165, 'pulses' => 70,  'nuts' => 25, 'oil' => 20, 'sugar' => 20, 'salt' => 5, 'energy' => 1600, 'protein' => 46.0, 'carbs' => 210, 'fat' => 25, 'fiber' => 25],
-        'M60'    => ['label' => 'Older adult 60+ Male', 'sex' => 'male', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',       'cereals' => 170, 'pulses' => 75,  'nuts' => 30, 'oil' => 25, 'sugar' => 20, 'salt' => 5, 'energy' => 1750, 'protein' => 54.0, 'carbs' => 230, 'fat' => 25, 'fiber' => 28],
-        'F60'    => ['label' => 'Older adult 60+ Female', 'sex' => 'female', 'min_age' => 60, 'max_age' => 120, 'activity' => 'any',   'cereals' => 140, 'pulses' => 70,  'nuts' => 30, 'oil' => 15, 'sugar' => 20, 'salt' => 5, 'energy' => 1450, 'protein' => 46.0, 'carbs' => 190, 'fat' => 22, 'fiber' => 25],
-        'PREG'   => ['label' => 'Pregnant Female',  'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 220, 'pulses' => 85,  'nuts' => 40, 'oil' => 30, 'sugar' => 20, 'salt' => 5, 'energy' => 2010, 'protein' => 61.0, 'carbs' => 245, 'fat' => 35, 'fiber' => 28],
-        'LACT'   => ['label' => 'Lactating Female', 'sex' => 'female', 'min_age' => 19, 'max_age' => 49,  'activity' => 'any',       'cereals' => 260, 'pulses' => 95,  'nuts' => 40, 'oil' => 35, 'sugar' => 20, 'salt' => 5, 'energy' => 2180, 'protein' => 65.0, 'carbs' => 255, 'fat' => 37, 'fiber' => 30],
-    ];
+    public const ACTIVITY_LEVELS = ['sedentary', 'moderate', 'high'];
+
+    /** Accept the words customers and older code used. */
+    public static function normalizeActivity(?string $activity): string
+    {
+        $a = strtolower(trim((string) $activity));
+
+        return match (true) {
+            in_array($a, ['high', 'heavy', 'athlete', 'very_active', 'active'], true) => 'high',
+            in_array($a, ['sedentary', 'low', 'light'], true)                         => 'sedentary',
+            default                                                                    => 'moderate',
+        };
+    }
+
+    private function cfg(string $key, mixed $default = null): mixed
+    {
+        return config('family_pack.' . $key, $default);
+    }
+
+    private function flag(array $member, string $key): bool
+    {
+        return filter_var($member[$key] ?? false, FILTER_VALIDATE_BOOLEAN);
+    }
 
     /**
-     * Engine Multiplier Parameters
-     */
-    public const MONTH_DAYS = 30;
-    public const FACTOR_HIGH_ACTIVITY_CEREAL = 1.15;
-    public const FACTOR_ATHLETE_CEREAL = 1.25;
-    public const FACTOR_HIGH_ACTIVITY_PROTEIN = 1.15;
-    public const FACTOR_ATHLETE_PROTEIN = 1.25;
-    public const FACTOR_ADOLESCENT_PROTEIN = 1.10;
-    public const FACTOR_WEIGHT_GOAL_CEREAL = 0.90; // Only adult + weight-management goal + BMI >= 25
-    public const FACTOR_SEDENTARY_CEREAL = 0.95;
-    public const FACTOR_DIABETES_SUGAR = 0.50;
-    public const FACTOR_HIGH_SUGAR_USE = 1.15;
-    public const FACTOR_BP_SALT = 0.80;
-    public const FACTOR_HEART_OIL = 0.90;
-    public const FACTOR_RARE_PULSE = 1.15;
-    public const FACTOR_RARE_NUTS = 1.15;
-    public const FACTOR_LOW_HOME_COOKING = 0.85;
-    public const PACK_BUFFER = 1.0;
-
-    /**
-     * Match a family member to the NIN 2024 Reference Profile
+     * Pick the reference profile key for a member.
+     *
+     * @throws InvalidArgumentException when age is unusable or sex is missing for someone aged 10+
      */
     public function matchProfile(array $member): array
     {
-        $age = max(1, (int) ($member['age'] ?? 25));
-        $sex = strtolower($member['sex'] ?? 'male');
-        $activity = strtolower($member['activity'] ?? 'moderate');
-        $lifeStage = strtolower($member['life_stage'] ?? $member['lifeStage'] ?? 'none');
+        $age = (int) ($member['age'] ?? 0);
+        if ($age < 1 || $age > 120) {
+            throw new InvalidArgumentException('Age must be between 1 and 120 years.');
+        }
 
-        // Pregnancy and Lactation overrides (for adult females 19-49)
-        if ($sex === 'female' && $age >= 19 && $age <= 49) {
-            if ($lifeStage === 'pregnant' || !empty($member['is_pregnant'])) {
-                return ['key' => 'PREG', 'baseline' => self::REFERENCE_TABLE['PREG']];
+        $sex = strtolower((string) ($member['sex'] ?? ''));
+        if ($age >= 10 && ! in_array($sex, ['male', 'female'], true)) {
+            throw new InvalidArgumentException('Sex (male or female) is required for members aged 10 and above.');
+        }
+
+        $profiles = $this->cfg('profiles');
+        $activity = self::normalizeActivity($member['activity'] ?? null);
+        $lifeStage = strtolower((string) ($member['life_stage'] ?? $member['lifeStage'] ?? 'none'));
+
+        if ($sex === 'female' && $age >= 15 && $age <= 49) {
+            if ($lifeStage === 'pregnant' || $this->flag($member, 'is_pregnant')) {
+                return ['key' => 'PREG', 'blend' => null];
             }
-            if ($lifeStage === 'lactating' || !empty($member['is_lactating'])) {
-                return ['key' => 'LACT', 'baseline' => self::REFERENCE_TABLE['LACT']];
+            if ($lifeStage === 'lactating' || $this->flag($member, 'is_lactating')) {
+                return ['key' => 'LACT', 'blend' => null];
             }
         }
 
-        // Early childhood (1–3 years)
-        if ($age < 4) {
-            return ['key' => 'C13', 'baseline' => self::REFERENCE_TABLE['C13']];
-        }
-
-        // Children and Adolescents
-        if ($age < 7) {
-            return ['key' => 'C46', 'baseline' => self::REFERENCE_TABLE['C46']];
-        }
-        if ($age < 10) {
-            return ['key' => 'C79', 'baseline' => self::REFERENCE_TABLE['C79']];
-        }
-        if ($age <= 12) {
-            $key = $sex === 'female' ? 'F1012' : 'M1012';
-            return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
-        }
-        if ($age <= 15) {
-            $key = $sex === 'female' ? 'F1315' : 'M1315';
-            return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
-        }
         if ($age <= 18) {
-            $key = $sex === 'female' ? 'F1618' : 'M1618';
-            return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
-        }
-
-        // Adults 19-49
-        if ($age <= 49) {
-            $isSedentary = ($activity === 'sedentary');
-            $isHigh = ($activity === 'high' || $activity === 'athlete' || $activity === 'heavy');
-            if ($sex === 'female') {
-                $key = $isSedentary ? 'F1949S' : ($isHigh ? 'F1949H' : 'F1949M');
-            } else {
-                $key = $isSedentary ? 'M1949S' : ($isHigh ? 'M1949H' : 'M1949M');
+            foreach ($profiles as $key => $p) {
+                if ($p['activity'] !== 'any' || $p['ages'][1] > 18) {
+                    continue;
+                }
+                if ($age < $p['ages'][0] || $age > $p['ages'][1]) {
+                    continue;
+                }
+                if ($p['sex'] === 'any' || $p['sex'] === $sex) {
+                    return ['key' => $key, 'blend' => null];
+                }
             }
-            return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
         }
 
-        // Adults 50-59
-        if ($age <= 59) {
-            $key = $sex === 'female' ? 'F5060' : 'M5060';
-            return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
+        $prefix = $sex === 'female' ? 'F' : 'M';
+        $older = $prefix . '60';
+
+        if ($age >= 60) {
+            return ['key' => $older, 'blend' => null];
         }
 
-        // Older Adults 60+
-        $key = $sex === 'female' ? 'F60' : 'M60';
-        return ['key' => $key, 'baseline' => self::REFERENCE_TABLE[$key]];
+        $adult = $prefix . '_' . match ($activity) {
+            'sedentary' => 'S',
+            'high'      => 'H',
+            default     => 'M',
+        };
+
+        $b = $this->cfg('blend_to_older');
+        if ($age >= $b['from_age'] && $age < $b['to_age']) {
+            $weight = ($age - ($b['from_age'] - 1)) / ($b['to_age'] - ($b['from_age'] - 1));
+
+            return ['key' => $adult, 'blend' => ['to' => $older, 'weight' => round($weight, 4)]];
+        }
+
+        return ['key' => $adult, 'blend' => null];
     }
 
     /**
-     * Compute BMI for adult members
+     * Height in metres from cm or feet+inches. Null when missing or implausible.
      */
-    public function computeBmi(array $member): ?float
+    private function heightMetres(array $member): ?float
     {
-        $age = (int) ($member['age'] ?? 0);
-        $weightKg = (float) ($member['weightKg'] ?? $member['weight_kg'] ?? 0);
-
-        // Height resolution in meters
-        $heightM = 0;
-        if (!empty($member['heightCm']) || !empty($member['height_cm'])) {
-            $heightM = ((float) ($member['heightCm'] ?? $member['height_cm'])) / 100.0;
-        } elseif (isset($member['heightFt']) || isset($member['heightIn'])) {
+        $cm = (float) ($member['heightCm'] ?? $member['height_cm'] ?? 0);
+        if ($cm > 0) {
+            $m = $cm / 100.0;
+        } else {
             $ft = (float) ($member['heightFt'] ?? 0);
             $in = (float) ($member['heightIn'] ?? 0);
-            $totalInches = ($ft * 12) + $in;
-            $heightM = ($totalInches * 2.54) / 100.0;
+            $m = (($ft * 12) + $in) * 2.54 / 100.0;
         }
 
-        if ($heightM < 0.5 || $weightKg < 1 || $weightKg > 180) {
+        return ($m >= 0.5 && $m <= 2.5) ? $m : null;
+    }
+
+    /** Adult BMI only. Children and teenagers never get an adult BMI. */
+    public function computeBmi(array $member): ?float
+    {
+        if ((int) ($member['age'] ?? 0) < 19) {
+            return null;
+        }
+        $weight = (float) ($member['weightKg'] ?? $member['weight_kg'] ?? 0);
+        $height = $this->heightMetres($member);
+        if ($height === null || $weight < 10 || $weight > 250) {
             return null;
         }
 
-        return round($weightKg / ($heightM * $heightM), 1);
+        return round($weight / ($height * $height), 1);
     }
 
     /**
-     * Member-level quantity and nutrient assessment
+     * Raw reference values (before health adjustments) for one member.
      */
-    public function assessMember(array $member): array
+    private function referenceValues(array $member, array $match): array
     {
-        $profileMatch = $this->matchProfile($member);
-        $profileKey = $profileMatch['key'];
-        $base = $profileMatch['baseline'];
+        $profiles = $this->cfg('profiles');
+        $age = (int) $member['age'];
+        $activity = self::normalizeActivity($member['activity'] ?? null);
+        $fields = ['energy', 'protein', 'cereals', 'pulses', 'nuts', 'fat'];
 
-        $age = (int) ($member['age'] ?? 25);
-        $activity = strtolower($member['activity'] ?? 'moderate');
-        $goal = strtolower($member['goal'] ?? 'general');
-        $bmi = $this->computeBmi($member);
+        $row = $profiles[$match['key']];
+        $values = array_intersect_key($row, array_flip($fields));
+        $basis = $row['basis'];
+        $notes = [];
 
-        $cerealMult = 1.0;
-        $proteinMult = 1.0;
-        $energyMult = 1.0;
+        $olderRow = function (string $key) use ($profiles, $activity, $fields): array {
+            $r = array_intersect_key($profiles[$key], array_flip($fields));
+            $factor = (float) ($this->cfg('older_activity_factor')[$activity] ?? 1.0);
+            foreach (['energy', 'cereals', 'pulses', 'nuts', 'fat'] as $f) {
+                $r[$f] = $r[$f] * $factor;
+            }
 
-        $isAdult1949 = ($age >= 19 && $age <= 49);
+            return $r;
+        };
 
-        // Activity Adjustments
-        // Note: For adults 19-49, ICMR-NIN 2024 provides distinct baseline profiles (Sedentary, Moderate, Heavy).
-        // Therefore, we must NOT double-multiply for Sedentary, Moderate, or High adults 19-49.
-        if ($activity === 'athlete') {
-            $energyMult = 1.10;
-            $cerealMult *= 1.10;
-            $proteinMult *= 1.15;
-        } elseif (!$isAdult1949) {
-            // Apply activity scaling only to age groups without activity-stratified NIN tables (e.g. 50+, children)
-            if ($activity === 'high' || $activity === 'heavy') {
-                $energyMult = 1.10;
-                $cerealMult *= 1.10;
-                $proteinMult *= 1.10;
-            } elseif ($activity === 'sedentary') {
-                $energyMult = 0.95;
-                $cerealMult *= 0.95;
+        if ($age >= 60) {
+            $values = $olderRow($match['key']);
+            if ($activity !== 'sedentary') {
+                $basis = 'estimate';
+                $notes[] = 'ICMR gives no activity split after 60; a modest planning uplift was applied for activity level.';
             }
         }
 
-        // Adolescent Growth Factor
-        if ($age >= 10 && $age <= 18) {
-            $proteinMult *= self::FACTOR_ADOLESCENT_PROTEIN;
+        if ($match['blend']) {
+            $to = $olderRow($match['blend']['to']);
+            $w = $match['blend']['weight'];
+            foreach ($fields as $f) {
+                $values[$f] = $values[$f] * (1 - $w) + $to[$f] * $w;
+            }
+            $basis = 'estimate';
+            $notes[] = 'ICMR has no separate 55–59 year category; values move gradually from the adult to the older-adult reference.';
         }
 
-        // Weight Management Cereal Factor (Only for Adult with BMI >= 25 and weight-management goal)
-        if ($age >= 19 && $bmi !== null && $bmi >= 25.0 && ($goal === 'weight_loss' || $goal === 'weight_management')) {
-            $cerealMult *= self::FACTOR_WEIGHT_GOAL_CEREAL;
-            $energyMult *= 0.92;
+        if ($basis === 'derived') {
+            $notes[] = 'Derived from official ICMR-NIN figures (see source).';
         }
 
-        $dailyCereals = round($base['cereals'] * $cerealMult, 1);
-        $dailyPulses  = round($base['pulses'] * $proteinMult, 1);
-        $dailyNuts    = round($base['nuts'] * $proteinMult, 1);
-        $dailyOil     = round($base['oil'], 1);
-        $dailySugar   = round($base['sugar'], 1);
-        $dailySalt    = round($base['salt'], 1);
+        return [$values, $basis, $row['source'], $row['label'], $notes];
+    }
 
-        $dailyEnergy  = round($base['energy'] * $energyMult);
-        $dailyProtein = round($base['protein'] * $proteinMult, 1);
-        $dailyCarbs   = round($base['carbs'] * $cerealMult, 1);
-        $dailyFat     = round($base['fat'], 1);
-        $dailyFiber   = round($base['fiber'], 1);
+    /**
+     * Per-person assessment: targets, derived nutrients and any health-based planning adjustments.
+     */
+    public function assessMember(array $member): array
+    {
+        $match = $this->matchProfile($member);
+        [$ref, $basis, $source, $label, $notes] = $this->referenceValues($member, $match);
 
-        $bmiNote = $bmi !== null 
-            ? "BMI: {$bmi}" 
-            : ($age < 19 
-                ? "Pediatric Growth Reference Applied" 
-                : "ICMR-NIN 2024 Reference Standard Indian Adult (" . ($member['sex'] === 'female' ? '55 kg' : '65 kg') . ") applied.");
+        $age = (int) $member['age'];
+        $d = $this->cfg('derived');
+        $energy = (float) $ref['energy'];
+        $protein = (float) $ref['protein'];
+
+        $fatG = $energy * $d['fat_energy_share'] / 9.0;
+        $carbsG = max(0.0, ($energy - 4 * $protein - 9 * $fatG) / 4.0);
+        $fibreG = $energy / 1000.0 * $d['fibre_g_per_1000_kcal'];
+
+        $sugar = $age < $d['no_added_sugar_below_age'] ? 0.0 : $energy * $d['added_sugar_energy_share'] / 4.0;
+        $salt = (float) ($age < 4 ? $d['salt_g_per_day_young'] : $d['salt_g_per_day']);
+        $spices = (float) $d['spices_g_per_day'];
+        $fat = (float) $ref['fat'];
+        $gheeShare = (float) $this->cfg('ghee_share_default');
+
+        // Health flags: modest, per-person, never stacked on the same food (most protective single factor wins).
+        $health = $this->cfg('health');
+        $flags = [
+            'diabetes' => $this->flag($member, 'diabetes'),
+            'bp'       => $this->flag($member, 'bp'),
+            'heart'    => $this->flag($member, 'heart'),
+            'kidney'   => $this->flag($member, 'kidney'),
+        ];
+        $factors = ['sugar' => [1.0], 'salt' => [1.0], 'fat' => [1.0]];
+        $adjustments = [];
+        if ($flags['diabetes']) {
+            $factors['sugar'][] = $health['diabetes']['sugar_factor'];
+            $adjustments[] = 'Added sugar planning allowance reduced by ' . round((1 - $health['diabetes']['sugar_factor']) * 100) . '% for this person. Total carbohydrates and portions matter more than sugar alone.';
+        }
+        if ($flags['bp']) {
+            $factors['salt'][] = $health['bp']['salt_factor'];
+            $adjustments[] = 'Salt planning allowance reduced by ' . round((1 - $health['bp']['salt_factor']) * 100) . '% for this person. Total sodium (including packaged foods) matters.';
+        }
+        if ($flags['heart']) {
+            $factors['fat'][] = $health['heart']['fat_factor'];
+            $gheeShare = min($gheeShare, (float) $health['heart']['ghee_share']);
+            $adjustments[] = 'Visible fat reduced slightly and the ghee share lowered to ' . round($gheeShare * 100) . '% for this person.';
+        }
+        if ($flags['kidney']) {
+            $adjustments[] = 'Kidney condition: no automatic changes were made. Please follow your nephrologist or dietitian.';
+        }
+        $sugar *= min($factors['sugar']);
+        $salt *= min($factors['salt']);
+        $fat *= min($factors['fat']);
+
+        // BMI and reference-weight disclosure
+        $bmi = $this->computeBmi($member);
+        $hasMeasures = (float) ($member['weightKg'] ?? $member['weight_kg'] ?? 0) > 0 && $this->heightMetres($member) !== null;
+        $refWeight = ($member['sex'] ?? '') === 'female' ? 55 : 65;
+        if ($age < 19) {
+            $bmiNote = 'BMI is not interpreted for children and teenagers (adult cut-offs do not apply). Growth should be reviewed with a paediatrician.';
+        } elseif ($bmi !== null) {
+            $bmiNote = "BMI {$bmi}. Targets use the ICMR reference body weight ({$refWeight} kg), not the measured weight.";
+        } elseif ($hasMeasures) {
+            $bmiNote = 'Measurements look implausible, so BMI is not shown.';
+        } else {
+            $bmiNote = "Height/weight not entered. Targets use the ICMR reference body weight ({$refWeight} kg); this is a reference value, not a measurement.";
+        }
 
         return [
-            'member_id'    => $member['id'] ?? null,
-            'name'         => $member['name'] ?? 'Member',
-            'age'          => $age,
-            'sex'          => $member['sex'] ?? 'male',
-            'profile_key'  => $profileKey,
-            'profile_label'=> $base['label'],
-            'bmi'          => $bmi,
-            'bmi_note'     => $bmiNote,
-            'activity'     => $activity,
-            'goal'         => $goal,
-            'health_flags' => [
-                'diabetes' => !empty($member['diabetes']),
-                'bp'       => !empty($member['bp']),
-                'heart'    => !empty($member['heart']),
-                'kidney'   => !empty($member['kidney']),
-            ],
-            'daily_grams' => [
-                'cereals' => $dailyCereals,
-                'pulses'  => $dailyPulses,
-                'nuts'    => $dailyNuts,
-                'oil'     => $dailyOil,
-                'sugar'   => $dailySugar,
-                'salt'    => $dailySalt,
+            'member_id'       => $member['id'] ?? null,
+            'name'            => $member['name'] ?? 'Member',
+            'age'             => $age,
+            'sex'             => $member['sex'] ?? null,
+            'profile_key'     => $match['key'],
+            'profile_label'   => $label,
+            'profile_basis'   => $basis,
+            'profile_source'  => $source,
+            'profile_notes'   => $notes,
+            'bmi'             => $bmi,
+            'bmi_note'        => $bmiNote,
+            'uses_reference_weight' => true,
+            'activity'        => self::normalizeActivity($member['activity'] ?? null),
+            'goal'            => strtolower((string) ($member['goal'] ?? 'general')),
+            'health_flags'    => $flags,
+            'adjustments'     => $adjustments,
+            'ghee_share'      => $gheeShare,
+            'daily_grams'     => [
+                'cereals' => round($ref['cereals'], 1),
+                'pulses'  => round($ref['pulses'], 1),
+                'nuts'    => round($ref['nuts'], 1),
+                'fat'     => round($fat, 1),
+                'sugar'   => round($sugar, 1),
+                'salt'    => round($salt, 1),
+                'spices'  => round($spices, 1),
             ],
             'daily_nutrients' => [
-                'energy_kcal' => $dailyEnergy,
-                'protein_g'   => $dailyProtein,
-                'carbs_g'     => $dailyCarbs,
-                'fat_g'       => $dailyFat,
-                'fiber_g'     => $dailyFiber,
+                'energy_kcal' => (int) round($energy),
+                'protein_g'   => round($protein, 1),
+                'carbs_g'     => round($carbsG, 1),
+                'fat_g'       => round($fatG, 1),
+                'fiber_g'     => round($fibreG, 1),
             ],
         ];
     }
 
     /**
-     * Household aggregation second (NIN basis: 30 days + household adjustments)
+     * Household totals and 30-day grocery needs.
      */
     public function calculateBasket(array $members, array $household = []): array
     {
         if (empty($members)) {
             return [
+                'members_count' => 0,
                 'members_assessed' => [],
                 'daily_household_grams' => [],
                 'daily_household_nutrients' => [],
-                'monthly_kg' => [],
+                'monthly_requirements' => [],
                 'monthly_nutrients' => [],
                 'interpretation' => 'No family members entered.',
                 'safety_alerts' => [],
             ];
         }
 
-        $assessedMembers = [];
-        $totDailyCereals = 0.0;
-        $totDailyPulses  = 0.0;
-        $totDailyNuts    = 0.0;
-        $totDailyOil     = 0.0;
-        $totDailySugar   = 0.0;
-        $totDailySalt    = 0.0;
+        $days = (int) $this->cfg('days', 30);
+        $assessed = array_map(fn ($m) => $this->assessMember($m), array_values($members));
 
-        $totDailyEnergy  = 0.0;
-        $totDailyProtein = 0.0;
-        $totDailyCarbs   = 0.0;
-        $totDailyFat     = 0.0;
-        $totDailyFiber   = 0.0;
+        $g = ['cereals' => 0.0, 'pulses' => 0.0, 'nuts' => 0.0, 'fat' => 0.0, 'sugar' => 0.0, 'salt' => 0.0, 'spices' => 0.0];
+        $n = ['energy_kcal' => 0.0, 'protein_g' => 0.0, 'carbs_g' => 0.0, 'fat_g' => 0.0, 'fiber_g' => 0.0];
+        $gheeG = 0.0;
+        $milletG = 0.0;
+        $any = ['diabetes' => false, 'bp' => false, 'heart' => false, 'kidney' => false];
+        $conditionCount = 0;
+        $millet = $this->cfg('millets');
 
-        $hasDiabetes = false;
-        $hasBp       = false;
-        $hasHeart    = false;
-        $hasKidney   = false;
-        $hasAthlete  = false;
-        $hasTeen     = false;
-        $hasSenior   = false;
-
-        foreach ($members as $m) {
-            $assessed = $this->assessMember($m);
-            $assessedMembers[] = $assessed;
-
-            $totDailyCereals += $assessed['daily_grams']['cereals'];
-            $totDailyPulses  += $assessed['daily_grams']['pulses'];
-            $totDailyNuts    += $assessed['daily_grams']['nuts'];
-            $totDailyOil     += $assessed['daily_grams']['oil'];
-            $totDailySugar   += $assessed['daily_grams']['sugar'];
-            $totDailySalt    += $assessed['daily_grams']['salt'];
-
-            $totDailyEnergy  += $assessed['daily_nutrients']['energy_kcal'];
-            $totDailyProtein += $assessed['daily_nutrients']['protein_g'];
-            $totDailyCarbs   += $assessed['daily_nutrients']['carbs_g'];
-            $totDailyFat     += $assessed['daily_nutrients']['fat_g'];
-            $totDailyFiber   += $assessed['daily_nutrients']['fiber_g'];
-
-            if (!empty($assessed['health_flags']['diabetes'])) $hasDiabetes = true;
-            if (!empty($assessed['health_flags']['bp']))       $hasBp = true;
-            if (!empty($assessed['health_flags']['heart']))    $hasHeart = true;
-            if (!empty($assessed['health_flags']['kidney']))   $hasKidney = true;
-
-            if ($assessed['activity'] === 'athlete' || $assessed['activity'] === 'high') $hasAthlete = true;
-            if ($assessed['age'] >= 10 && $assessed['age'] <= 18) $hasTeen = true;
-            if ($assessed['age'] >= 60) $hasSenior = true;
+        foreach ($assessed as $a) {
+            foreach ($g as $k => $_) {
+                $g[$k] += $a['daily_grams'][$k];
+            }
+            foreach ($n as $k => $_) {
+                $n[$k] += $a['daily_nutrients'][$k];
+            }
+            $gheeG += $a['daily_grams']['fat'] * $a['ghee_share'];
+            $share = $a['age'] <= $millet['child_max_age'] ? $millet['child_share'] : $millet['adult_share'];
+            $milletG += $a['daily_grams']['cereals'] * $share;
+            foreach ($a['health_flags'] as $k => $v) {
+                $any[$k] = $any[$k] || $v;
+            }
+            $conditionCount += count(array_filter($a['health_flags']));
         }
 
-        // Convert 30 days to monthly kg
-        $monthlyCerealsKg = ($totDailyCereals * self::MONTH_DAYS) / 1000.0;
-        $monthlyPulsesKg  = ($totDailyPulses  * self::MONTH_DAYS) / 1000.0;
-        $monthlyNutsKg    = ($totDailyNuts    * self::MONTH_DAYS) / 1000.0;
-        $monthlyOilLiters = ($totDailyOil     * self::MONTH_DAYS) / 1000.0;
-        $monthlySugarKg   = ($totDailySugar   * self::MONTH_DAYS) / 1000.0;
-        $monthlySaltKg    = ($totDailySalt    * self::MONTH_DAYS) / 1000.0;
-
-        // Household Factor Adjustments
-        $mealsCooked = (float) ($household['meals_cooked_at_home'] ?? $household['mealsCookedAtHome'] ?? 3);
-        if ($mealsCooked < 2) {
-            $factor = self::FACTOR_LOW_HOME_COOKING;
-            $monthlyCerealsKg *= $factor;
-            $monthlyPulsesKg  *= $factor;
-            $monthlyNutsKg    *= $factor;
-            $monthlyOilLiters *= $factor;
-            $monthlySugarKg   *= $factor;
-            $monthlySaltKg    *= $factor;
+        // Monthly kg
+        $m = [];
+        foreach ($g as $k => $v) {
+            $m[$k] = $v * $days / 1000.0;
         }
+        $m['ghee'] = $gheeG * $days / 1000.0;
+        $m['cooking_oil'] = $m['fat'] - $m['ghee'];
 
-        // Pulse frequency factor
-        $pulseFreq = strtolower($household['pulse_frequency'] ?? $household['pulseFrequency'] ?? 'daily');
-        if ($pulseFreq === 'rare' || $pulseFreq === 'low') {
-            $monthlyPulsesKg *= self::FACTOR_RARE_PULSE;
-        }
-
-        // Nuts & Seeds frequency factor
-        $nutsFreq = strtolower($household['nuts_frequency'] ?? $household['nutsFrequency'] ?? 'daily');
-        if ($nutsFreq === 'rare' || $nutsFreq === 'infrequent') {
-            $monthlyNutsKg *= self::FACTOR_RARE_NUTS;
-        }
-
-        // Added sugar use & Diabetes adjustments
-        if ($hasDiabetes) {
-            $monthlySugarKg *= self::FACTOR_DIABETES_SUGAR;
-        } else {
-            $sugarUse = strtolower($household['sugar_use'] ?? $household['sugarUse'] ?? 'moderate');
-            if ($sugarUse === 'high') {
-                $monthlySugarKg *= self::FACTOR_HIGH_SUGAR_USE;
+        // Household habits (planning assumptions)
+        $habits = $this->cfg('habits');
+        $meals = (float) ($household['meals_cooked_at_home'] ?? $household['mealsCookedAtHome'] ?? 3);
+        if ($meals < $habits['low_home_cooking']['max_meals']) {
+            foreach (['cereals', 'pulses', 'nuts', 'fat', 'sugar', 'salt', 'spices', 'ghee', 'cooking_oil'] as $k) {
+                $m[$k] *= $habits['low_home_cooking']['factor'];
             }
         }
-
-        // BP Salt factor
-        if ($hasBp) {
-            $monthlySaltKg *= self::FACTOR_BP_SALT;
+        $pulseFreq = strtolower((string) ($household['pulse_frequency'] ?? $household['pulseFrequency'] ?? 'daily'));
+        if (in_array($pulseFreq, ['rare', 'low', 'infrequent'], true)) {
+            $m['pulses'] *= $habits['pulses_rare'];
+        }
+        $nutsFreq = strtolower((string) ($household['nuts_frequency'] ?? $household['nutsFrequency'] ?? 'daily'));
+        if (in_array($nutsFreq, ['rare', 'infrequent'], true)) {
+            $m['nuts'] *= $habits['nuts_rare'];
+        }
+        $sugarUse = strtolower((string) ($household['sugar_use'] ?? $household['sugarUse'] ?? 'moderate'));
+        if ($sugarUse === 'low') {
+            $m['sugar'] *= $habits['sugar_low'];
         }
 
-        // Heart / Lipid oil factor
-        if ($hasHeart) {
-            $monthlyOilLiters *= self::FACTOR_HEART_OIL;
+        // Millets share of cereals (DGI 2024) with preference / diabetes lift
+        $milletShare = $g['cereals'] > 0 ? $milletG / $g['cereals'] : $millet['adult_share'];
+        $pref = strtolower((string) ($household['staple_preference'] ?? $household['staplePreference'] ?? 'balanced'));
+        $prefCfg = $this->cfg('staple_preference');
+        if ($pref === 'millets') {
+            $milletShare = max($milletShare, $prefCfg['millets']['millet_share']);
         }
-
-        // Apply pantry pack buffer
-        $buffer = (float) ($household['pack_buffer'] ?? self::PACK_BUFFER);
-        $monthlyCerealsKg *= $buffer;
-        $monthlyPulsesKg  *= $buffer;
-        $monthlyNutsKg    *= $buffer;
-        $monthlyOilLiters *= $buffer;
-        $monthlySugarKg   *= $buffer;
-        $monthlySaltKg    *= $buffer;
-
-        // Construct Clinical Safety & Positioning Alerts
-        $safetyAlerts = [];
-        if ($hasKidney) {
-            $safetyAlerts[] = [
-                'type'    => 'critical',
-                'title'   => 'Kidney Condition Detected – Professional Review Required',
-                'message' => 'Kidney condition detected: grocery engine requires professional review. No automated disease-specific restriction. Please consult a qualified clinical nephrologist or dietitian before purchasing therapeutic meal plans.',
-            ];
+        if ($any['diabetes']) {
+            $milletShare += 0.05;
         }
-        if ($hasDiabetes) {
-            $safetyAlerts[] = [
-                'type'    => 'info',
-                'title'   => 'Sugar-Conscious Basket Adjustment',
-                'message' => 'Diabetes flag detected: household added sugar purchase quantity has been automatically reduced by 50% while unpolished, fibre-rich whole grains and legumes are prioritized.',
-            ];
-        }
-        if ($hasBp) {
-            $safetyAlerts[] = [
-                'type'    => 'info',
-                'title'   => 'Salt-Mindful Planning (Sodium Notice)',
-                'message' => 'Blood pressure flag detected: salt purchase recommendation reduced to support mindful intake (< 5g/day per adult). Note: Sendha Namak (Pink Rock Salt) is naturally unrefined but consists of ~98% sodium chloride and must still be used in moderation.',
-            ];
-        }
-        if ($hasHeart) {
-            $safetyAlerts[] = [
-                'type'    => 'info',
-                'title'   => 'Cardiovascular Fat Balance Guidance',
-                'message' => 'Heart / lipid profile flag detected: cold-pressed unsaturated vegetable oils (Groundnut, Sesame, Sunflower, Olive) prioritized (85–90%); saturated fats (A2 Desi Cow Ghee) moderated to 10–15% of total added fats.',
-            ];
-        }
+        $milletShare = min($milletShare, $millet['max_share']);
+        $split = $prefCfg[$pref] ?? $prefCfg['balanced'];
 
-        // Customer-Facing Multi-Parameter Interpretation Report
-        $priorities = [];
-        if ($hasAthlete) $priorities[] = 'high-performance athletic activity';
-        if ($hasTeen)    $priorities[] = 'adolescent growth stage';
-        if ($hasDiabetes)$priorities[] = 'sugar-conscious routine';
-        if ($hasHeart)   $priorities[] = 'cold-pressed healthy fat moderation';
-        if ($hasSenior)  $priorities[] = 'nutrient-dense senior vitality';
+        $dens = $this->cfg('density_kg_per_l');
+        $requirements = [
+            'cereals_kg'      => round($m['cereals'], 2),
+            'pulses_kg'       => round($m['pulses'], 2),
+            'nuts_kg'         => round($m['nuts'], 2),
+            'fat_kg'          => round($m['fat'], 2),
+            'cooking_oil_kg'  => round($m['cooking_oil'], 2),
+            'ghee_kg'         => round($m['ghee'], 2),
+            'cooking_oil_l'   => round($m['cooking_oil'] / $dens['cooking_oils'], 2),
+            'ghee_l'          => round($m['ghee'] / $dens['ghee'], 2),
+            'sugar_kg'        => round($m['sugar'], 2),
+            'salt_kg'         => round($m['salt'], 2),
+            'spices_kg'       => round($m['spices'], 2),
+            'millet_share'    => round($milletShare, 3),
+            'wheat_share_of_non_millet' => $split['wheat'],
+            'rice_share_of_non_millet'  => $split['rice'],
+        ];
+        $requirements['oil_liters'] = round($requirements['cooking_oil_l'] + $requirements['ghee_l'], 2);
 
-        $priorityText = empty($priorities) 
-            ? 'balanced whole-food nourishment'
-            : implode(', ', $priorities);
+        $alerts = $this->alerts($any, $conditionCount);
 
-        $memberCount = count($members);
-        $interpretation = "Your Smart Family Grocery Basket is configured for {$memberCount} member(s) with focus on {$priorityText}. "
-            . "Calculated using ICMR-NIN 2024 member-level guidelines: "
-            . number_format($monthlyCerealsKg, 1) . " kg unpolished grains & flours, "
-            . number_format($monthlyPulsesKg, 1) . " kg diverse pulses & legumes, "
-            . number_format($monthlyOilLiters, 1) . " L cold-pressed oils & A2 ghee, and "
-            . number_format($monthlyNutsKg, 1) . " kg raw seeds/nuts for the month.";
+        $count = count($assessed);
+        $interpretation = "Planning basis for {$count} member(s): about "
+            . number_format($requirements['cereals_kg'], 1) . ' kg grains & flours, '
+            . number_format($requirements['pulses_kg'], 1) . ' kg pulses, '
+            . number_format($requirements['oil_liters'], 1) . ' L cooking oil & ghee and '
+            . number_format($requirements['nuts_kg'], 1) . ' kg nuts/seeds for 30 days. '
+            . 'Fresh vegetables, fruit and dairy are not part of this basket.';
 
         return [
-            'members_count' => $memberCount,
-            'members_assessed' => $assessedMembers,
-            'daily_household_grams' => [
-                'cereals' => round($totDailyCereals, 1),
-                'pulses'  => round($totDailyPulses, 1),
-                'nuts'    => round($totDailyNuts, 1),
-                'oil'     => round($totDailyOil, 1),
-                'sugar'   => round($totDailySugar, 1),
-                'salt'    => round($totDailySalt, 1),
-            ],
+            'members_count' => $count,
+            'members_assessed' => $assessed,
+            'daily_household_grams' => array_map(fn ($v) => round($v, 1), $g),
             'daily_household_nutrients' => [
-                'energy_kcal' => round($totDailyEnergy),
-                'protein_g'   => round($totDailyProtein, 1),
-                'carbs_g'     => round($totDailyCarbs, 1),
-                'fat_g'       => round($totDailyFat, 1),
-                'fiber_g'     => round($totDailyFiber, 1),
+                'energy_kcal' => (int) round($n['energy_kcal']),
+                'protein_g'   => round($n['protein_g'], 1),
+                'carbs_g'     => round($n['carbs_g'], 1),
+                'fat_g'       => round($n['fat_g'], 1),
+                'fiber_g'     => round($n['fiber_g'], 1),
             ],
-            'monthly_requirements' => [
-                'cereals_kg' => round($monthlyCerealsKg, 2),
-                'pulses_kg'  => round($monthlyPulsesKg, 2),
-                'nuts_kg'    => round($monthlyNutsKg, 2),
-                'oil_liters' => round($monthlyOilLiters, 2),
-                'sugar_kg'   => round($monthlySugarKg, 2),
-                'salt_kg'    => round($monthlySaltKg, 2),
-            ],
+            'monthly_requirements' => $requirements,
             'monthly_nutrients' => [
-                'energy_kcal' => round($totDailyEnergy * self::MONTH_DAYS),
-                'protein_g'   => round($totDailyProtein * self::MONTH_DAYS, 1),
-                'carbs_g'     => round($totDailyCarbs * self::MONTH_DAYS, 1),
-                'fat_g'       => round($totDailyFat * self::MONTH_DAYS, 1),
-                'fiber_g'     => round($totDailyFiber * self::MONTH_DAYS, 1),
+                'energy_kcal' => (int) round($n['energy_kcal'] * $days),
+                'protein_g'   => round($n['protein_g'] * $days, 1),
+                'carbs_g'     => round($n['carbs_g'] * $days, 1),
+                'fat_g'       => round($n['fat_g'] * $days, 1),
+                'fiber_g'     => round($n['fiber_g'] * $days, 1),
             ],
             'interpretation' => $interpretation,
-            'safety_alerts'  => $safetyAlerts,
-            'positioning_disclaimer' => 'Smart Family Grocery Planner / Household Nutrition Basket. Not a medical treatment, clinical prescription, or disease diet.',
+            'safety_alerts' => $alerts,
+            'positioning_disclaimer' => 'A grocery planning assistant. Not medical advice, a diagnosis, a treatment or a complete meal plan.',
         ];
+    }
+
+    private function alerts(array $any, int $conditionCount): array
+    {
+        $alerts = [];
+        if ($any['kidney']) {
+            $alerts[] = ['type' => 'critical', 'title' => 'Kidney condition: professional review needed',
+                'message' => 'Kidney conditions need individual limits on protein, potassium, phosphorus, sodium and fluids. This planner makes no automatic changes for kidney conditions. Please have the basket reviewed by your nephrologist or dietitian before buying.'];
+        }
+        if ($any['diabetes']) {
+            $alerts[] = ['type' => 'info', 'title' => 'Diabetes: lower added-sugar planning',
+                'message' => 'Added sugar is planned lower for the person with diabetes and fibre-rich grains are given slightly more room. Managing diabetes depends on total carbohydrates, portions and your treatment plan, so please follow your doctor or dietitian.'];
+        }
+        if ($any['bp']) {
+            $alerts[] = ['type' => 'info', 'title' => 'High blood pressure: sodium notice',
+                'message' => 'Salt is planned slightly lower for the person with high blood pressure. Rock salt (sendha namak) is also mostly sodium chloride and is not a safer substitute. Packaged foods add sodium too. This does not replace medical advice.'];
+        }
+        if ($any['heart']) {
+            $alerts[] = ['type' => 'info', 'title' => 'Heart condition: cooking-fat balance',
+                'message' => 'Visible fat is planned slightly lower and more of it comes from cooking oil than ghee for the person with a heart condition. Please follow your cardiologist or dietitian for specific advice.'];
+        }
+        if ($conditionCount > 1) {
+            $alerts[] = ['type' => 'info', 'title' => 'More than one health condition',
+                'message' => 'Adjustments are applied separately for each person and never stacked on the same food. With several conditions please have the basket reviewed by a qualified professional.'];
+        }
+
+        return $alerts;
     }
 }

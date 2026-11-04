@@ -10,7 +10,7 @@ class ProductVariation extends Model
 {
     protected $fillable = [
         'product_id', 'attr_id', 'attr_val', 'sku', 'price', 'sale_price', 'cost_price',
-        'stock_qty', 'reserved_stock', 'image', 'weight', 'status',
+        'stock_qty', 'reserved_stock', 'image', 'weight', 'status', 'net_qty', 'net_unit',
     ];
 
     protected $hidden = [
@@ -22,6 +22,7 @@ class ProductVariation extends Model
         'sale_price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'weight' => 'decimal:2',
+        'net_qty' => 'decimal:3',
     ];
 
     public function product(): BelongsTo
@@ -57,7 +58,8 @@ class ProductVariation extends Model
             return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
         }
 
-        if ($this->batches()->exists()) {
+        // If batches were eager-loaded and the list is empty there are none: skip the extra existence query.
+        if (! $this->relationLoaded('batches') && $this->batches()->exists()) {
             $batchQty = (int) $this->batches()->availableForSale()->sum('current_qty');
             return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
         }
@@ -67,7 +69,7 @@ class ProductVariation extends Model
 
     public function getDisplayPriceAttribute(): float
     {
-        return (float) ($this->sale_price ?? $this->price ?? 0);
+        return \App\Support\PriceRules::effective($this->sale_price, $this->price);
     }
 
     public function isInStock(): bool

@@ -12,7 +12,7 @@ class Product extends Model
         'name', 'slug', 'sku', 'hsn_code', 'category_id', 'sub_category_id', 'sub_sub_category_id', 'brand_id',
         'price', 'sale_price', 'gst_percentage', 'cost_price', 'stock_qty', 'reserved_stock', 'low_stock_qty',
         'unit', 'min_order_qty', 'weight', 'image', 'short_desc', 'description', 'nutritional_info', 'product_information',
-        'seo_title', 'seo_desc', 'seo_keywords', 'status', 'featured',
+        'seo_title', 'seo_desc', 'seo_keywords', 'status', 'featured', 'net_qty', 'net_unit',
     ];
 
     protected $casts = [
@@ -108,7 +108,7 @@ class Product extends Model
 
     public function getDisplayPriceAttribute(): float
     {
-        return (float) ($this->sale_price ?? $this->price);
+        return \App\Support\PriceRules::effective($this->sale_price, $this->price);
     }
 
     public function getImageUrlAttribute(): ?string
@@ -124,7 +124,18 @@ class Product extends Model
 
     public function getAvailableStockAttribute(): int
     {
-        if ($this->batches()->exists()) {
+        if ($this->relationLoaded('batches')) {
+            if ($this->batches->isNotEmpty()) {
+                $cutoff = now()->addDays(60);
+                $batchQty = (int) $this->batches
+                    ->filter(fn ($b) => $b->status === 'active'
+                        && (int) $b->current_qty > 0
+                        && (! $b->expiry_date || $b->expiry_date->gt($cutoff)))
+                    ->sum('current_qty');
+
+                return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
+            }
+        } elseif ($this->batches()->exists()) {
             $batchQty = (int) $this->batches()->availableForSale()->sum('current_qty');
             return max($batchQty - (int) ($this->reserved_stock ?? 0), 0);
         }

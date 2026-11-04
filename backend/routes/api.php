@@ -55,6 +55,8 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
     Route::get('/testimonials', [ReviewApiController::class, 'testimonials']);
     Route::post('/testimonials', [ReviewApiController::class, 'storeTestimonial']);
     Route::post('/family-packs/calculate', [FamilyPackApiController::class, 'calculate']);
+    Route::post('/family-packs/plan', [FamilyPackApiController::class, 'plan']);
+    Route::post('/family-packs/quote', [FamilyPackApiController::class, 'quote']);
 
     // Customer Authentication APIs (Strictly Rate-Limited)
     Route::post('/register', [CustomerAuthApiController::class, 'register'])->middleware('throttle:login');
@@ -86,6 +88,7 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
         // Family Pack
         Route::get('/family-packs/latest', [FamilyPackApiController::class, 'latest']);
         Route::post('/family-packs', [FamilyPackApiController::class, 'store']);
+        Route::post('/family-packs/add-to-cart', [FamilyPackApiController::class, 'addToCart']);
 
         // Customer Addresses
         Route::get('/addresses', [AddressApiController::class, 'index']);

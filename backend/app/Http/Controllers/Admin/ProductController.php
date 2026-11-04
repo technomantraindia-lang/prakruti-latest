@@ -133,7 +133,8 @@ class ProductController extends Controller
             $ingredients,
             $forcedSource,
             $isOcr,
-            $packagingProof
+            $packagingProof,
+            $request->input('food_group') ?: null
         );
 
         $product = Product::create($data);
@@ -246,7 +247,8 @@ class ProductController extends Controller
             $ingredients,
             $forcedSource,
             $isOcr,
-            $packagingProof
+            $packagingProof,
+            $request->input('food_group') ?: null
         );
 
         $product->update($data);
@@ -616,7 +618,8 @@ class ProductController extends Controller
             'short_desc' => 'nullable|string',
             'description' => 'nullable|string',
             'nutritional_info' => 'nullable',
-            'nutrition_source' => 'nullable|string|in:packaging_verified,ifct_reference_estimate,needs_review,unverified',
+            'nutrition_source' => 'nullable|string|in:packaging_verified,label_unreviewed,ifct_reference_estimate,needs_review,unverified',
+            'food_group' => 'nullable|string|in:pulses_legumes,grains_cereals,nuts_seeds,cooking_oils,ghee,sweeteners,spices,salt,other',
             'nutrition_image' => 'nullable|image|max:10240',
             'product_information' => 'nullable|array',
             'product_information.product_type' => 'nullable|string|max:255',

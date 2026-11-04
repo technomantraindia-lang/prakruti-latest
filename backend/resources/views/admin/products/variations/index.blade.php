@@ -63,6 +63,25 @@
 
                     <div class="row">
                         <div class="col-6 mb-3">
+                            <label class="form-label">Pack contents</label>
+                            <input type="number" step="0.001" min="0" name="net_qty" class="form-control @error('net_qty') is-invalid @enderror" value="{{ old('net_qty') }}" placeholder="e.g. 500">
+                            @error('net_qty') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Unit</label>
+                            <select name="net_unit" class="form-select @error('net_unit') is-invalid @enderror">
+                                <option value="">—</option>
+                                @foreach (['g' => 'grams (g)', 'kg' => 'kilograms (kg)', 'ml' => 'millilitres (ml)', 'l' => 'litres (L)'] as $u => $uLabel)
+                                    <option value="{{ $u }}" @selected(old('net_unit') === $u)>{{ $uLabel }}</option>
+                                @endforeach
+                            </select>
+                            @error('net_unit') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12 mb-3 small text-muted">How much food is in ONE pack. Used by the Family Pack to size baskets. If left empty the size is read from the Attribute value (e.g. "500g").</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
                             <label class="form-label">Weight (kg)</label>
                             <input type="number" step="0.01" name="weight" class="form-control" value="{{ old('weight') }}">
                         </div>
