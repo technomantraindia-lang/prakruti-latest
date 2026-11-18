@@ -79,6 +79,8 @@ const Testimonials = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [activeLightbox, setActiveLightbox] = useState(null)
   const [hoverRating, setHoverRating] = useState(0)
+  const [activeCardIndex, setActiveCardIndex] = useState(0)
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth <= 768 : false))
 
   // Form State
   const [form, setForm] = useState({ name: '', location: '', rating: 5, review: '' })
@@ -90,6 +92,25 @@ const Testimonials = () => {
   const [submitStatus, setSubmitStatus] = useState({ type: null, message: '' })
 
   const marqueeRef = useRef(null)
+  const formRef = useRef(null)
+
+  // Track viewport width for responsive touch carousel
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Auto-scroll into form when user clicks "Share Your Experience"
+  useEffect(() => {
+    if (isFormOpen && formRef.current) {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }, [isFormOpen])
 
   // Fetch approved customer testimonials from API
   useEffect(() => {
@@ -120,15 +141,17 @@ const Testimonials = () => {
     })
   }, [allList, filter])
 
-  const marqueeCards = useMemo(
-    () => (filteredList.length ? Array.from({ length: 3 }, () => filteredList).flat() : []),
-    [filteredList]
-  )
+  const marqueeCards = useMemo(() => {
+    if (!filteredList.length) return []
+    if (isMobile) return filteredList
+    return Array.from({ length: 3 }, () => filteredList).flat()
+  }, [filteredList, isMobile])
 
-  // Keep the inline card row moving until a customer hovers or focuses it to read.
+  // Keep the inline card row moving on desktop until a customer hovers or focuses it to read.
+  // Disabled on mobile for stable reading and natural touch swiping.
   useEffect(() => {
     const el = marqueeRef.current
-    if (!el || filteredList.length < 2) return undefined
+    if (!el || filteredList.length < 2 || isMobile) return undefined
 
     let animationFrameId
     let lastTime = performance.now()
@@ -149,7 +172,41 @@ const Testimonials = () => {
     }
     animationFrameId = requestAnimationFrame(step)
     return () => cancelAnimationFrame(animationFrameId)
-  }, [filteredList.length, isCarouselPaused, isFormOpen])
+  }, [filteredList.length, isCarouselPaused, isFormOpen, isMobile])
+
+  // Track active card on mobile horizontal scroll
+  useEffect(() => {
+    const el = marqueeRef.current
+    if (!el || !isMobile) return
+
+    const handleScroll = () => {
+      const card = el.querySelector('.testimonial-card-v2')
+      if (!card) return
+      const cardWidth = card.offsetWidth + 14
+      const newIndex = Math.round(el.scrollLeft / cardWidth)
+      setActiveCardIndex(Math.min(Math.max(0, newIndex), filteredList.length - 1))
+    }
+
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [isMobile, filteredList.length])
+
+  const scrollToCard = (index) => {
+    const el = marqueeRef.current
+    if (!el) return
+    const cards = el.querySelectorAll('.testimonial-card-v2')
+    if (cards[index]) {
+      cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      setActiveCardIndex(index)
+    }
+  }
+
+  const handleMobileNav = (direction) => {
+    const nextIdx = direction === 'next'
+      ? Math.min(activeCardIndex + 1, filteredList.length - 1)
+      : Math.max(activeCardIndex - 1, 0)
+    scrollToCard(nextIdx)
+  }
 
   const scrollMarquee = (direction) => {
     const el = marqueeRef.current
@@ -341,162 +398,11 @@ const Testimonials = () => {
           </div>
         </div>
 
-        {/* Carousel Showcase */}
-        <div
-          className="testimonials-carousel-wrapper"
-          onMouseEnter={() => setIsCarouselPaused(true)}
-          onMouseLeave={() => setIsCarouselPaused(false)}
-          onFocusCapture={() => setIsCarouselPaused(true)}
-          onBlurCapture={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget)) setIsCarouselPaused(false)
-          }}
-        >
-          {filteredList.length > 1 && (
-            <button
-              type="button"
-              className="carousel-nav-btn prev-btn"
-              onClick={() => scrollMarquee('left')}
-              aria-label="Previous testimonials"
-            >
-              ‹
-            </button>
-          )}
-
-          <div className="testimonials-cards-marquee" ref={marqueeRef}>
-            <div className="testimonials-cards-grid">
-            {marqueeCards.map((item, idx) => {
-              const hasPhoto = Boolean(item.image)
-              const hasVideo = Boolean(item.video)
-              const mediaUrl = hasPhoto ? resolveMediaUrl(item.image) : null
-              const videoUrl = hasVideo ? resolveMediaUrl(item.video) : null
-
-              return (
-                <article key={`${item.id || 'testimonial'}-${idx}`} className={`testimonial-card-v2 ${hasPhoto || hasVideo ? 'has-media-card' : 'text-only-card'}`}>
-                  {/* Card Top: Stars & Verified Badge */}
-                  <div className="card-top-meta">
-                    <div className="card-stars">
-                      {[...Array(item.rating || 5)].map((_, starIdx) => (
-                        <span key={starIdx} className="star-symbol">★</span>
-                      ))}
-                      <span className="rating-pill">{item.rating || 5}.0</span>
-                    </div>
-                    <span className="verified-badge">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                      </svg>
-                      Verified Buyer
-                    </span>
-                  </div>
-
-                  {/* Card Body: Media + Review OR Text Highlight */}
-                  {hasPhoto || hasVideo ? (
-                    <div className="card-media-flow">
-                      {hasVideo && videoUrl && (
-                        <div className="card-media-box video-box">
-                          <video
-                            src={videoUrl}
-                            controls
-                            playsInline
-                            preload="metadata"
-                            className="card-video-element"
-                          />
-                          <span className="media-type-badge video-badge">
-                            <span className="badge-dot">●</span> Video Review
-                          </span>
-                        </div>
-                      )}
-
-                      {hasPhoto && mediaUrl && !hasVideo && (
-                        <div
-                          className="card-media-box photo-box"
-                          onClick={() => setActiveLightbox(item)}
-                          title="Click to view full photo in high definition"
-                        >
-                          <img
-                            src={mediaUrl}
-                            alt={`${item.name}'s testimonial`}
-                            className="card-photo-element"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                            }}
-                          />
-                          <div className="photo-expand-badge">
-                            <span>🔍 Click to Enlarge</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="card-content-body">
-                        <p className="card-review-text">
-                          {item.review ? `"${item.review}"` : 'Customer shared an authentic verified photo of their order.'}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Text-Only Card: Rich Editorial Quote Block (NO EMPTY VOID) */
-                    <div className="card-text-highlight-flow">
-                      <div className="quote-mark-large">“</div>
-                      <p className="card-review-text large-editorial">
-                        "{item.review}"
-                      </p>
-                      <div className="text-trust-pill">
-                        <span className="leaf-icon">🌿</span>
-                        <span>100% Certified Organic Pantry</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Customer Profile Signature (Aligned at bottom) */}
-                  <div className="card-author-footer">
-                    <div className="author-avatar-circle">
-                      {hasPhoto && mediaUrl ? (
-                        <img
-                          src={mediaUrl}
-                          alt={item.name}
-                          className="author-avatar-img"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none'
-                          }}
-                        />
-                      ) : (
-                        <span className="author-avatar-initial">
-                          {item.name ? item.name.charAt(0).toUpperCase() : 'P'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="author-details">
-                      <h4 className="author-name">{item.name}</h4>
-                      <p className="author-location">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
-                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                        </svg>
-                        {item.location || 'Verified Customer'}
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              )
-            })}
-            </div>
-          </div>
-
-          {filteredList.length > 1 && (
-            <button
-              type="button"
-              className="carousel-nav-btn next-btn"
-              onClick={() => scrollMarquee('right')}
-              aria-label="Next testimonials"
-            >
-              ›
-            </button>
-          )}
-        </div>
-
-        {/* Expandable Submission Form */}
+        {/* Expandable Submission Form - Appears Directly Below the Header & Controls */}
         <AnimatePresence>
           {isFormOpen && (
             <motion.div
+              ref={formRef}
               className="submission-panel-wrapper"
               initial={{ opacity: 0, height: 0, y: -20 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
@@ -688,6 +594,193 @@ const Testimonials = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Carousel Showcase */}
+        <div
+          className="testimonials-carousel-wrapper"
+          onMouseEnter={() => setIsCarouselPaused(true)}
+          onMouseLeave={() => setIsCarouselPaused(false)}
+          onFocusCapture={() => setIsCarouselPaused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setIsCarouselPaused(false)
+          }}
+        >
+          {filteredList.length > 1 && (
+            <button
+              type="button"
+              className="carousel-nav-btn prev-btn"
+              onClick={() => scrollMarquee('left')}
+              aria-label="Previous testimonials"
+            >
+              ‹
+            </button>
+          )}
+
+          <div className="testimonials-cards-marquee" ref={marqueeRef}>
+            <div className="testimonials-cards-grid">
+            {marqueeCards.map((item, idx) => {
+              const hasPhoto = Boolean(item.image)
+              const hasVideo = Boolean(item.video)
+              const mediaUrl = hasPhoto ? resolveMediaUrl(item.image) : null
+              const videoUrl = hasVideo ? resolveMediaUrl(item.video) : null
+
+              return (
+                <article key={`${item.id || 'testimonial'}-${idx}`} className={`testimonial-card-v2 ${hasPhoto || hasVideo ? 'has-media-card' : 'text-only-card'}`}>
+                  {/* Card Top: Stars & Verified Badge */}
+                  <div className="card-top-meta">
+                    <div className="card-stars">
+                      {[...Array(item.rating || 5)].map((_, starIdx) => (
+                        <span key={starIdx} className="star-symbol">★</span>
+                      ))}
+                      <span className="rating-pill">{item.rating || 5}.0</span>
+                    </div>
+                    <span className="verified-badge">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                      Verified Buyer
+                    </span>
+                  </div>
+
+                  {/* Card Body: Media + Review OR Text Highlight */}
+                  {hasPhoto || hasVideo ? (
+                    <div className="card-media-flow">
+                      {hasVideo && videoUrl && (
+                        <div className="card-media-box video-box">
+                          <video
+                            src={videoUrl}
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="card-video-element"
+                          />
+                          <span className="media-type-badge video-badge">
+                            <span className="badge-dot">●</span> Video Review
+                          </span>
+                        </div>
+                      )}
+
+                      {hasPhoto && mediaUrl && !hasVideo && (
+                        <div
+                          className="card-media-box photo-box"
+                          onClick={() => setActiveLightbox(item)}
+                          title="Click to view full photo in high definition"
+                        >
+                          <img
+                            src={mediaUrl}
+                            alt={`${item.name}'s testimonial`}
+                            className="card-photo-element"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                          <div className="photo-expand-badge">
+                            <span>🔍 Click to Enlarge</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="card-content-body">
+                        <p className="card-review-text">
+                          {item.review ? `"${item.review}"` : 'Customer shared an authentic verified photo of their order.'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Text-Only Card: Rich Editorial Quote Block (NO EMPTY VOID) */
+                    <div className="card-text-highlight-flow">
+                      <div className="quote-mark-large">“</div>
+                      <p className="card-review-text large-editorial">
+                        "{item.review}"
+                      </p>
+                      <div className="text-trust-pill">
+                        <span className="leaf-icon">🌿</span>
+                        <span>100% Certified Organic Pantry</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Customer Profile Signature (Aligned at bottom) */}
+                  <div className="card-author-footer">
+                    <div className="author-avatar-circle">
+                      {hasPhoto && mediaUrl ? (
+                        <img
+                          src={mediaUrl}
+                          alt={item.name}
+                          className="author-avatar-img"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      ) : (
+                        <span className="author-avatar-initial">
+                          {item.name ? item.name.charAt(0).toUpperCase() : 'P'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="author-details">
+                      <h4 className="author-name">{item.name}</h4>
+                      <p className="author-location">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        {item.location || 'Verified Customer'}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+            </div>
+          </div>
+
+          {filteredList.length > 1 && (
+            <button
+              type="button"
+              className="carousel-nav-btn next-btn"
+              onClick={() => scrollMarquee('right')}
+              aria-label="Next testimonials"
+            >
+              ›
+            </button>
+          )}
+        </div>
+
+        {/* Mobile-Only Carousel Controls (Arrows + Pagination Dots) */}
+        {isMobile && filteredList.length > 1 && (
+          <div className="mobile-carousel-controls">
+            <button
+              type="button"
+              className="mobile-nav-arrow"
+              onClick={() => handleMobileNav('prev')}
+              disabled={activeCardIndex === 0}
+              aria-label="Previous testimonial"
+            >
+              ‹
+            </button>
+            <div className="mobile-dots">
+              {filteredList.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`mobile-dot ${idx === activeCardIndex ? 'active' : ''}`}
+                  onClick={() => scrollToCard(idx)}
+                  aria-label={`Go to testimonial ${idx + 1}`}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="mobile-nav-arrow"
+              onClick={() => handleMobileNav('next')}
+              disabled={activeCardIndex === filteredList.length - 1}
+              aria-label="Next testimonial"
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Lightbox Modal for Photo Enlarge */}
