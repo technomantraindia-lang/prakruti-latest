@@ -116,10 +116,6 @@ class User extends Authenticatable
             return true;
         }
 
-        if ($this->isAdmin()) {
-            return true;
-        }
-
         if ($this->email && \App\Models\DoctorProfile::where('email', strtolower(trim($this->email)))->exists()) {
             return true;
         }

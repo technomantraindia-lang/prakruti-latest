@@ -12,13 +12,23 @@ class DoctorAuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {
-            return redirect()->route('doctor.login');
+            return redirect()->route('doctor.login')->withErrors([
+                'email' => 'Please log in with your doctor credentials to access the Doctor Workspace.',
+            ]);
         }
 
         $user = Auth::user();
-        if (! $user->isDoctor() && ! $user->isAdmin()) {
+
+        // Strict security: User must have explicitly logged in to the Doctor Portal
+        if (! $request->session()->get('doctor_logged_in')) {
             return redirect()->route('doctor.login')->withErrors([
-                'email' => 'Access Restricted: You must log in with a registered Doctor or Admin account to access the Doctor Workspace.',
+                'email' => 'Please sign in to the Doctor Workspace with your registered Doctor account.',
+            ]);
+        }
+
+        if (! $user->isDoctor()) {
+            return redirect()->route('doctor.login')->withErrors([
+                'email' => 'Access Restricted: You must log in with a registered Doctor account to access the Doctor Workspace.',
             ]);
         }
 

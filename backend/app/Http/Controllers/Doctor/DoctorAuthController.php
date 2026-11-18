@@ -14,7 +14,7 @@ class DoctorAuthController extends Controller
 {
     public function showLoginForm()
     {
-        if (Auth::check() && (Auth::user()->isDoctor() || Auth::user()->isAdmin())) {
+        if (Auth::check() && session('doctor_logged_in') && Auth::user()->isDoctor()) {
             return redirect()->route('doctor.appointments');
         }
 
@@ -33,7 +33,7 @@ class DoctorAuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();
 
-            if (! $user->isDoctor() && ! $user->isAdmin()) {
+            if (! $user->isDoctor()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
@@ -44,6 +44,8 @@ class DoctorAuthController extends Controller
             }
 
             $request->session()->regenerate();
+            $request->session()->put('doctor_logged_in', true);
+            $request->session()->put('doctor_user_id', $user->id);
             $request->session()->forget('url.intended');
 
             return redirect()->route('doctor.appointments')->with('success', 'Welcome, Dr. ' . $user->name . '! Logged in to Doctor Workspace.');
@@ -84,6 +86,8 @@ class DoctorAuthController extends Controller
 
         Auth::login($doctor);
         $request->session()->regenerate();
+        $request->session()->put('doctor_logged_in', true);
+        $request->session()->put('doctor_user_id', $doctor->id);
         $request->session()->forget('url.intended');
 
         return redirect()->route('doctor.appointments')->with('success', 'Logged in as Dr. ' . $doctor->name . '. Welcome to your Doctor Workspace.');
@@ -91,7 +95,7 @@ class DoctorAuthController extends Controller
 
     public function showRegisterForm()
     {
-        if (Auth::check() && Auth::user()->isDoctor()) {
+        if (Auth::check() && session('doctor_logged_in') && Auth::user()->isDoctor()) {
             return redirect()->route('doctor.appointments');
         }
 
@@ -143,6 +147,8 @@ class DoctorAuthController extends Controller
         // Authenticate the new doctor
         Auth::login($user);
         $request->session()->regenerate();
+        $request->session()->put('doctor_logged_in', true);
+        $request->session()->put('doctor_user_id', $user->id);
         $request->session()->forget('url.intended');
 
         return redirect()->route('doctor.appointments')->with('success', 'Doctor account registered successfully! Welcome to your Doctor Workspace, Dr. ' . $user->name . '.');
@@ -150,6 +156,7 @@ class DoctorAuthController extends Controller
 
     public function logout(Request $request)
     {
+        $request->session()->forget(['doctor_logged_in', 'doctor_user_id']);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
