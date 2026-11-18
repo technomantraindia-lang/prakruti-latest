@@ -500,13 +500,20 @@
                 <tbody>
                     @foreach($grn->items as $idx => $item)
                     <tr>
+                        @php
+                            $variationSku = $item->variation?->sku ?: $item->product?->sku;
+                            $packWeight = $item->variation?->net_qty !== null
+                                ? rtrim(rtrim(number_format((float) $item->variation->net_qty, 3, '.', ''), '0'), '.') . ' ' . ($item->variation->net_unit ?: 'g')
+                                : ($item->variation?->attr_val ?: '-');
+                        @endphp
                         <td class="center" style="font-weight: 600; color: #64748b;">{{ $idx + 1 }}</td>
                         <td>
                             <strong style="color: #0f172a;">{{ $item->product?->name }}</strong>
                             @if($item->variation)
-                                <div style="font-size: 8.5px; color: #475569;">Var: {{ $item->variation->name ?? $item->variation->weight }}</div>
+                                <div style="font-size: 8.5px; color: #475569;">Pack size: {{ $item->variation->attr_val ?: '-' }}</div>
                             @endif
-                            <div style="font-size: 8.5px; color: #64748b; font-family: 'JetBrains Mono', monospace;">SKU: {{ $item->product?->sku ?? '-' }}</div>
+                            <div style="font-size: 8.5px; color: #64748b;">Weight: {{ $packWeight }}</div>
+                            <div style="font-size: 8.5px; color: #64748b; font-family: 'JetBrains Mono', monospace;">SKU: {{ $variationSku ?? '-' }}</div>
                         </td>
                         <td class="center">
                             <span class="batch-tag">{{ $item->batch_number }}</span>

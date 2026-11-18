@@ -17,7 +17,10 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [profession, setProfession] = useState('');
+  const [gender, setGender] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -51,11 +54,19 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
           password_confirmation: passwordConfirmation,
         });
       } else if (isRegister) {
+        if (!termsAccepted) {
+          setIsSubmitting(false);
+          setErrorMsg('Please agree to the Terms & Conditions and Return/Breakage/Open Goods Policy to register.');
+          return;
+        }
         res = await api.register({
           name: fullName,
           email,
           password,
           phone,
+          profession,
+          gender,
+          terms_accepted: termsAccepted,
         });
       } else {
         res = await api.login(email, password, rememberMe);
@@ -232,20 +243,66 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
               </div>
 
               {isRegister && (
-                <div className="input-group">
-                  <label htmlFor="phone">Mobile Number</label>
-                  <div className="input-wrapper">
-                    <span className="input-icon">📞</span>
-                    <input 
-                      type="tel" 
-                      id="phone" 
-                      placeholder="Mobile number" 
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required 
-                    />
+                <>
+                  <div className="input-group">
+                    <label htmlFor="phone">Mobile Number *</label>
+                    <div className="input-wrapper">
+                      <span className="input-icon">📞</span>
+                      <input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="10-digit mobile number" 
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required 
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  <div className="input-group">
+                    <label htmlFor="profession">Profession *</label>
+                    <div className="input-wrapper">
+                      <span className="input-icon">💼</span>
+                      <select
+                        id="profession"
+                        value={profession}
+                        onChange={(e) => setProfession(e.target.value)}
+                        required
+                      >
+                        <option value="">-- Select Profession --</option>
+                        <option value="Doctor / Healthcare">Doctor / Healthcare Professional</option>
+                        <option value="IT / Software / Tech">IT / Software / Technology</option>
+                        <option value="Business / Entrepreneur">Business / Entrepreneur</option>
+                        <option value="Homemaker">Homemaker / Home Manager</option>
+                        <option value="Teacher / Education">Teacher / Professor / Education</option>
+                        <option value="Corporate / Private Sector">Corporate / Private Sector</option>
+                        <option value="Government / Public Sector">Government / Public Sector</option>
+                        <option value="Finance / Banking">Finance / Banking / Accounting</option>
+                        <option value="Student">Student</option>
+                        <option value="Retired">Retired</option>
+                        <option value="Other">Other Profession</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="gender">Gender *</label>
+                    <div className="input-wrapper">
+                      <span className="input-icon">⚧️</span>
+                      <select
+                        id="gender"
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        required
+                      >
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other / Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
               )}
 
               {!isForgot && (
@@ -272,10 +329,17 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
                     type="button" 
                     className="password-toggle"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? '👁️' : '👁️‍🗨️'}
                   </button>
                 </div>
+                {isRegister && (
+                  <small style={{ color: '#4b5563', fontSize: '0.8rem', display: 'block', marginTop: '6px', fontStyle: 'italic' }}>
+                    * Password must be at least 8 characters long.
+                  </small>
+                )}
               </div>
               )}
 
@@ -296,6 +360,8 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
                       type="button"
                       className="password-toggle"
                       onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                      aria-label={showPasswordConfirmation ? 'Hide password' : 'Show password'}
+                      title={showPasswordConfirmation ? 'Hide password' : 'Show password'}
                     >
                       {showPasswordConfirmation ? 'Hide' : 'Show'}
                     </button>
@@ -305,16 +371,33 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
 
               {/* Extra terms or checkbox */}
               {isRegister ? (
-                <label className="checkbox-container auth-terms">
-                  <input 
-                    type="checkbox" 
-                    checked={termsAccepted} 
-                    onChange={() => setTermsAccepted(!termsAccepted)}
-                    required
-                  />
-                  <span className="checkbox-checkmark"></span>
-                  I agree to the <a href="#terms">Terms of Service</a> & <a href="#privacy">Privacy Policy</a>
-                </label>
+                <div style={{ margin: '14px 0' }}>
+                  <label className="checkbox-container auth-terms" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={termsAccepted} 
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      required
+                    />
+                    <span className="checkbox-checkmark"></span>
+                    <span style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
+                      I agree to the{' '}
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPolicyModal(true)}
+                        style={{ background: 'none', border: 'none', color: '#2d5a27', fontWeight: 600, textDecoration: 'underline', padding: 0, cursor: 'pointer' }}
+                      >
+                        Terms &amp; Conditions, Return, Breakage &amp; Opened Goods Policy
+                      </button>{' '}
+                      as per standard norms. ✅
+                    </span>
+                  </label>
+                  {!termsAccepted && (
+                    <small style={{ color: '#d32f2f', fontSize: '0.78rem', display: 'block', marginTop: 4 }}>
+                      * You must agree via tick ✅ to register your account.
+                    </small>
+                  )}
+                </div>
               ) : !isForgot && !isReset ? (
                 <label className="checkbox-container auth-terms">
                   <input
@@ -357,6 +440,62 @@ const AuthPage = ({ mode, setMode, onSuccess, resetToken = '', resetEmail = '' }
         </div>
 
       </div>
+
+      {/* Policy Terms & Conditions Modal */}
+      {showPolicyModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+          <div style={{ background: '#fff', maxWidth: 640, width: '100%', maxHeight: '85vh', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <div style={{ padding: '18px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#166534', fontWeight: 700 }}>
+                📜 Terms, Return, Breakage &amp; Opened Goods Policy
+              </h3>
+              <button type="button" onClick={() => setShowPolicyModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.6rem', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ padding: '22px 24px', overflowY: 'auto', fontSize: '0.92rem', lineHeight: 1.6, color: '#334155' }}>
+              <div style={{ marginBottom: 18 }}>
+                <h4 style={{ fontSize: '1rem', color: '#14532d', marginBottom: 6, fontWeight: 700 }}>1. Return Policy (Standard Consumable Food Norms)</h4>
+                <p style={{ margin: 0 }}>
+                  Perishable and edible organic grocery products (including cold-pressed oils, bilona ghee, natural flours, pulses, and seeds) are consumable food items under FSSAI consumer protection norms. Any request for return or exchange must be submitted within <strong>48 hours of delivery</strong>.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <h4 style={{ fontSize: '1rem', color: '#14532d', marginBottom: 6, fontWeight: 700 }}>2. Transit Breakage &amp; Damage Policy</h4>
+                <p style={{ margin: 0 }}>
+                  Glass jars, bottles, and tin containers are secured with multi-layer bubble wrap and heavy corrugated packing. If any product is broken, leaking, or damaged during transit, please notify customer support within <strong>24 hours of package receipt</strong> with clear photos or unboxing video. We will issue a <strong>100% free immediate replacement or full refund</strong>.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <h4 style={{ fontSize: '1rem', color: '#14532d', marginBottom: 6, fontWeight: 700 }}>3. Opened Goods &amp; Seal Broken Policy</h4>
+                <p style={{ margin: 0 }}>
+                  For customer safety, hygiene, and contamination prevention, products once unsealed, opened, or partially consumed cannot be returned or refunded, except in verified cases of manufacturing spoilage or packaging defect verified at delivery.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <h4 style={{ fontSize: '1rem', color: '#14532d', marginBottom: 6, fontWeight: 700 }}>4. Order Cancellation Policy</h4>
+                <p style={{ margin: 0 }}>
+                  Orders may be cancelled before warehouse dispatch with instant refund processing. Once dispatched with courier tracking generated, orders cannot be cancelled mid-transit.
+                </p>
+              </div>
+
+              <div style={{ background: '#f0fdf4', padding: '14px 16px', borderRadius: 8, border: '1px solid #bbf7d0', color: '#166534', fontSize: '0.88rem', fontWeight: 500 }}>
+                ✓ By checking the agreement box during registration, you confirm that you have read, understood, and accept these standard customer terms.
+              </div>
+            </div>
+            <div style={{ padding: '14px 24px', borderTop: '1px solid #e5e7eb', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button 
+                type="button" 
+                onClick={() => { setTermsAccepted(true); setShowPolicyModal(false); }} 
+                style={{ backgroundColor: '#15803d', borderColor: '#15803d', padding: '10px 22px', borderRadius: 8, color: '#fff', fontWeight: 600, cursor: 'pointer', border: 'none', fontSize: '0.95rem' }}
+              >
+                I Agree &amp; Accept Policy ✅
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

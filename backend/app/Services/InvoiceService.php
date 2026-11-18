@@ -13,6 +13,15 @@ class InvoiceService
      */
     public function prepareInvoiceData(Order $order): array
     {
+        if ($order->pay_status !== 'paid') {
+            throw new \DomainException('Tax invoice cannot be generated until payment has been received.');
+        }
+
+        if (empty($order->invoice_number)) {
+            $order->invoice_number = Order::generateInvoiceNumber();
+            $order->saveQuietly();
+        }
+
         $order->loadMissing(['items.product', 'items.variation']);
 
         // Check if Inter-State or Intra-State
@@ -36,6 +45,7 @@ class InvoiceService
 
         foreach ($order->items as $item) {
             $product = $item->product;
+            $variation = $item->variation;
             $hsn = $item->hsn_code ?: ($product->hsn_code ?? '30049011');
             $gstRate = (float) ($product->gst_percentage ?? 12);
             $qty = (int) $item->quantity;
@@ -60,7 +70,10 @@ class InvoiceService
 
             $itemsData[] = [
                 'product_name' => $product ? $product->name : 'Organic Product',
-                'variation_name' => $item->variation ? $item->variation->name : null,
+                'variation_name' => $variation?->attr_val,
+                'package_size' => $variation?->attr_val,
+                'weight' => $this->formatVariationWeight($variation),
+                'sku' => $variation?->sku ?: ($item->sku ?: $product?->sku),
                 'hsn_code' => $hsn,
                 'batch_number' => $item->batch_number,
                 'qty' => $qty,
@@ -106,6 +119,18 @@ class InvoiceService
             'amountInWords' => $amountInWords,
             'logoBase64' => $logoBase64,
         ];
+    }
+
+    private function formatVariationWeight($variation): ?string
+    {
+        if (! $variation || $variation->net_qty === null) {
+            return $variation?->attr_val ?: null;
+        }
+
+        $quantity = rtrim(rtrim(number_format((float) $variation->net_qty, 3, '.', ''), '0'), '.');
+        $unit = trim((string) ($variation->net_unit ?: 'g'));
+
+        return trim($quantity . ' ' . $unit);
     }
 
     /**

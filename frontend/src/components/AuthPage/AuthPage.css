@@ -395,9 +395,39 @@
   transition: var(--transition-smooth) !important;
 }
 
+.auth-form-panel .input-wrapper select,
+.auth-form-body .input-wrapper select,
+.input-wrapper select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--color-border) !important;
+  background-color: var(--color-bg-light) !important;
+  padding-top: 13px !important;
+  padding-bottom: 13px !important;
+  padding-left: 48px !important;
+  padding-right: 40px !important;
+  border-radius: 12px !important;
+  font-size: 0.88rem !important;
+  font-family: var(--font-body) !important;
+  color: var(--color-text) !important;
+  outline: none !important;
+  transition: var(--transition-smooth) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232d5a27' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 18px !important;
+  cursor: pointer;
+}
+
 .auth-form-panel .input-wrapper input:focus,
 .auth-form-body .input-wrapper input:focus,
-.input-wrapper input:focus {
+.input-wrapper input:focus,
+.auth-form-panel .input-wrapper select:focus,
+.auth-form-body .input-wrapper select:focus,
+.input-wrapper select:focus {
   border-color: var(--color-primary) !important;
   background-color: var(--color-white) !important;
   box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.08) !important;
@@ -428,16 +458,29 @@
   border: 0;
   background: rgba(45, 90, 39, 0.08);
   border-radius: 999px;
-  font-size: 0.75rem;
+  width: 34px;
+  height: 34px;
+  font-size: 0;
   font-weight: 800;
   color: var(--color-text-light);
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 0;
   line-height: 1;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.password-toggle::before {
+  content: '\f06e';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+.password-toggle[aria-label="Hide password"]::before {
+  content: '\f070';
 }
 
 .password-toggle:hover {

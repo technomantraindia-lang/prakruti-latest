@@ -13,7 +13,7 @@
                         @foreach($categories as $cat)<option value="{{ $cat->id }}">{{ $cat->name }}</option>@endforeach
                     </select>
                 </div>
-                <div class="col-md-1 mb-2"><label class="form-label">Price</label><input type="number" step="0.01" name="products[0][price]" class="form-control" value="0"></div>
+                <div class="col-md-1 mb-2"><label class="form-label">Regular Price</label><input type="number" step="0.01" name="products[0][price]" class="form-control" value="0"></div>
                 <div class="col-md-1 mb-2"><label class="form-label">Stock</label><input type="number" name="products[0][stock_qty]" class="form-control" value="0"></div>
                 <div class="col-md-1 mb-2"><label class="form-label">Unit</label>
                     <select name="products[0][unit]" class="form-select">@foreach($units as $u)<option value="{{ $u }}">{{ $u }}</option>@endforeach</select>
@@ -37,7 +37,7 @@ document.getElementById('addRow').addEventListener('click', function() {
         <div class="col-md-3 mb-2"><label class="form-label">Name *</label><input type="text" name="products[${rowIndex}][name]" class="form-control" required></div>
         <div class="col-md-2 mb-2"><label class="form-label">SKU *</label><input type="text" name="products[${rowIndex}][sku]" class="form-control" required></div>
         <div class="col-md-2 mb-2"><label class="form-label">Category *</label><select name="products[${rowIndex}][category_id]" class="form-select" required>${categoryOptions}</select></div>
-        <div class="col-md-1 mb-2"><label class="form-label">Price</label><input type="number" step="0.01" name="products[${rowIndex}][price]" class="form-control" value="0"></div>
+        <div class="col-md-1 mb-2"><label class="form-label">Regular Price</label><input type="number" step="0.01" name="products[${rowIndex}][price]" class="form-control" value="0"></div>
         <div class="col-md-1 mb-2"><label class="form-label">Stock</label><input type="number" name="products[${rowIndex}][stock_qty]" class="form-control" value="0"></div>
         <div class="col-md-1 mb-2"><label class="form-label">Unit</label><select name="products[${rowIndex}][unit]" class="form-select">${unitOptions}</select></div>
         <div class="col-md-1 mb-2"><label class="form-label">GST%</label><input type="number" name="products[${rowIndex}][gst_percentage]" class="form-control" value="5"></div>

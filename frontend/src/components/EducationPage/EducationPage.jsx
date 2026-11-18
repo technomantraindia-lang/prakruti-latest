@@ -6,7 +6,7 @@ import { apiClient } from '../../api/client'
 
 // Import assets
 import bannerBg from '../../assets/images/nutrition_banner.jpg'
-import healthyPlateImg from '../../assets/images/power final plate.png'
+import healthyPlateImg from '../../assets/videos for ghee/final power plate.jpeg'
 import healthyPlateBanner from '../../assets/images/healthy_food_plate.jpg'
 import junkPlateBanner from '../../assets/images/junk_food_plate.jpg'
 import breakfastImg from '../../assets/images/brakfast.png'
@@ -14,6 +14,7 @@ import lunchImg from '../../assets/images/lunch.png'
 import snackImg from '../../assets/images/snacks.png'
 import dinnerImg from '../../assets/images/dinnner.png'
 import nutritionAiLogo from '../../assets/images/nutrtituonnnnn.png'
+import foodGroupIcons from '../../assets/images/food-group-icons-3d.png'
 
 // Custom realistic cereal & protein pulse icon (reliable across all OS / devices)
 const ProteinCerealIcon = () => (
@@ -41,49 +42,49 @@ const ProteinCerealIcon = () => (
 
 const FOOD_GROUPS = [
   {
-    icon: '🥦',
+    iconPosition: '0% 0%',
     title: 'Vegetables',
     role: 'Vitamins, minerals and essential prebiotic fibre',
     examples: 'Spinach, methi, bottle gourd, carrots, tomatoes, beans, cauliflower, seasonal local greens'
   },
   {
-    icon: '🍎',
+    iconPosition: '33.333% 0%',
     title: 'Fruits',
     role: 'Vitamins, antioxidants, fibre & hydration',
     examples: 'Guava, papaya, apples, oranges, amla, seasonal regional whole fruits'
   },
   {
-    icon: '🌾',
+    iconPosition: '66.666% 0%',
     title: 'Whole Grains & Staples',
     role: 'Sustained energy, B-complex & complex carbohydrates',
     examples: 'Khapli/desi wheat, bajra, jowar, ragi, brown rice, unpolished oats, red poha'
   },
   {
-    icon: '🥣',
+    iconPosition: '100% 0%',
     title: 'Dal, Pulses & Beans',
     role: 'Plant protein, potassium, folate & dietary fibre',
     examples: 'Moong, masoor, unpolished tuvar, chana, rajma, black urad, cowpeas (chawli)'
   },
   {
-    icon: '🥛',
+    iconPosition: '0% 100%',
     title: 'Dairy / Fermented Milk',
     role: 'High biological value protein, calcium & gut probiotics',
     examples: 'A2 cow milk, fresh curd (dahi), homemade buttermilk (chaas), paneer'
   },
   {
-    icon: '🥜',
+    iconPosition: '33.333% 100%',
     title: 'Nuts & Seeds',
     role: 'Healthy unsaturated fats, vitamin E, zinc & magnesium',
     examples: 'Groundnuts, almonds, walnuts, white/black sesame, flaxseeds, pumpkin seeds'
   },
   {
-    icon: <ProteinCerealIcon />,
+    iconPosition: '66.666% 100%',
     title: 'Quality Proteins',
     role: 'Complete amino acid profile for muscle maintenance & vitality',
     examples: 'Sprouted moong & pulses, fresh organic paneer, homemade curd, chana, and rajma'
   },
   {
-    icon: '💧',
+    iconPosition: '100% 100%',
     title: 'Pure Water',
     role: 'Cellular hydration, digestion & body temperature',
     examples: 'Plain drinking water, lemon infused water, unsweetened buttermilk'
@@ -94,7 +95,7 @@ const MEAL_TIMINGS = [
   {
     id: 'morning',
     image: breakfastImg,
-    time: '🌅 Morning Breakfast',
+    time: 'Morning Breakfast',
     tagline: 'Start with wholesome energy, not just tea & biscuits',
     description: 'Fuel your metabolism after an overnight fast with a combination of whole grains and protein.',
     items: [
@@ -110,7 +111,7 @@ const MEAL_TIMINGS = [
   {
     id: 'afternoon',
     image: lunchImg,
-    time: '☀️ Balanced Lunch',
+    time: 'Balanced Lunch',
     tagline: 'Balance your plate: don\'t fill it only with rice or roti',
     description: 'A balanced midday meal prevents afternoon lethargy and cravings.',
     items: [
@@ -124,7 +125,7 @@ const MEAL_TIMINGS = [
   {
     id: 'evening',
     image: snackImg,
-    time: '🌇 Sensible Evening Snack',
+    time: 'Sensible Evening Snack',
     tagline: 'Satisfy genuine hunger with nourishing wholesome snacks',
     description: 'Avoid automatically reaching for fried farsan, bakery biscuits, or packaged chips.',
     items: [
@@ -138,7 +139,7 @@ const MEAL_TIMINGS = [
   {
     id: 'night',
     image: dinnerImg,
-    time: '🌙 Light & Balanced Dinner',
+    time: 'Light & Balanced Dinner',
     tagline: 'Comforting, easily digestible meals for restful sleep',
     description: 'Keep dinner appropriate for your activity level, ideally eaten 2–3 hours before bedtime.',
     items: [
@@ -195,22 +196,22 @@ const MYTHS_AND_FACTS = [
 
 const LIFE_STAGES = [
   {
-    stage: '👧 Children & Teens',
+    stage: 'Children & Teens',
     focus: 'Growth & Brain Development',
     points: 'High need for quality proteins, calcium (milk/curd/ragi), healthy fats for brain development, and iron. Limit sugary packaged snacks and sweetened beverages.'
   },
   {
-    stage: '👨 Working Adults',
+    stage: 'Working Adults',
     focus: 'Metabolic Energy & Stress Management',
     points: 'Balanced macros to sustain focus throughout work hours. Focus on high-fiber whole grains, hydration, desk-friendly snacks (nuts, roasted chana), and limiting late-night heavy dinners.'
   },
   {
-    stage: '🤰 Pregnant & Nursing Mothers',
+    stage: 'Pregnant & Nursing Mothers',
     focus: 'Maternal Nutrition & Fetal Health',
     points: 'Elevated micronutrient needs: folate, iron, calcium, vitamin B12, and healthy fatty acids. Requires individualized guidance from a registered healthcare professional.'
   },
   {
-    stage: '👵 Older Adults',
+    stage: 'Older Adults',
     focus: 'Bone Density & Digestive Ease',
     points: 'Easily digestible proteins (khichdi, curd, soft dals), adequate hydration, fiber for bowel regularity, and calcium/vitamin D to preserve bone and muscle mass.'
   }
@@ -512,7 +513,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
           >
             <span className="edu-hero-badge">
-              <span className="badge-sparkle">✨</span> FOOD & NUTRITION MASTERCLASS
+              FOOD & NUTRITION MASTERCLASS
             </span>
             <h1 className="edu-hero-title">Eat Better. Live Better. Every Day.</h1>
             <p className="edu-hero-subtitle">
@@ -561,7 +562,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               custom={0}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
-              <span className="philo-icon">⚖️</span>
+              <span className="philo-icon"></span>
               <h4>Healthy Eating Is About Balance</h4>
               <p>Not about expensive foods, extreme calorie counting, or giving up everything you love. It's about variety and portion wisdom.</p>
             </motion.div>
@@ -572,7 +573,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               custom={1}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
-              <span className="philo-icon">🌾</span>
+              <span className="philo-icon"></span>
               <h4>ICMR–NIN 2024 Dietary Aligned</h4>
               <p>Adhering to National Institute of Nutrition guidelines: variety, traditional home kitchens, and minimizing ultra-processed foods.</p>
             </motion.div>
@@ -583,7 +584,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               custom={2}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
-              <span className="philo-icon">🍲</span>
+              <span className="philo-icon"></span>
               <h4>Built for the Indian Kitchen</h4>
               <p>Whether your home serves dal-roti, bhakri-shaak, khichdi-kadhi, idli-dosa, or poha, real nutrition starts right on your stove.</p>
             </motion.div>
@@ -594,7 +595,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               custom={3}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
-              <span className="philo-icon">🌿</span>
+              <span className="philo-icon"></span>
               <h4>WHO 4-Pillar Standard</h4>
               <p>Adequacy, Balance, Moderation, and Diversity — ensuring your body receives all micro and macronutrients in natural synergy.</p>
             </motion.div>
@@ -634,7 +635,11 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 custom={idx}
                 whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.22 } }}
               >
-                <div className="fg-icon" aria-hidden="true">{group.icon}</div>
+                <div
+                  className="fg-icon fg-icon-image"
+                  aria-hidden="true"
+                  style={{ backgroundImage: `url(${foodGroupIcons})`, backgroundPosition: group.iconPosition }}
+                />
                 <div className="fg-body">
                   <h4 className="fg-title">{group.title}</h4>
                   <p className="fg-role">{group.role}</p>
@@ -658,7 +663,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
           >
             <div className="plate-copy-col">
               <span className="section-kicker">PORTION WISDOM</span>
-              <h2>🍽️ The Simple Power Plate</h2>
+              <h2> The Simple Power Plate</h2>
               <p className="plate-intro">
                 Instead of stressing over every calorie, look at your plate. Both Harvard's Healthy Eating Plate and ICMR-NIN emphasize visual portions:
               </p>
@@ -689,7 +694,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 </motion.div>
 
                 <motion.div className="plate-rule-item" whileHover={{ x: 6, transition: { duration: 0.2 } }}>
-                  <span className="rule-badge rule-water">💧</span>
+                  <span className="rule-badge rule-water"></span>
                   <div>
                     <strong>Hydrate with Clean Water</strong>
                     <p>Make plain water your primary everyday beverage, limiting sweetened and bottled drinks.</p>
@@ -707,7 +712,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 title="Click to view full-size high-resolution Healthy Eating Plate"
               >
                 <div className="plate-zoom-badge">
-                  <span>🔍 Click to View Full Size</span>
+                  <span> Click to View Full Size</span>
                 </div>
                 <img
                   src={healthyPlateImg}
@@ -716,7 +721,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   loading="lazy"
                 />
               </motion.div>
-              <p className="plate-click-hint">💡 Tap or click the plate graphic to inspect the full high-resolution nutritional breakdown</p>
+              <p className="plate-click-hint"> Tap or click the plate graphic to inspect the full high-resolution nutritional breakdown</p>
             </div>
           </motion.div>
         </div>
@@ -733,7 +738,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.6 }}
           >
             <span className="section-kicker">MEAL TIMING</span>
-            <h2>⏰ When Should I Eat? A Practical Daily Routine</h2>
+            <h2>When Should I Eat? A Practical Daily Routine</h2>
             <p className="section-desc">
               Healthy eating is not just what you eat, but having a practical daily pattern that fits your life without rigid clocks.
             </p>
@@ -851,7 +856,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
               <div className="contrast-col-head head-green">
-                <span className="col-icon">🌿</span>
+                <span className="col-icon"></span>
                 <h3>Eat More (Daily Staples)</h3>
               </div>
               <div className="contrast-card-media-box">
@@ -861,27 +866,27 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   className="contrast-card-img"
                   loading="lazy"
                 />
-                <span className="contrast-media-badge badge-healthy">🥗 Proper Balanced Power Plate</span>
+                <span className="contrast-media-badge badge-healthy">Proper Balanced Power Plate</span>
               </div>
               <div className="contrast-col-body">
                 <div className="contrast-block">
-                  <strong>🥬 Vegetables & Greens</strong>
+                  <strong>Vegetables & Greens</strong>
                   <p>Spinach, methi, bottle gourd, carrots, tomatoes, cucumber, beans, cauliflower, seasonal local vegetables.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🥣 Pulses & Legumes</strong>
+                  <strong>Pulses & Legumes</strong>
                   <p>Moong dal, masoor, unpolished tuvar, chana, rajma, chole, and sprouted beans.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🌾 Better Grain Choices</strong>
+                  <strong>Better Grain Choices</strong>
                   <p>Whole wheat, millets (bajra, jowar, ragi), oats, and unpolished rice.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🍊 Fresh Seasonal Fruits</strong>
+                  <strong>Fresh Seasonal Fruits</strong>
                   <p>Eat whole regional seasonal fruits rather than relying on one expensive "superfruit".</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🥜 Nuts & Seeds & Dairy</strong>
+                  <strong>Nuts & Seeds & Dairy</strong>
                   <p>Groundnuts, almonds, walnuts, sesame, flaxseed, fresh curd, and homemade chaas.</p>
                 </div>
               </div>
@@ -897,7 +902,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
             >
               <div className="contrast-col-head head-amber">
-                <span className="col-icon">⚠️</span>
+                <span className="col-icon"></span>
                 <h3>Eat Less (Occasional Treats)</h3>
               </div>
               <div className="contrast-card-media-box">
@@ -907,27 +912,27 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                   className="contrast-card-img"
                   loading="lazy"
                 />
-                <span className="contrast-media-badge badge-junk">🍟 Ultra-Processed Junk Food Plate</span>
+                <span className="contrast-media-badge badge-junk">Ultra-Processed Junk Food Plate</span>
               </div>
               <div className="contrast-col-body">
                 <div className="contrast-block">
-                  <strong>🥤 Sugary Drinks & Packaged Juices</strong>
+                  <strong>Sugary Drinks & Packaged Juices</strong>
                   <p>High in empty fructose without dietary fiber; easily overconsumed.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🍪 Bakery Goods & Confectionery</strong>
+                  <strong>Bakery Goods & Confectionery</strong>
                   <p>Biscuits, cookies, cakes, and pastries containing refined palm oil and excess sugar.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🍟 Deep Fried Foods & Farsan</strong>
+                  <strong>Deep Fried Foods & Farsan</strong>
                   <p>Fried packaged snacks, commercial chips, and repeatedly heated refined oils.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🍜 Ultra-Processed Instant Foods</strong>
+                  <strong>Ultra-Processed Instant Foods</strong>
                   <p>Instant noodles, ready-to-eat gravy packets, and preservative-heavy convenience foods.</p>
                 </div>
                 <div className="contrast-block">
-                  <strong>🧂 Hidden Sodium Sources</strong>
+                  <strong>Hidden Sodium Sources</strong>
                   <p>Excess commercial pickles, packaged namkeen, sauces, and heavily salted restaurant meals.</p>
                 </div>
               </div>
@@ -941,7 +946,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <span>💡 <strong>Simple Golden Rule:</strong> Occasionally is different from every day. A festival sweet or birthday cake does not need guilt. The bigger goal is what you eat most days.</span>
+            <span> <strong>Simple Golden Rule:</strong> Occasionally is different from every day. A festival sweet or birthday cake does not need guilt. The bigger goal is what you eat most days.</span>
           </motion.div>
         </div>
       </section>
@@ -1190,7 +1195,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
                       >
-                        <div className="fact-badge">✅ THE SCIENTIFIC FACT</div>
+                        <div className="fact-badge">THE SCIENTIFIC FACT</div>
                         <p className="fact-text">{item.fact}</p>
                       </motion.div>
                     )}
@@ -1214,7 +1219,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.6 }}
           >
             <span className="section-kicker">FAMILY NOURISHMENT</span>
-            <h2>👨‍👩‍👧 One Healthy Kitchen for the Whole Family</h2>
+            <h2> One Healthy Kitchen for the Whole Family</h2>
             <p className="section-desc">
               You do not need separate "diet food" for everyone in your family. The same kitchen can prepare healthy meals for children, adults, working professionals, and seniors:
             </p>
@@ -1266,7 +1271,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.6 }}
           >
             <span className="section-kicker reality-kicker">CONSUMER ALERT & MARKET REALITY</span>
-            <h2 className="food-awareness-main-title">🛡️ Food Safety Watch: The Adulteration Reality</h2>
+            <h2 className="food-awareness-main-title"> Food Safety Watch: The Adulteration Reality</h2>
             <p className="section-desc food-awareness-desc">
               Every day across India and global markets, news exposés reveal chemical-dyed spices, counterfeit ghee, carbide-ripened produce, and talc-polished staples. Awareness is your family's strongest shield. Explore verified alerts and learn how to test food purity right at home.
             </p>
@@ -1406,7 +1411,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             transition={{ duration: 0.6 }}
           >
             <div className="shield-banner-content">
-              <span className="shield-badge">🌿 THE PRAKRUTI PURITY PROMISE</span>
+              <span className="shield-badge"> THE PRAKRUTI PURITY PROMISE</span>
               <h3>Never Bleached. Never Dyed. Never Synthetic.</h3>
               <p>
                 In a market driven by cost-cutting and artificial cosmetics, Prakruti adheres strictly to single-origin ethical farming, cold wood-pressed extraction under 40°C, traditional stone grinding, and zero preservatives.
@@ -1642,7 +1647,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
               <div className="plate-lightbox-header">
                 <div>
                   <span className="plate-lightbox-kicker">HIGH-RESOLUTION NUTRITIONAL GUIDE</span>
-                  <h3 className="plate-lightbox-title">🍽️ The Power Plate: Eat to Fuel Your Performance</h3>
+                  <h3 className="plate-lightbox-title"> The Power Plate: Eat to Fuel Your Performance</h3>
                 </div>
                 <button
                   type="button"

@@ -17,8 +17,8 @@
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <div>
                 <h5 class="mb-1"><i class="fas fa-file-excel me-2 text-success"></i>Bulk inward import</h5>
-                <p class="text-muted small mb-2">Upload one row per product/package/batch. Use the same <strong>grn_group</strong> value on multiple rows to create one GRN with multiple items.</p>
-                <div class="small text-muted"><i class="fas fa-circle-info me-1"></i>Use exact <strong>vendor_id</strong>, <strong>product_sku</strong>, and optional <strong>variation_sku</strong> from Products. Dates must be YYYY-MM-DD.</div>
+                <p class="text-muted small mb-2">Upload one row per product/packaging/batch. Rows with matching <strong>vendor_name</strong> and <strong>vendor_invoice_no</strong> automatically group into one GRN.</p>
+                <div class="small text-muted"><i class="fas fa-circle-info me-1"></i>Columns match the Add Inward Stock form: <strong>vendor_name</strong>, <strong>vendor_invoice_no</strong> (auto-generated if blank), <strong>product</strong>, <strong>packaging</strong>, <strong>batch_number</strong>, <strong>purchase_rate</strong>, <strong>gst_rate</strong>. Dates format: YYYY-MM-DD.</div>
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 <a href="{{ route('admin.inward.importTemplate') }}" class="btn btn-outline-success"><i class="fas fa-download me-1"></i> Download Excel template</a>
@@ -137,6 +137,9 @@
                     <td class="text-end text-nowrap">
                         <a href="{{ route('admin.inward.show', $grn) }}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i> View Details
+                        </a>
+                        <a href="{{ route('admin.inward.edit', $grn) }}" class="btn btn-sm btn-outline-warning" title="Edit inward entry">
+                            <i class="fas fa-edit"></i>
                         </a>
                         <a href="{{ route('admin.inward.print', $grn) }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print GRN">
                             <i class="fas fa-print"></i>

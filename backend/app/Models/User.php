@@ -20,6 +20,9 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'profession',
+        'gender',
+        'terms_accepted_at',
         'role_id',
         'status',
     ];
@@ -33,6 +36,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -98,6 +102,34 @@ class User extends Authenticatable
         $roleName = strtolower((string) $this->role_name);
 
         return $roleName === 'customer';
+    }
+
+    public function isDoctor(): bool
+    {
+        if (strtolower(trim((string) $this->status)) !== 'active') {
+            return false;
+        }
+
+        $roleName = strtolower((string) $this->role_name);
+
+        if (in_array($roleName, ['doctor', 'consultant'], true)) {
+            return true;
+        }
+
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->email && \App\Models\DoctorProfile::where('email', strtolower(trim($this->email)))->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isConsultant(): bool
+    {
+        return $this->isDoctor();
     }
 
     public function hasRole(string|array $roles): bool

@@ -17,6 +17,8 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
     subtotal: cartSubtotal,
     discount,
     discountRule,
+    productOfferSavings = 0,
+    totalSavings = 0,
     gstAmt,
     shipCharge,
     freeShippingThreshold,
@@ -24,6 +26,7 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
     freeShippingUnlocked,
     total,
     openComingSoonModal,
+    flash,
   } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discountValue, setDiscountValue] = useState(0);
@@ -68,6 +71,7 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
         reviews: '120+',
         image: prod.image || packgringImg,
         badge: prod.featured ? 'bestseller' : null,
+        stock_qty: Number(prod.available_stock ?? 0),
       }));
       setRecommendProducts(mapped);
     });
@@ -161,6 +165,11 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
   const handleQuantityChange = (id, delta) => {
     const item = cartItems.find((entry) => entry.id === id);
     if (!item) return;
+    const stockQty = Number(item.stock_qty);
+    if (delta > 0 && Number.isFinite(stockQty) && item.quantity >= stockQty) {
+      flash(stockQty > 0 ? `Only ${stockQty} item(s) are available.` : 'This product is out of stock.', 'error');
+      return;
+    }
     updateQuantity(id, item.quantity + delta);
   };
 
@@ -316,9 +325,31 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                         <p className={`item-weight-tag ${item.package || item.desc ? '' : 'missing'}`}>
                           {item.package || item.desc || 'Package size not selected'}
                         </p>
+                        {item.has_product_offer && (
+                          <div className="cart-item-offer-banner" style={{ marginTop: '5px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                            <span style={{ background: '#e11d48', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.02em' }}>
+                              🎁 {item.offer_badge || 'OFFER APPLIED'}
+                            </span>
+                            {item.free_qty > 0 && (
+                              <span style={{ background: '#16a34a', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px' }}>
+                                + {item.free_qty} FREE ITEM{item.free_qty > 1 ? 'S' : ''}!
+                              </span>
+                            )}
+                            {item.offer_label && (
+                              <span style={{ color: '#be123c', fontSize: '0.74rem', fontWeight: 600 }}>
+                                {item.offer_label}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {item.stock_qty !== undefined && item.stock_qty !== null && Number(item.stock_qty) <= 0 && (
                           <span style={{ display: 'inline-block', backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, marginTop: '4px' }}>
                             Out of Stock
+                          </span>
+                        )}
+                        {Number(item.stock_qty) > 0 && item.quantity >= Number(item.stock_qty) && (
+                          <span style={{ display: 'block', color: '#a16207', fontSize: '0.72rem', fontWeight: 700, marginTop: '4px' }}>
+                            Maximum available quantity reached ({Number(item.stock_qty)})
                           </span>
                         )}
                       </div>
@@ -326,7 +357,21 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
 
                     {/* Price Cell */}
                     <div className="cart-item-price-cell">
-                      <span className="item-price-value">₹{Number(item.price).toFixed(2)}</span>
+                      {item.has_product_offer && item.original_price > item.price ? (
+                        <div className="cart-discounted-price-block">
+                          <span style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.82rem', marginRight: '6px' }}>
+                            ₹{Number(item.original_price).toFixed(2)}
+                          </span>
+                          <span className="item-price-value" style={{ color: '#e11d48', fontWeight: 800 }}>
+                            ₹{Number(item.price).toFixed(2)}
+                          </span>
+                          <span style={{ display: 'block', color: '#16a34a', fontSize: '0.72rem', fontWeight: 700 }}>
+                            Save ₹{(Number(item.original_price) - Number(item.price)).toFixed(2)}/unit
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="item-price-value">₹{Number(item.price).toFixed(2)}</span>
+                      )}
                       <span className="item-price-per-kg">₹{Number(item.price).toFixed(2)}{item.desc ? ` / ${item.desc}` : ''}</span>
                     </div>
 
@@ -335,13 +380,32 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                       <div className="cart-qty-selector">
                         <button type="button" onClick={() => handleQuantityChange(item.id, -1)}>-</button>
                         <span className="qty-value-display">{item.quantity}</span>
-                        <button type="button" onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(item.id, 1)}
+                          disabled={Number.isFinite(Number(item.stock_qty)) && item.quantity >= Number(item.stock_qty)}
+                          title={Number(item.stock_qty) > 0 ? `Only ${Number(item.stock_qty)} available` : 'Out of stock'}
+                        >+</button>
                       </div>
                     </div>
 
                     {/* Total Cell */}
                     <div className="cart-item-total-cell">
-                      <span className="item-total-value">₹{(item.price * item.quantity).toFixed(2)}</span>
+                      {item.has_product_offer && item.item_discount > 0 ? (
+                        <div>
+                          <span style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.8rem', display: 'block' }}>
+                            ₹{(Number(item.original_price) * item.quantity).toFixed(2)}
+                          </span>
+                          <span className="item-total-value" style={{ color: '#e11d48', fontWeight: 800 }}>
+                            ₹{Number(item.line_total || item.price * item.quantity).toFixed(2)}
+                          </span>
+                          <span style={{ display: 'block', color: '#16a34a', fontSize: '0.72rem', fontWeight: 700 }}>
+                            Saved ₹{Number(item.item_discount).toFixed(2)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="item-total-value">₹{(item.price * item.quantity).toFixed(2)}</span>
+                      )}
                     </div>
 
                     {/* Action Cell */}
@@ -440,6 +504,12 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                       <span className="discount-value-green">- ₹{totalDiscount.toFixed(2)}</span>
                     </div>
                   )}
+                  {productOfferSavings > 0 && (
+                    <div className="summary-row discount-row" style={{ color: '#be123c' }}>
+                      <span style={{ fontWeight: 600 }}>🎁 Product Offers Discount</span>
+                      <span className="discount-value-green" style={{ color: '#e11d48', fontWeight: 700 }}>- ₹{Number(productOfferSavings).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="summary-row">
                     <span>GST</span>
                     <span className="summary-val-dark">₹{estimatedGst.toFixed(2)}</span>
@@ -459,10 +529,17 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                 <div className="estimated-total-row">
                   <div className="est-flex">
                     <span>Estimated Total</span>
-                    {totalDiscount > 0 && <span className="est-total-cut">₹{originalEstimatedTotal.toFixed(2)}</span>}
+                    {(totalDiscount > 0 || productOfferSavings > 0) && (
+                      <span className="est-total-cut">₹{(Number(estimatedTotal) + Number(totalDiscount) + Number(productOfferSavings)).toFixed(2)}</span>
+                    )}
                     <span className="est-total-amount">₹{estimatedTotal.toFixed(2)}</span>
                   </div>
                   <p className="est-taxes-label">(Inclusive of all taxes)</p>
+                  {(totalDiscount > 0 || productOfferSavings > 0) && (
+                    <div style={{ marginTop: '8px', padding: '6px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', textAlign: 'center', color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}>
+                      🎉 You are saving ₹{(Number(totalDiscount) + Number(productOfferSavings)).toFixed(2)} on this order!
+                    </div>
+                  )}
                 </div>
 
                 {/* Promo Code Box */}
@@ -756,7 +833,12 @@ const CartPage = ({ onShopClick, currentUser, onLoginRequired }) => {
                     </div>
                     <div className="rec-price-action-row">
                       <span className="rec-price-tag">₹{Number(prod.price).toFixed(2)}</span>
-                      <button type="button" className="rec-add-to-cart-btn" onClick={() => addToCart(prod.id, 1)}>🛒 Add to Cart</button>
+                      <button
+                        type="button"
+                        className="rec-add-to-cart-btn"
+                        disabled={prod.stock_qty <= 0}
+                        onClick={() => addToCart(prod.id, 1)}
+                      >{prod.stock_qty <= 0 ? 'Out of Stock' : '🛒 Add to Cart'}</button>
                     </div>
                   </div>
                 </div>

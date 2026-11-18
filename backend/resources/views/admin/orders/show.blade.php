@@ -283,9 +283,15 @@
             @endif
             <div class="sub">Placed on {{ $order->created_at->format('l, F d, Y \a\t h:i A') }}</div>
         </div>
-        <div class="od-actions d-flex gap-2">
-            <a href="{{ route('admin.orders.downloadInvoice', $order) }}" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf me-1"></i> Download Tax Invoice (PDF)</a>
-            <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="btn btn-outline-success btn-sm"><i class="fas fa-eye me-1"></i> View Tax Invoice</a>
+        <div class="od-actions d-flex align-items-center gap-2">
+            @if($order->pay_status === 'paid')
+                <a href="{{ route('admin.orders.downloadInvoice', $order) }}" class="btn btn-danger btn-sm"><i class="fas fa-file-pdf me-1"></i> Download Tax Invoice (PDF)</a>
+                <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="btn btn-outline-success btn-sm"><i class="fas fa-eye me-1"></i> View Tax Invoice</a>
+            @else
+                <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Tax invoice cannot be generated until payment has been received.">
+                    <i class="fas fa-lock me-1"></i> Invoice Locked (Payment Pending)
+                </button>
+            @endif
             <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i> Print</button>
         </div>
     </div>

@@ -101,15 +101,12 @@ class DashboardController extends Controller
             ];
         });
 
-        // Rankings describe products that actually sold in the selected
-        // period. Showing every catalog item with zero units makes an empty
-        // period look like real sales data.
-        $soldMetrics = $allMetrics->filter(fn ($metric) => $metric['units'] > 0)->values();
-        $highestSelling = $soldMetrics->sortByDesc('units')->take(5)->values()->all();
-        $highMargin = $soldMetrics->sortByDesc('margin')->take(5)->values()->all();
-        $lowSelling = $soldMetrics->sort(function ($a, $b) {
+        // Top 10 High Selling, High Margin, and Low Selling products
+        $highestSelling = $allMetrics->sortByDesc('units')->take(10)->values()->all();
+        $highMargin = $allMetrics->sortByDesc('margin')->take(10)->values()->all();
+        $lowSelling = $allMetrics->sort(function ($a, $b) {
             return ($a['units'] <=> $b['units']) ?: ($a['revenue'] <=> $b['revenue']);
-        })->take(5)->values()->all();
+        })->take(10)->values()->all();
 
         $categorySales = collect($categorySales)->sortDesc();
         $categoryChart = $categorySales->take(5)->all();

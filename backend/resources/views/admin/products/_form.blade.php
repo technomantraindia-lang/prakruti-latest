@@ -30,6 +30,7 @@
 
     $productInfo = old('product_information', $product->product_information ?? []);
     $removedPackageIds = old('removed_packages', []);
+    $currentMainUrl = isset($product) && $product->image ? $product->image_url : null;
 @endphp
 
 @foreach($removedPackageIds as $removedPackageId)
@@ -78,7 +79,7 @@
                 <div class="card border-success-subtle bg-light mb-4">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="mb-0">Package Size & Price</h5>
+                            <h5 class="mb-0">Package Size & Regular Price</h5>
                             <small class="text-muted">Add options like 500g pack, 1kg pack, 5kg family pack.</small>
                         </div>
                         <button type="button" class="btn btn-sm btn-success" id="addPackageRow">+ Add Package</button>
@@ -236,12 +237,172 @@
                                 <input type="text" name="product_information[ingredient]" class="form-control" value="{{ $productInfo['ingredient'] ?? '' }}" placeholder="Default: Pure product name">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Packaging Type</label>
-                                <input type="text" name="product_information[packaging_type]" class="form-control" value="{{ $productInfo['packaging_type'] ?? '' }}" placeholder="Default: Food Grade Standing Pouch">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>Packaging Type</span>
+                                    <small class="text-muted">Choose packaging</small>
+                                </label>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text bg-white"><i class="fas fa-box text-success"></i></span>
+                                    <select class="form-select" id="packaging_preset_select">
+                                        <option value="">-- Choose Packaging --</option>
+                                        <option value="Glass Jar">🏺 Glass Jar</option>
+                                        <option value="PET Jar">🫙 PET Jar</option>
+                                        <option value="Glass Bottle">🍾 Glass Bottle</option>
+                                        <option value="PET Bottle">🍼 PET Bottle</option>
+                                        <option value="Pouch">📦 Pouch</option>
+                                        <option value="Vacuum Pack">🔒 Vacuum Pack</option>
+                                        <option value="Tin / Can">🥫 Tin / Can</option>
+                                        <option value="Paper Box">📄 Paper Box</option>
+                                        <option value="__custom__">Custom / Other</option>
+                                    </select>
+                                </div>
+                                <input type="text" name="product_information[packaging_type]" id="packaging_type_input" class="form-control" value="{{ $productInfo['packaging_type'] ?? '' }}" placeholder="Default: Pouch">
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Glass Jar">🏺 Glass Jar</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="PET Jar">🫙 PET Jar</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Glass Bottle">🍾 Glass Bottle</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="PET Bottle">🍼 PET Bottle</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Pouch">📦 Pouch</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Vacuum Pack">🔒 Vacuum Pack</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Tin / Can">🥫 Tin / Can</span>
+                                    <span class="badge bg-light text-dark border packaging-pill" role="button" style="cursor:pointer;" data-val="Paper Box">📄 Paper Box</span>
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Storage</label>
                                 <input type="text" name="product_information[storage]" class="form-control" value="{{ $productInfo['storage'] ?? '' }}" placeholder="Default: Store in dry, airtight container">
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="border rounded-3 p-3 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0 text-success fw-bold">
+                                            <i class="fas fa-layer-group me-1"></i> Storefront Detail Accordions (Hyphen Style)
+                                        </h6>
+                                        <span class="badge bg-secondary-subtle text-secondary small">Conditional Display</span>
+                                    </div>
+                                    <p class="text-muted small mb-3">
+                                        Only sections filled below will appear on the storefront. If a section is left empty, it will be hidden automatically.
+                                    </p>
+
+                                    <!-- 1. Product Info (What is it? / How it works?) -->
+                                    <div class="card p-3 mb-3 border-0 shadow-sm bg-white rounded-3">
+                                        <h6 class="fw-semibold text-dark mb-1 small text-uppercase">1. Product Info</h6>
+                                        <small class="text-muted mb-2 d-block">Shown in "PRODUCT INFO" tab with toggle pills [What is it?] and [How it does?]</small>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold text-secondary">What is it? (Description / Overview)</label>
+                                                <textarea name="product_information[what_is_it]" class="form-control form-control-sm" rows="3" placeholder="e.g. 100% natural and unpolished grains sourced directly from organic cooperatives...">{{ $productInfo['what_is_it'] ?? '' }}</textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold text-secondary">How it does? (How it works / Key Benefits)</label>
+                                                <textarea name="product_information[how_it_works]" class="form-control form-control-sm" rows="3" placeholder="e.g. Rich in natural dietary fiber, plant protein, and micro-nutrients...">{{ $productInfo['how_it_works'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Key Ingredients -->
+                                    <div class="card p-3 mb-3 border-0 shadow-sm bg-white rounded-3">
+                                        <h6 class="fw-semibold text-dark mb-1 small text-uppercase">2. Key Ingredients</h6>
+                                        <small class="text-muted mb-2 d-block">Shown in "KEY INGREDIENTS" accordion. Separate ingredients with commas or newlines.</small>
+                                        <textarea name="product_information[key_ingredients]" class="form-control form-control-sm" rows="2" placeholder="e.g. Single-Origin Emmer Wheat, Cold Pressed Virgin Mustard Seeds">{{ $productInfo['key_ingredients'] ?? '' }}</textarea>
+                                    </div>
+
+                                    <!-- 3. How to Use -->
+                                    <div class="card p-3 mb-3 border-0 shadow-sm bg-white rounded-3">
+                                        <h6 class="fw-semibold text-dark mb-1 small text-uppercase">3. How to Use</h6>
+                                        <small class="text-muted mb-2 d-block">Shown in "HOW TO USE" accordion.</small>
+                                        <textarea name="product_information[how_to_use]" class="form-control form-control-sm" rows="2" placeholder="e.g. Soak for 30 minutes before boiling. Cook on medium flame until tender...">{{ $productInfo['how_to_use'] ?? '' }}</textarea>
+                                    </div>
+
+                                    <!-- 4. Full Ingredients List -->
+                                    <div class="card p-3 mb-3 border-0 shadow-sm bg-white rounded-3">
+                                        <h6 class="fw-semibold text-dark mb-1 small text-uppercase">4. Full Ingredients List</h6>
+                                        <small class="text-muted mb-2 d-block">Shown in "FULL INGREDIENTS LIST" accordion.</small>
+                                        <textarea name="product_information[full_ingredients_list]" class="form-control form-control-sm" rows="2" placeholder="e.g. 100% Raw Unpolished Moong Dal (Vigna radiata). Zero added coloring agents or preservatives.">{{ $productInfo['full_ingredients_list'] ?? '' }}</textarea>
+                                    </div>
+
+                                    <!-- 5. Certificate & Lab Reports (Multiple Boxes) -->
+                                    @php
+                                        $clinicalReportPath = $productInfo['clinical_report_image'] ?? ($product->product_information['clinical_report_image'] ?? null);
+                                        $certificateReports = old('certificate_reports', $productInfo['certificate_reports'] ?? []);
+                                        if (empty($certificateReports) && !empty($clinicalReportPath)) {
+                                            $certificateReports = [
+                                                [
+                                                    'title' => 'Clinically Tested Claims',
+                                                    'short_desc' => !empty($productInfo['clinically_tested']) ? \Illuminate\Support\Str::limit($productInfo['clinically_tested'], 35) : 'Certified',
+                                                    'image' => $clinicalReportPath,
+                                                ]
+                                            ];
+                                        }
+                                    @endphp
+                                    <div class="card p-3 mb-2 border-0 shadow-sm bg-white rounded-3">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                            <div>
+                                                <h6 class="fw-semibold text-dark mb-0 small text-uppercase">
+                                                    <i class="fas fa-certificate text-warning me-1"></i> 5. Certificate & Lab Reports
+                                                </h6>
+                                                <small class="text-muted">Displays multiple green cards on storefront. Clicking "Check Reports" opens the image in a scrollable popup.</small>
+                                            </div>
+                                            <button type="button" class="btn btn-xs btn-outline-success fw-semibold" id="btnAddCertificateReport">
+                                                <i class="fas fa-plus me-1"></i> Add Report Box
+                                            </button>
+                                        </div>
+
+                                        <div id="certificateReportsList" class="d-flex flex-column gap-3 mt-2">
+                                            @forelse($certificateReports as $cIndex => $cReport)
+                                                <div class="certificate-report-row border rounded-3 bg-light p-3 shadow-sm position-relative">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold">
+                                                            <i class="fas fa-file-medical-alt me-1"></i> Report Box #<span class="report-box-num">{{ $loop->iteration }}</span>
+                                                        </span>
+                                                        <button type="button" class="btn btn-xs btn-outline-danger remove-certificate-report-btn" title="Remove this report box">
+                                                            <i class="fas fa-trash-alt me-1"></i> Remove Box
+                                                        </button>
+                                                    </div>
+                                                    <div class="row g-2">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label small fw-bold text-dark">Report Title *</label>
+                                                            <input type="text" name="certificate_reports[{{ $cIndex }}][title]" class="form-control form-control-sm" placeholder="e.g. In-Vivo & In-Vitro / 100% Pesticide Free" value="{{ $cReport['title'] ?? '' }}" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label small fw-bold text-dark">Short Description / Badge</label>
+                                                            <input type="text" name="certificate_reports[{{ $cIndex }}][short_desc]" class="form-control form-control-sm" placeholder="e.g. Certified / NABL Lab Tested" value="{{ $cReport['short_desc'] ?? 'Certified' }}">
+                                                        </div>
+                                                        <div class="col-12 mt-2">
+                                                            <label class="form-label small fw-bold text-dark">Certificate Report Image (Opens in Popup)</label>
+                                                            @if(!empty($cReport['image']))
+                                                                <div class="d-flex align-items-center gap-3 p-2 border rounded bg-white mb-2">
+                                                                    <img src="{{ route('media.file', ['path' => $cReport['image']]) }}" alt="Report Preview" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                    <div class="flex-grow-1">
+                                                                        <a href="{{ route('media.file', ['path' => $cReport['image']]) }}" target="_blank" class="small fw-semibold text-primary">View Current Certificate</a>
+                                                                        <input type="hidden" name="certificate_reports[{{ $cIndex }}][image]" value="{{ $cReport['image'] }}">
+                                                                    </div>
+                                                                    <label class="form-check-label small text-danger">
+                                                                        <input type="checkbox" name="certificate_reports[{{ $cIndex }}][remove]" value="1" class="form-check-input me-1">
+                                                                        Remove Image
+                                                                    </label>
+                                                                </div>
+                                                            @endif
+                                                            <input type="file" name="certificate_reports_file[{{ $cIndex }}]" class="form-control form-control-sm" accept="image/*">
+                                                            <small class="text-muted">Upload certificate or lab test document image (JPEG, PNG, WebP). Max 12MB.</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <div id="noCertificateReportsNotice" class="text-muted small py-2 text-center bg-light rounded border">
+                                                    No certificate reports added yet. Click <strong>"Add Report Box"</strong> to add one.
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                    </div>
+
+                                    <!-- 6. FAQs (Optional) -->
+                                    <div class="card p-3 border-0 shadow-sm bg-white rounded-3">
+                                        <h6 class="fw-semibold text-dark mb-1 small text-uppercase">6. FAQs (Optional)</h6>
+                                        <small class="text-muted mb-2 d-block">Shown in "FAQS" accordion if entered.</small>
+                                        <textarea name="product_information[faqs]" class="form-control form-control-sm" rows="2" placeholder="e.g. Q: Is this certified organic? A: Yes, certified by NABL accredited lab.">{{ $productInfo['faqs'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -292,9 +453,6 @@
 
                     <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
                         <div class="main-photo-preview-wrapper border rounded-3 p-2 bg-white text-center shadow-sm" style="width: 130px; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                            @php
-                                $currentMainUrl = isset($product) && $product->image ? $product->image_url : null;
-                            @endphp
                             <img id="mainProductPhotoPreview"
                                  src="{{ $currentMainUrl ?: 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23a0aec0\' stroke-width=\'1.5\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><path d=\'M21 15l-5-5L5 21\'/></svg>' }}"
                                  alt="Main product photo"
@@ -346,7 +504,7 @@
                         <div id="reorderStatusToast" class="badge bg-success d-none py-1 px-2"><i class="fas fa-check me-1"></i> Saved!</div>
                     </div>
 
-                    @if(isset($product) && $product->images->count())
+                    @if (isset($product) && $product->images->count())
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="fw-semibold small text-dark"><i class="fas fa-th me-1"></i> Current Photos ({{ $product->images->count() }})</span>
@@ -358,7 +516,7 @@
                                  data-reorder-url="{{ route('admin.products.gallery.reorder', $product) }}"
                                  data-set-main-url="{{ route('admin.products.gallery.setMain', $product) }}"
                                  data-delete-url-base="{{ url('/admin/products/' . $product->id . '/gallery') }}">
-                                @foreach($product->images as $index => $img)
+                                @foreach ($product->images as $index => $img)
                                     @php
                                         $isThisMain = ($product->image === $img->image);
                                     @endphp
@@ -369,7 +527,7 @@
                                         
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="gallery-drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical text-muted"></i> Drag</span>
-                                            <span class="badge bg-dark rounded-pill gallery-order-badge">#{{ $loop->iteration }}</span>
+                                            <span class="badge bg-dark rounded-pill gallery-order-badge">#{{ $index + 1 }}</span>
                                         </div>
 
                                         <div class="gallery-img-container rounded overflow-hidden border mb-2 text-center bg-light" style="width: 100%; height: 85px;">
@@ -1013,6 +1171,138 @@ document.addEventListener('DOMContentLoaded', function () {
         row?.remove();
         reindexPackageRows();
     });
+
+    // --- 5. Certificate Reports Management ---
+    const certificateReportsList = document.getElementById('certificateReportsList');
+    const btnAddCertificateReport = document.getElementById('btnAddCertificateReport');
+    const noCertificateReportsNotice = document.getElementById('noCertificateReportsNotice');
+
+    function certificateReportTemplate(index) {
+        return `
+            <div class="certificate-report-row border rounded-3 bg-light p-3 shadow-sm position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold">
+                        <i class="fas fa-file-medical-alt me-1"></i> Report Box #<span class="report-box-num">${index + 1}</span>
+                    </span>
+                    <button type="button" class="btn btn-xs btn-outline-danger remove-certificate-report-btn" title="Remove this report box">
+                        <i class="fas fa-trash-alt me-1"></i> Remove Box
+                    </button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-dark">Report Title *</label>
+                        <input type="text" name="certificate_reports[${index}][title]" class="form-control form-control-sm" placeholder="e.g. In-Vivo & In-Vitro / 100% Pesticide Free" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-dark">Short Description / Badge</label>
+                        <input type="text" name="certificate_reports[${index}][short_desc]" class="form-control form-control-sm" placeholder="e.g. Certified / NABL Lab Tested" value="Certified">
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label class="form-label small fw-bold text-dark">Certificate Report Image (Opens in Popup)</label>
+                        <input type="file" name="certificate_reports_file[${index}]" class="form-control form-control-sm" accept="image/*">
+                        <small class="text-muted">Upload certificate or lab test document image (JPEG, PNG, WebP). Max 12MB.</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function reindexCertificateReports() {
+        if (!certificateReportsList) return;
+        const rows = certificateReportsList.querySelectorAll('.certificate-report-row');
+        if (noCertificateReportsNotice) {
+            noCertificateReportsNotice.style.display = rows.length === 0 ? 'block' : 'none';
+        }
+        rows.forEach((row, index) => {
+            const numSpan = row.querySelector('.report-box-num');
+            if (numSpan) numSpan.textContent = index + 1;
+            row.querySelectorAll('input, select, textarea').forEach((field) => {
+                if (field.name) {
+                    field.name = field.name.replace(/certificate_reports(?:_file)?\[\d+\]/, function(match) {
+                        return match.startsWith('certificate_reports_file') 
+                            ? `certificate_reports_file[${index}]` 
+                            : `certificate_reports[${index}]`;
+                    });
+                }
+            });
+        });
+    }
+
+    btnAddCertificateReport?.addEventListener('click', function () {
+        if (!certificateReportsList) return;
+        if (noCertificateReportsNotice) noCertificateReportsNotice.style.display = 'none';
+        const currentCount = certificateReportsList.querySelectorAll('.certificate-report-row').length;
+        certificateReportsList.insertAdjacentHTML('beforeend', certificateReportTemplate(currentCount));
+        reindexCertificateReports();
+    });
+
+    certificateReportsList?.addEventListener('click', function (event) {
+        const button = event.target.closest('.remove-certificate-report-btn');
+        if (!button) return;
+        const row = button.closest('.certificate-report-row');
+        row?.remove();
+        reindexCertificateReports();
+    });
+
+    // Packaging Type & Sub-category sync
+    const pkgInput = document.getElementById('packaging_type_input');
+    const pkgSelect = document.getElementById('packaging_preset_select');
+    const pkgPills = document.querySelectorAll('.packaging-pill');
+
+    function highlightActivePill(val) {
+        pkgPills.forEach(pill => {
+            if (pill.dataset.val.toLowerCase() === (val || '').trim().toLowerCase()) {
+                pill.classList.remove('bg-light', 'text-dark');
+                pill.classList.add('bg-success', 'text-white');
+            } else {
+                pill.classList.remove('bg-success', 'text-white');
+                if (!pill.classList.contains('bg-light')) pill.classList.add('bg-light', 'text-dark');
+            }
+        });
+    }
+
+    if (pkgInput && pkgSelect) {
+        if (pkgInput.value) {
+            let matched = false;
+            for (let i = 0; i < pkgSelect.options.length; i++) {
+                const opt = pkgSelect.options[i];
+                if (opt.value && opt.value !== '__custom__' && opt.value.toLowerCase() === pkgInput.value.trim().toLowerCase()) {
+                    pkgSelect.value = opt.value;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched && pkgInput.value.trim() !== '') {
+                pkgSelect.value = '__custom__';
+            }
+            highlightActivePill(pkgInput.value);
+        }
+
+        pkgSelect.addEventListener('change', function () {
+            if (this.value && this.value !== '__custom__') {
+                pkgInput.value = this.value;
+                highlightActivePill(this.value);
+            } else if (this.value === '__custom__') {
+                pkgInput.focus();
+                highlightActivePill('');
+            }
+        });
+
+        pkgPills.forEach(pill => {
+            pill.addEventListener('click', function () {
+                const val = this.dataset.val;
+                if (val) {
+                    pkgInput.value = val;
+                    pkgSelect.value = val;
+                    highlightActivePill(val);
+                }
+            });
+        });
+
+        pkgInput.addEventListener('input', function () {
+            highlightActivePill(this.value);
+        });
+    }
 
     updateGalleryLimitMessage(selectedGalleryFiles.length);
 });

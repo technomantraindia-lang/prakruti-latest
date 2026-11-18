@@ -90,7 +90,10 @@ class CheckoutApiController extends Controller
 
                 // Authoritative Database Price (MRP - Inclusive of GST)
                 $itemPrice = \App\Support\PriceRules::forItem($product, $variation);
-                $lineTotal = $itemPrice * $itemReq['qty'];
+                $offerResult = app(\App\Services\ProductOfferService::class)->applyToItem($product->id, $itemPrice, (int) $itemReq['qty']);
+                $effectivePrice = $offerResult['effective_unit_price'];
+                $itemDiscount = $offerResult['total_discount'];
+                $lineTotal = round($effectivePrice * $itemReq['qty'], 2);
                 $subtotal += $lineTotal;
 
                 $orderItemsData[] = [
@@ -103,7 +106,8 @@ class CheckoutApiController extends Controller
                     'sku' => $variation?->sku ?: $product->sku,
                     'hsn_code' => $product->hsn_code ?: '30049011',
                     'qty' => $itemReq['qty'],
-                    'price' => $itemPrice,
+                    'price' => $effectivePrice,
+                    'discount' => $itemDiscount,
                     'gst_pct' => app(GstService::class)->productGstPercentage($product),
                     'line_total' => $lineTotal,
                 ];

@@ -15,6 +15,12 @@ function normalizeCart(data) {
     desc: item.desc || item.package || item.weight || '',
     package: item.package || item.weight || '',
     price: Number(item.price || 0),
+    original_price: Number(item.original_price || item.price || 0),
+    has_product_offer: Boolean(item.has_product_offer),
+    item_discount: Number(item.item_discount || 0),
+    free_qty: Number(item.free_qty || 0),
+    offer_badge: item.offer_badge || null,
+    offer_label: item.offer_label || null,
     quantity: Number(item.qty ?? item.quantity ?? 1),
     image: item.image || packgringImg,
     stock_qty: item.stock_qty,
@@ -26,6 +32,8 @@ function normalizeCart(data) {
     subtotal: Number(data?.subtotal || 0),
     discount: Number(data?.discount || 0),
     discountRule: data?.discount_rule || null,
+    productOfferSavings: Number(data?.product_offer_savings || 0),
+    totalSavings: Number(data?.total_savings || 0),
     taxableSubtotal: Number(data?.taxable_subtotal || 0),
     gstAmt: Number(data?.gst_amt || 0),
     shipCharge: Number(data?.ship_charge || 0),
@@ -42,6 +50,8 @@ export function CartProvider({ children }) {
   const [subtotal, setSubtotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [discountRule, setDiscountRule] = useState(null);
+  const [productOfferSavings, setProductOfferSavings] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0);
   const [taxableSubtotal, setTaxableSubtotal] = useState(0);
   const [gstAmt, setGstAmt] = useState(0);
   const [shipCharge, setShipCharge] = useState(0);
@@ -74,6 +84,8 @@ export function CartProvider({ children }) {
     setSubtotal(next.subtotal);
     setDiscount(next.discount);
     setDiscountRule(next.discountRule);
+    setProductOfferSavings(next.productOfferSavings);
+    setTotalSavings(next.totalSavings);
     setTaxableSubtotal(next.taxableSubtotal);
     setGstAmt(next.gstAmt);
     setShipCharge(next.shipCharge);
@@ -135,6 +147,12 @@ export function CartProvider({ children }) {
     }
 
     const nextQty = Math.max(1, qty);
+    const currentItem = items.find((item) => item.id === cartItemId);
+    const stockQty = Number(currentItem?.stock_qty);
+    if (currentItem && Number.isFinite(stockQty) && nextQty > stockQty) {
+      flash(stockQty > 0 ? `Only ${stockQty} item(s) are available.` : 'This product is out of stock.', 'error');
+      return { success: false, status: 422, message: 'Quantity exceeds available stock.' };
+    }
     const res = await cartApi.updateCartItem(cartItemId, nextQty);
     if (res.success) {
       apply(res.data);
@@ -143,7 +161,7 @@ export function CartProvider({ children }) {
       refreshCart();
     }
     return res;
-  }, [apply, flash, refreshCart]);
+  }, [items, apply, flash, refreshCart]);
 
   const removeItem = useCallback(async (cartItemId) => {
     if (!getAuthToken()) {
@@ -178,6 +196,8 @@ export function CartProvider({ children }) {
     subtotal,
     discount,
     discountRule,
+    productOfferSavings,
+    totalSavings,
     taxableSubtotal,
     gstAmt,
     shipCharge,

@@ -294,9 +294,14 @@
   display: block;
 }
 
+.fg-icon-image {
+  background-repeat: no-repeat;
+  background-size: 400% 200%;
+}
+
 .food-group-card:hover .fg-icon {
   transform: scale(1.1) rotate(4deg);
-  background: #eef7ed;
+  background-color: #eef7ed;
   border-color: #81c784;
 }
 

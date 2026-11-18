@@ -18,8 +18,12 @@
     .product-rank { border-bottom: 1px solid #eef2ee; padding: 12px 0; }
     .product-rank:last-child { border-bottom: 0; }
     .product-rank .rank { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: #eff8ef; color: #2d6a3d; font-size: .75rem; font-weight: 800; }
+    .product-rank .rank-low { background: #fff1f2; color: #e11d48; }
     .product-rank .name { font-weight: 700; font-size: .86rem; }
     .product-rank .meta { color: #94a3b8; font-size: .72rem; }
+    .rank-list-scroll { max-height: 520px; overflow-y: auto; padding-right: 4px; }
+    .rank-list-scroll::-webkit-scrollbar { width: 4px; }
+    .rank-list-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     .dashboard-section-title { font-size: 1rem; font-weight: 800; color: #193a15; }
     .table thead th { white-space: nowrap; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
     .custom-dates { display: none; }
@@ -114,9 +118,9 @@
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">Highest selling products</div><div class="small text-muted mb-2">Ranked by units sold</div><div id="highestSellingList"></div></div></div></div>
-        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">High margin products</div><div class="small text-muted mb-2">Ranked by gross contribution</div><div id="highMarginList"></div></div></div></div>
-        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">Low selling products</div><div class="small text-muted mb-2">Products needing attention in this period</div><div id="lowSellingList"></div></div></div></div>
+        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">Top 10 Highest Selling Products</div><div class="small text-muted mb-2">Ranked by units sold</div><div id="highestSellingList" class="rank-list-scroll"></div></div></div></div>
+        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">Top 10 High Margin Products</div><div class="small text-muted mb-2">Ranked by gross contribution</div><div id="highMarginList" class="rank-list-scroll"></div></div></div></div>
+        <div class="col-12 col-xl-4"><div class="card chart-card shadow-sm"><div class="card-body"><div class="dashboard-section-title">Top 10 Lowest Selling Products</div><div class="small text-muted mb-2">Products needing attention in this period</div><div id="lowSellingList" class="rank-list-scroll"></div></div></div></div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -129,7 +133,7 @@
         </div>
         <div class="col-12 col-xl-5">
             <div class="card shadow-sm h-100"><div class="card-body"><div class="dashboard-section-title mb-3">Inventory alerts</div>
-                <a href="{{ route('admin.products.index', ['low_stock' => 1]) }}" class="dashboard-alert d-flex justify-content-between align-items-center p-3 rounded-3 bg-danger bg-opacity-10 mb-2 text-decoration-none" title="Open low stock products"><span><i class="fas fa-arrow-trend-down text-danger me-2"></i>Low stock products</span><strong class="text-danger">{{ $stats['low_stock_products'] }}</strong></a>
+                <a href="{{ route('admin.products.index', ['low_stock' => 1]) }}" class="dashboard-alert d-flex justify-content-between align-items-center p-3 rounded-3 bg-danger bg-opacity-10 mb-2 text-decoration-none" title="Open warehouse low stock items (&le;15%)"><span><i class="fas fa-triangle-exclamation text-danger me-2"></i>Warehouse Low Stock (&le;15%)</span><strong class="text-danger">{{ $stats['low_stock_products'] }}</strong></a>
                 <a href="{{ route('admin.inventory.batches', ['near_expiry_only' => 1]) }}" class="dashboard-alert d-flex justify-content-between align-items-center p-3 rounded-3 bg-warning bg-opacity-10 mb-2 text-decoration-none" title="Open batches expiring within 60 days"><span><i class="fas fa-hourglass-half text-warning me-2"></i>Expiry alerts (60 days)</span><strong class="text-warning">{{ $stats['expiry_alerts'] }}</strong></a>
                 <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="dashboard-alert d-flex justify-content-between align-items-center p-3 rounded-3 bg-info bg-opacity-10 text-decoration-none" title="Open pending orders"><span><i class="fas fa-clock text-info me-2"></i>Pending orders</span><strong class="text-info">{{ $stats['pending_orders'] }}</strong></a>
             </div></div>
@@ -141,13 +145,13 @@
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
                     <div class="dashboard-section-title">Inventory &amp; expiry date</div>
-                    <div class="small text-muted">Current product stock, package, MRP, batch and nearest expiry from inventory.</div>
+                    <div class="small text-muted">Current product stock, package, Regular Price, batch and nearest expiry from inventory.</div>
                 </div>
                 <a href="{{ route('admin.inventory.batches') }}" class="small text-success fw-bold text-decoration-none">Open inventory</a>
             </div>
             <div class="table-responsive">
                 <table class="table table-sm align-middle mb-0 inventory-table">
-                    <thead><tr><th>Product</th><th>Package</th><th>Stock</th><th>MRP</th><th>Batch</th><th>Expiry date</th></tr></thead>
+                    <thead><tr><th>Product</th><th>Package</th><th>Stock</th><th>Regular Price</th><th>Batch</th><th>Expiry date</th></tr></thead>
                     <tbody>
                     @forelse($inventoryRows as $row)
                         <tr>
@@ -190,11 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderRanks(id, items, mode) {
         const el = document.getElementById(id);
-        if (!items.length) { el.innerHTML = '<div class="text-muted small py-4 text-center">No product sales in this period.</div>'; return; }
+        if (!items.length) { el.innerHTML = '<div class="text-muted small py-4 text-center">No product data available in this period.</div>'; return; }
         el.innerHTML = items.map((item, index) => {
             const value = mode === 'units' ? `${Number(item.units).toLocaleString('en-IN')} units` : mode === 'margin' ? `${money(item.margin)} · ${item.margin_pct}%` : `${Number(item.units).toLocaleString('en-IN')} units`;
             const sub = mode === 'margin' ? `Revenue ${money(item.revenue)}` : `Revenue ${money(item.revenue)}`;
-            return `<div class="product-rank d-flex align-items-center gap-2"><div class="rank">${index + 1}</div><div class="flex-grow-1 min-w-0"><div class="name text-truncate">${item.name}</div><div class="meta">${item.sku} · ${sub}</div></div><div class="text-end"><div class="fw-bold small">${value}</div>${mode === 'low' ? '<div class="text-danger small">Review</div>' : ''}</div></div>`;
+            const rankClass = mode === 'low' ? 'rank rank-low' : 'rank';
+            return `<div class="product-rank d-flex align-items-center gap-2"><div class="${rankClass}">${index + 1}</div><div class="flex-grow-1 min-w-0"><div class="name text-truncate" title="${item.name}">${item.name}</div><div class="meta">${item.sku} · ${sub}</div></div><div class="text-end"><div class="fw-bold small">${value}</div>${mode === 'low' && item.units === 0 ? '<div class="text-danger small">0 Sold</div>' : (mode === 'low' ? '<div class="text-warning small">Low Sale</div>' : '')}</div></div>`;
         }).join('');
     }
     renderRanks('highestSellingList', highestSelling, 'units');

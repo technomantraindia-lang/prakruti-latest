@@ -102,7 +102,7 @@ class ProcurementService
                 'grn_number' => GoodsReceivedNote::generateGrnNumber(),
                 'purchase_order_id' => $data['purchase_order_id'] ?? null,
                 'vendor_id' => $vendor->id,
-                'vendor_invoice_no' => $data['vendor_invoice_no'] ?? null,
+                'vendor_invoice_no' => ! empty($data['vendor_invoice_no']) ? trim((string) $data['vendor_invoice_no']) : GoodsReceivedNote::generateVendorInvoiceNumber(),
                 'invoice_date' => ! empty($data['invoice_date']) ? $data['invoice_date'] : now()->toDateString(),
                 'received_date' => ! empty($data['received_date']) ? $data['received_date'] : now()->toDateString(),
                 'status' => 'verified',

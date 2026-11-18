@@ -264,12 +264,22 @@ class OrderController extends Controller
 
     public function invoice(Order $order, \App\Services\InvoiceService $invoiceService)
     {
+        if ($order->pay_status !== 'paid') {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Tax invoice cannot be generated until payment has been received.');
+        }
+
         $data = $invoiceService->prepareInvoiceData($order);
         return view('invoices.gst_tax_invoice', $data);
     }
 
     public function downloadInvoice(Order $order, \App\Services\InvoiceService $invoiceService)
     {
+        if ($order->pay_status !== 'paid') {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Tax invoice cannot be generated until payment has been received.');
+        }
+
         return $invoiceService->downloadPdf($order);
     }
 

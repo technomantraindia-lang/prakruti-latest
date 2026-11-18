@@ -63,7 +63,8 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Vendor Invoice / Bill No</label>
-                    <input type="text" name="vendor_invoice_no" class="form-control" value="{{ old('vendor_invoice_no') }}" placeholder="e.g. INV-9842">
+                    <input type="text" name="vendor_invoice_no" id="vendorInvoiceNoInput" class="form-control font-monospace" value="{{ old('vendor_invoice_no', \App\Models\GoodsReceivedNote::generateVendorInvoiceNumber()) }}" placeholder="e.g. INV-{{ date('ymd') }}-01">
+                    <small class="text-muted">Auto-generated. You can also edit or enter supplier bill no.</small>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-bold">Invoice Date</label>
@@ -266,7 +267,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const option = document.createElement('option');
             option.value = variation.id;
             option.dataset.mrp = variation.mrp;
-            option.textContent = `${variation.label || 'Package'}${variation.sku ? ` (${variation.sku})` : ''}`;
+            const packageDetails = [variation.sku ? `SKU: ${variation.sku}` : '', variation.weight ? `Weight: ${variation.weight}` : '']
+                .filter(Boolean)
+                .join(' | ');
+            option.textContent = `${variation.label || 'Package'}${packageDetails ? ` — ${packageDetails}` : ''}`;
             packageSelect.appendChild(option);
         });
 

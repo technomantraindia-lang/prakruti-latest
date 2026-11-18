@@ -50,13 +50,55 @@ const AuthModal = ({ mode, onModeChange, onClose }) => {
           <label>
             Password
             <input type="password" placeholder="Enter password" required />
+            {isRegister && (
+              <small style={{ color: '#666', fontSize: '0.78rem', display: 'block', marginTop: 4, fontStyle: 'italic' }}>
+                * Password must be at least 8 characters long.
+              </small>
+            )}
           </label>
 
           {isRegister && (
-            <label>
-              Mobile Number
-              <input type="tel" placeholder="Mobile number" required />
-            </label>
+            <>
+              <label>
+                Mobile Number *
+                <input type="tel" placeholder="10-digit mobile number" required />
+              </label>
+
+              <label>
+                Profession *
+                <select required>
+                  <option value="">-- Select Profession --</option>
+                  <option value="Doctor / Healthcare">Doctor / Healthcare Professional</option>
+                  <option value="IT / Software / Tech">IT / Software / Technology</option>
+                  <option value="Business / Entrepreneur">Business / Entrepreneur</option>
+                  <option value="Homemaker">Homemaker / Home Manager</option>
+                  <option value="Teacher / Education">Teacher / Professor / Education</option>
+                  <option value="Corporate / Private Sector">Corporate / Private Sector</option>
+                  <option value="Government / Public Sector">Government / Public Sector</option>
+                  <option value="Finance / Banking">Finance / Banking / Accounting</option>
+                  <option value="Student">Student</option>
+                  <option value="Retired">Retired</option>
+                  <option value="Other">Other Profession</option>
+                </select>
+              </label>
+
+              <label>
+                Gender *
+                <select required>
+                  <option value="">-- Select Gender --</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other / Prefer not to say</option>
+                </select>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.82rem', marginTop: 8, cursor: 'pointer' }}>
+                <input type="checkbox" required style={{ marginTop: 3 }} />
+                <span>
+                  I agree to the <strong>Terms &amp; Conditions, Return, Breakage &amp; Opened Goods Policy</strong> as per standard norms. ✅
+                </span>
+              </label>
+            </>
           )}
 
           <button className="auth-submit" type="submit">

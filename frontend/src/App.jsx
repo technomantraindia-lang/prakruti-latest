@@ -26,6 +26,7 @@ import DoctorConsultation from './components/DoctorConsultation/DoctorConsultati
 import GuidelinesPage from './components/GuidelinesPage/GuidelinesPage'
 import ComingSoonModal from './components/ComingSoonModal/ComingSoonModal'
 import HomeUspHighlights from './components/HomeUspHighlights/HomeUspHighlights'
+import WebsiteVisitTracker from './components/WebsiteVisitTracker/WebsiteVisitTracker'
 
 import { api, getStoredUser } from './services/api'
 import { CartProvider, useCart } from './context/CartContext'
@@ -224,6 +225,7 @@ function AppShell() {
 
   return (
     <div className="app">
+      <WebsiteVisitTracker page={currentPage} currentUser={currentUser} />
       {isLoading && <LoadingScreen />}
       {notice && (
         <div className={`app-toast ${notice.type === 'error' ? 'error' : 'success'}`}>
@@ -363,6 +365,7 @@ function AppShell() {
             onLoginClick={() => handleNavigate('login')}
             onShopClick={() => handleNavigate('categories')}
             onFamilyPackClick={() => handleNavigate('family-pack')}
+            onConsultationClick={() => handleNavigate('consultation')}
           />
         )}
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\CheckoutApiController;
 use App\Http\Controllers\Api\V1\ConsultationRequestApiController;
 use App\Http\Controllers\Api\V1\CustomerAuthApiController;
 use App\Http\Controllers\Api\V1\CustomerOrderApiController;
+use App\Http\Controllers\Api\V1\DoctorProfileApiController;
 use App\Http\Controllers\Api\V1\FamilyPackApiController;
 use App\Http\Controllers\Api\V1\FarmGalleryApiController;
 use App\Http\Controllers\Api\V1\FoodAwarenessApiController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\V1\InquiryApiController;
 use App\Http\Controllers\Api\V1\ProductApiController;
 use App\Http\Controllers\Api\V1\ReviewApiController;
 use App\Http\Controllers\Api\V1\ShippingTaxApiController;
+use App\Http\Controllers\Api\V1\WebsiteVisitApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,8 +52,11 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
 
     // Public Inquiry / Contact Form API
     Route::post('/inquiries', [InquiryApiController::class, 'store']);
+    Route::post('/website-visits', [WebsiteVisitApiController::class, 'store']);
     Route::post('/consultation-requests', [ConsultationRequestApiController::class, 'store'])
         ->middleware(\App\Http\Middleware\AuthenticateApiToken::class);
+    Route::get('/consultation-requests/track', [ConsultationRequestApiController::class, 'track']);
+    Route::get('/doctor-profiles', [DoctorProfileApiController::class, 'index']);
     Route::get('/testimonials', [ReviewApiController::class, 'testimonials']);
     Route::post('/testimonials', [ReviewApiController::class, 'storeTestimonial']);
     Route::post('/family-packs/calculate', [FamilyPackApiController::class, 'calculate']);
@@ -93,5 +98,12 @@ Route::prefix('v1')->middleware(['throttle:api', 'api.optional'])->group(functio
         // Customer Addresses
         Route::get('/addresses', [AddressApiController::class, 'index']);
         Route::post('/addresses', [AddressApiController::class, 'store']);
+
+        // Customer Consultations & Appointments (Panel-to-Panel)
+        Route::get('/customer/consultations', [ConsultationRequestApiController::class, 'getCustomerConsultations']);
+
+        // Customer Notifications
+        Route::get('/customer/notifications', [CustomerAuthApiController::class, 'notifications']);
+        Route::post('/customer/notifications/{id}/read', [CustomerAuthApiController::class, 'markNotificationRead']);
     });
 });

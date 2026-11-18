@@ -97,7 +97,7 @@
     </div>
     <div class="card-body p-0 table-responsive">
         <table class="table table-sm align-middle mb-0">
-            <thead><tr><th>Package / Weight</th><th>SKU</th><th>MRP</th><th>Physical stock</th><th>Available</th><th>Expiry</th></tr></thead>
+            <thead><tr><th>Package / Weight</th><th>SKU</th><th>Regular Price</th><th>Physical stock</th><th>Available</th><th>Expiry</th></tr></thead>
             <tbody>
                 @foreach($product->variations as $variation)
                     @php($packageBatch = $variation->batches->first())

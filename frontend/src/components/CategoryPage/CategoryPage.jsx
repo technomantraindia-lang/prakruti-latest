@@ -339,6 +339,11 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
                           >
                             <div className="product-image-container">
                               <div className="card-badge-container">
+                                {product.offer?.has_offer && (
+                                  <span style={{ background: '#e11d48', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', boxShadow: '0 2px 6px rgba(225, 29, 72, 0.35)', letterSpacing: '0.02em' }}>
+                                    🎁 {product.offer.badge || 'OFFER'}
+                                  </span>
+                                )}
                                 {product.types?.includes('Organic') && (
                                   <span className="organic-tag">🌿 Organic</span>
                                 )}

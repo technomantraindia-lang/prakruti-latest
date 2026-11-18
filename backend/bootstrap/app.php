@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'doctor.auth' => \App\Http\Middleware\DoctorAuthMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'api.optional' => \App\Http\Middleware\OptionalAuthenticateApiToken::class,
         ]);

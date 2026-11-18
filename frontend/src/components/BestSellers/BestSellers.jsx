@@ -87,6 +87,7 @@ function normalizeBestSeller(product) {
     reviews: product.reviews || 0,
     originalPrice: originalPrice > price ? originalPrice : null,
     price,
+    offer: product.offer || null,
     image: product.image,
     category: product.category || 'Organic',
     availableStock,
@@ -258,6 +259,11 @@ const BestSellers = ({ onViewProduct, onViewAll }) => {
                         onClick={() => onViewProduct && onViewProduct(product.id)}
                       >
                         <div className="product-image-wrap">
+                          {product.offer?.has_offer && (
+                            <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#e11d48', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', zIndex: 2, boxShadow: '0 2px 6px rgba(225, 29, 72, 0.35)', letterSpacing: '0.02em' }}>
+                              🎁 {product.offer.badge || 'SPECIAL OFFER'}
+                            </span>
+                          )}
                           {product.isOutOfStock && (
                             <span className="out-of-stock-badge">Out of Stock</span>
                           )}

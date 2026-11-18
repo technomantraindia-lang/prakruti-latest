@@ -97,4 +97,14 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+  getCustomerConsultations: async () => {
+    return apiClient('/customer/consultations');
+  },
+  trackConsultation: async (ref) => {
+    return apiClient(`/consultation-requests/track?ref=${encodeURIComponent(ref)}`);
+  },
+  getDoctorProfiles: async () => {
+    const res = await apiClient('/doctor-profiles');
+    return res.data || [];
+  },
 };

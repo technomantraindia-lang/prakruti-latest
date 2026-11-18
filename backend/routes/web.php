@@ -23,9 +23,9 @@ use App\Http\Controllers\Frontend\RegisterController;
 */
 Route::get('/', fn () => redirect()->route('admin.login'))->name('backend.home');
 
-/* Legacy storefront routes kept available for existing links. */
+Route::get('/home', fn () => auth()->check() ? (auth()->user()->isConsultant() ? redirect()->route('doctor.appointments') : redirect()->route('admin.dashboard')) : redirect()->route('admin.login'))->name('home');
 
-Route::get('/storefront', [HomeController::class, 'index'])->name('home');
+Route::get('/storefront', fn () => redirect()->route('admin.login'));
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -168,4 +168,18 @@ Route::get('/preview-family-pack-email', function () {
 Route::prefix('admin')
     ->name('admin.')
     ->group(base_path('routes/admin.php'));
+
+/*
+|--------------------------------------------------------------------------
+| Lifestyle Medicine Consultant & Doctor Portal Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('consultant')
+    ->name('consultant.')
+    ->group(base_path('routes/consultant.php'));
+
+Route::prefix('doctor')
+    ->name('doctor.')
+    ->group(base_path('routes/doctor.php'));
 

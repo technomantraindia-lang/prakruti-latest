@@ -1141,7 +1141,7 @@ const FamilyPackPage = ({ onGoToCart, currentUser, onLoginRequired }) => {
             <div className="coverage-explanation-banner">
               <div className="coverage-banner-icon">💡</div>
               <div className="coverage-banner-text">
-                <strong>Understanding coverage:</strong> {coverage?.explanation || 'This basket covers dry groceries only. Fresh vegetables, fruit, dairy and other foods are expected to provide the rest.'}
+                <strong>Understanding coverage:</strong> This basket covers dry groceries only.
               </div>
             </div>
           </div>

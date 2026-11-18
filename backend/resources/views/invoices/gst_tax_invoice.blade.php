@@ -349,7 +349,13 @@
                         <td>
                             <strong>{{ $item['product_name'] }}</strong>
                             @if(!empty($item['variation_name']))
-                                <br><small style="color: #64748b;">Variant: {{ $item['variation_name'] }}</small>
+                                <br><small style="color: #64748b;">Pack size: {{ $item['variation_name'] }}</small>
+                            @endif
+                            @if(!empty($item['sku']))
+                                <br><small style="color: #334155; font-family: monospace;">SKU: {{ $item['sku'] }}</small>
+                            @endif
+                            @if(!empty($item['weight']))
+                                <br><small style="color: #64748b;">Weight: {{ $item['weight'] }}</small>
                             @endif
                         </td>
                         <td class="text-center" style="font-family: monospace;">{{ $item['hsn_code'] }}</td>

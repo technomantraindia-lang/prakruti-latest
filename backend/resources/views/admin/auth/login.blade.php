@@ -86,8 +86,9 @@
         }
 
         .brand-icon {
-            width: 54px;
-            height: 54px;
+            width: 66px;
+            height: 66px;
+            flex: 0 0 66px;
             border-radius: 18px;
             display: inline-flex;
             align-items: center;
@@ -95,8 +96,9 @@
             color: var(--prakruti-deep);
             background: linear-gradient(135deg, #fff7d9, #d89322);
             box-shadow: 0 16px 34px rgba(0,0,0,.18);
+            overflow: hidden;
         }
-        .brand-icon img { width: 44px; height: 50px; object-fit: contain; }
+        .brand-icon img { width: 54px; height: 62px; object-fit: contain; image-rendering: auto; }
 
         .brand-content h1 {
             max-width: 440px;
@@ -233,12 +235,26 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
+            line-height: 1;
             border: 0;
             border-radius: 999px;
             background: rgba(29, 79, 32, 0.08);
             color: var(--prakruti-green);
-            font-size: 15px;
+            font-size: 0;
             cursor: pointer;
+        }
+
+        .password-toggle-btn::before {
+            display: none;
+        }
+
+        .password-toggle-btn i {
+            font-size: 15px;
+            line-height: 1;
+            display: block;
+            width: 1em;
+            height: 1em;
         }
 
         .password-toggle-btn:hover {
@@ -384,7 +400,9 @@
                             <div class="field-wrap has-password-toggle">
                                 <i class="fas fa-lock"></i>
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
-                                <button type="button" class="password-toggle-btn" data-toggle-password="#password" aria-label="Show password">👁</button>
+                                <button type="button" class="password-toggle-btn" data-toggle-password="#password" aria-label="Show password" title="Show password">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
                             </div>
                             @error('password')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
                         </div>
@@ -419,8 +437,11 @@
                 if (!input) return;
                 const isPassword = input.type === 'password';
                 input.type = isPassword ? 'text' : 'password';
-                button.textContent = isPassword ? '🙈' : '👁';
+                button.innerHTML = isPassword
+                    ? '<i class="fas fa-eye-slash" aria-hidden="true"></i>'
+                    : '<i class="fas fa-eye" aria-hidden="true"></i>';
                 button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                button.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
             });
         });
     </script>

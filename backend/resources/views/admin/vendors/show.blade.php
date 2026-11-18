@@ -150,7 +150,7 @@
                         <tr>
                             <td>
                                 <strong>{{ $vp->product?->name }}</strong>
-                                <div class="small text-muted">SKU: {{ $vp->product?->sku }} | Retail MRP: ₹{{ number_format($vp->product?->display_price, 2) }}</div>
+                                <div class="small text-muted">SKU: {{ $vp->product?->sku }} | Retail Regular Price: ₹{{ number_format($vp->product?->display_price, 2) }}</div>
                             </td>
                             <td>
                                 <strong class="text-success">₹{{ number_format($vp->purchase_price, 2) }}</strong>

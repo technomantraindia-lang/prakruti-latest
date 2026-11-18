@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\ConsultationRequestController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\DoctorProfileController;
 use App\Http\Controllers\Admin\FarmGalleryCategoryController;
 use App\Http\Controllers\Admin\FarmGalleryController;
 use App\Http\Controllers\Admin\FoodAwarenessController;
@@ -18,6 +20,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingController;
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Admin\WebsiteVisitorController;
 use App\Http\Controllers\Admin\GoodsReceivedNoteController;
 use App\Http\Controllers\Admin\ProductBatchController;
 use App\Http\Controllers\Admin\PurchaseReturnController;
@@ -75,6 +78,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/inward-stock/create', [GoodsReceivedNoteController::class, 'create'])->name('inward.create');
     Route::post('/inward-stock', [GoodsReceivedNoteController::class, 'store'])->name('inward.store');
     Route::get('/inward-stock/{grn}', [GoodsReceivedNoteController::class, 'show'])->name('inward.show');
+    Route::get('/inward-stock/{grn}/edit', [GoodsReceivedNoteController::class, 'edit'])->name('inward.edit');
+    Route::put('/inward-stock/{grn}', [GoodsReceivedNoteController::class, 'update'])->name('inward.update');
     Route::get('/inward-stock/{grn}/print', [GoodsReceivedNoteController::class, 'print'])->name('inward.print');
     Route::patch('/inward-stock/{grn}/payment-status', [GoodsReceivedNoteController::class, 'updatePaymentStatus'])->name('inward.payment-status');
     Route::get('/inward-stock/vendors/{vendor}/products', [GoodsReceivedNoteController::class, 'getVendorProducts'])->name('inward.vendor-products');
@@ -119,6 +124,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/orders/{order}/verify-payment', [OrderController::class, 'verifyPaymentManually'])->middleware('permission:orders.edit')->name('orders.verifyPayment');
 
     // Customers
+    Route::get('/customers/export', [CustomerController::class, 'export'])->middleware('permission:customers.view')->name('customers.export');
     Route::get('/customers', [CustomerController::class, 'index'])->middleware('permission:customers.view')->name('customers.index');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->middleware('permission:customers.view')->name('customers.show');
 
@@ -137,7 +143,18 @@ Route::middleware('admin')->group(function () {
     Route::get('/consultations', [ConsultationRequestController::class, 'index'])->name('consultations.index');
     Route::get('/consultations/{consultation}', [ConsultationRequestController::class, 'show'])->name('consultations.show');
     Route::put('/consultations/{consultation}', [ConsultationRequestController::class, 'update'])->name('consultations.update');
+    Route::post('/consultations/{consultation}/toggle-approval', [ConsultationRequestController::class, 'toggleApproval'])->name('consultations.toggleApproval');
+    Route::post('/consultations/{consultation}/schedule-customer', [ConsultationRequestController::class, 'scheduleAndNotifyCustomer'])->name('consultations.scheduleCustomer');
+    Route::post('/consultations/{consultation}/share-doctor', [ConsultationRequestController::class, 'shareWithDoctorWhatsApp'])->name('consultations.shareDoctor');
     Route::post('/consultations/{consultation}/send-to-doctor', [ConsultationRequestController::class, 'sendToDoctor'])->name('consultations.sendToDoctor');
+    Route::post('/consultations/{consultation}/generate-zoom', [\App\Http\Controllers\Consultant\ConsultantAppointmentController::class, 'generateZoom'])->name('consultations.generateZoom');
+    Route::post('/consultations/{consultation}/schedule-zoom', [\App\Http\Controllers\Consultant\ConsultantAppointmentController::class, 'schedule'])->name('consultations.scheduleZoom');
+    Route::post('/consultations/{consultation}/notify-customer-zoom', [\App\Http\Controllers\Consultant\ConsultantAppointmentController::class, 'notifyCustomer'])->name('consultations.notifyCustomerZoom');
+    Route::delete('/consultations/{consultation}', [ConsultationRequestController::class, 'destroy'])->name('consultations.destroy');
+    Route::get('/doctor-profiles', [DoctorProfileController::class, 'index'])->name('doctor-profiles.index');
+    Route::post('/doctor-profiles', [DoctorProfileController::class, 'store'])->name('doctor-profiles.store');
+    Route::put('/doctor-profiles/{doctorProfile}', [DoctorProfileController::class, 'update'])->name('doctor-profiles.update');
+    Route::delete('/doctor-profiles/{doctorProfile}', [DoctorProfileController::class, 'destroy'])->name('doctor-profiles.destroy');
 
     // Frontend Reviews / Testimonials
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
@@ -156,6 +173,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/reports/gstr3b', [GstrReportController::class, 'gstr3b'])->name('reports.gstr3b');
 
     // Settings
+    Route::get('/discounts', [DiscountController::class, 'index'])->name('discounts.index');
+    Route::put('/discounts', [DiscountController::class, 'update'])->name('discounts.update');
     Route::get('/settings', [SettingController::class, 'index'])->middleware('permission:settings.view')->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->middleware('permission:settings.manage')->name('settings.update');
 
@@ -166,6 +185,7 @@ Route::middleware('admin')->group(function () {
 
 
     // Notifications
+    Route::get('/visitors', [WebsiteVisitorController::class, 'index'])->name('visitors.index');
     Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.read');

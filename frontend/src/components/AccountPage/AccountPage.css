@@ -601,3 +601,325 @@
   background: #ede7d8;
   color: #173826;
 }
+
+/* Panel-to-Panel Consultation Card Styling */
+.badge-panel-sync {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #c8e6c9;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.account-consultations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.account-consultation-row {
+  background: #fdfcf9;
+  border: 1.5px solid #ebe4d8;
+  border-radius: 14px;
+  padding: 18px 22px;
+  transition: all 0.2s ease;
+}
+
+.account-consultation-row:hover {
+  border-color: #c9dfcb;
+  box-shadow: 0 4px 14px rgba(23, 56, 38, 0.06);
+}
+
+.consult-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.consult-info-left {
+  flex: 1;
+  min-width: 280px;
+}
+
+.consult-ref-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.consult-ref-badge {
+  background: #f0ebe1;
+  color: #173826;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd3c2;
+}
+
+.consult-session-type {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #555047;
+}
+
+.consult-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.consult-status-pill.approved {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #a5d6a7;
+}
+
+.consult-status-pill.pending {
+  background: #fff8e1;
+  color: #b78103;
+  border: 1px solid #ffe082;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.consult-concern-preview {
+  font-size: 0.88rem;
+  color: #2c332d;
+  margin-bottom: 6px;
+  line-height: 1.45;
+}
+
+.consult-doctor-line {
+  font-size: 0.8rem;
+  color: #6d675b;
+}
+
+.consult-action-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.consult-time-box {
+  text-align: right;
+}
+
+.consult-time-box .time-kicker {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: #7d7568;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.consult-time-box .time-val {
+  color: #173826;
+  font-size: 0.95rem;
+}
+
+.consult-time-box.waiting .time-val-muted {
+  font-size: 0.84rem;
+  color: #b78103;
+  font-weight: 600;
+}
+
+.btn-join-consultation-direct {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: #ffffff !important;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.92rem;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.28);
+  transition: all 0.2s ease;
+}
+
+.btn-join-consultation-direct:hover {
+  background: linear-gradient(135deg, #0f3d13, #1b5e20);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.38);
+}
+
+.consult-waiting-link-msg,
+.consult-waiting-approval-msg {
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-align: right;
+}
+
+.consult-waiting-link-msg {
+  background: #e3f2fd;
+  color: #0d47a1;
+  border: 1px solid #bbdefb;
+}
+
+.consult-waiting-approval-msg {
+  background: #fbf6ec;
+  color: #8c6b1c;
+  border: 1px dashed #e5d4aa;
+}
+
+.consult-patient-notes {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-left: 3px solid #2e7d32;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  color: #243527;
+}
+
+@media (max-width: 768px) {
+  .consult-action-right {
+    align-items: flex-start;
+    min-width: 100%;
+  }
+  .consult-time-box {
+    text-align: left;
+  }
+}
+
+/* 1st vs 2nd Time Patient Badge */
+.consult-visit-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.consult-visit-badge.returning {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
+}
+.consult-visit-badge.initial {
+  background: #198754;
+  color: #ffffff;
+}
+
+/* Customer Notifications & Alerts Section */
+.account-notifications-card {
+  margin-top: 24px;
+}
+.badge-notif-unread {
+  background: #dc3545;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.account-notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+.account-notif-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #e1ebdb;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+.account-notif-row.unread {
+  background: #f4faf4;
+  border-left: 4px solid #2e7d32;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+}
+.account-notif-row.read {
+  opacity: 0.85;
+}
+.notif-content-area {
+  flex: 1;
+}
+.notif-header-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.notif-title {
+  font-size: 0.9rem;
+  color: #17421f;
+}
+.notif-time {
+  font-size: 0.74rem;
+  color: #7b8e7d;
+}
+.notif-message-text {
+  font-size: 0.84rem;
+  color: #314333;
+  margin: 0;
+  line-height: 1.45;
+}
+.btn-zoom-notif {
+  background: #2d8cff;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-zoom-notif:hover {
+  background: #1a75e8;
+}
+.btn-mark-read {
+  background: #eef5ee;
+  border: 1px solid #c8ddc8;
+  color: #2e7d32;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-mark-read:hover {
+  background: #2e7d32;
+  color: #ffffff;
+}
+.account-empty-notif {
+  padding: 24px;
+  text-align: center;
+  color: #6a7c6c;
+  font-size: 0.88rem;
+}

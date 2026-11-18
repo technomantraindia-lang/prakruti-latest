@@ -71,4 +71,18 @@ class GoodsReceivedNote extends Model
         $count = self::whereYear('created_at', $year)->count() + 1;
         return 'GRN-' . $year . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
     }
+
+    public static function generateVendorInvoiceNumber(): string
+    {
+        $prefix = 'INV-' . date('ymd') . '-';
+        $existing = self::where('vendor_invoice_no', 'like', "{$prefix}%")
+            ->pluck('vendor_invoice_no')
+            ->map(function ($inv) use ($prefix) {
+                $suffix = substr((string) $inv, strlen($prefix));
+                return is_numeric($suffix) ? (int) $suffix : 0;
+            });
+
+        $next = $existing->isNotEmpty() ? ($existing->max() + 1) : 1;
+        return $prefix . str_pad((string) $next, 2, '0', STR_PAD_LEFT);
+    }
 }

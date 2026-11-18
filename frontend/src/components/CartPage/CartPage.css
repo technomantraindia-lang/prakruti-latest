@@ -1102,6 +1102,12 @@
   color: var(--color-white);
 }
 
+.rec-add-to-cart-btn:disabled,
+.cart-qty-selector button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 /* Trust indicators below grid */
 .cart-trust-indicators-bar {
   display: grid;

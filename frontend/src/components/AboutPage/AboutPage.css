@@ -231,6 +231,16 @@
   box-shadow: 0 8px 20px rgba(23, 56, 38, 0.08);
 }
 
+.story-hl-card-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .story-hl-card-wide {
+    grid-column: span 1;
+  }
+}
+
 .hl-icon {
   font-size: 1.5rem;
   line-height: 1;
@@ -1386,14 +1396,12 @@
   color: #276241;
 }
 
-.hl-icon,
 .mission-icon-box,
 .val-icon-wrap,
 .journey-icon {
   font-size: 0;
 }
 
-.hl-icon::before,
 .mission-icon-box::before,
 .val-icon-wrap::before,
 .journey-icon::before {
@@ -1402,7 +1410,25 @@
   color: currentColor;
 }
 
-.hl-icon,
+.hl-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: #f4ede0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #276241;
+  font-size: 1.25rem;
+}
+
+.hl-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
 .mission-icon-box {
   width: 42px;
   height: 42px;
@@ -1423,7 +1449,6 @@
   color: #276241;
 }
 
-.hl-icon::before,
 .mission-icon-box::before,
 .journey-icon::before {
   width: 20px;
@@ -1431,24 +1456,16 @@
   border: 2px solid currentColor;
 }
 
-.story-hl-card:nth-child(1) .hl-icon::before,
 .journey-card:nth-child(1) .journey-icon::before {
   border-radius: 50% 50% 45% 45%;
   box-shadow: 0 11px 0 -5px currentColor;
 }
 
-.story-hl-card:nth-child(2) .hl-icon::before,
 .journey-card:nth-child(3) .journey-icon::before {
   border-radius: 4px 4px 10px 10px;
   border-top-width: 5px;
 }
 
-.story-hl-card:nth-child(3) .hl-icon::before {
-  border-radius: 50%;
-  box-shadow: -10px 5px 0 -7px currentColor, 10px 5px 0 -7px currentColor;
-}
-
-.story-hl-card:nth-child(4) .hl-icon::before,
 .journey-card:nth-child(4) .journey-icon::before {
   border-radius: 6px;
   background:

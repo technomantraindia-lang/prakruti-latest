@@ -28,13 +28,44 @@ class ProductResource extends JsonResource
             ? $this->variations->where('status', 'active')->values()
             : null;
         $customProductInformation = $this->product_information ?? [];
+        $clinicalReportPath = $customProductInformation['clinical_report_image'] ?? null;
+
+        $reports = [];
+        if (!empty($customProductInformation['certificate_reports']) && is_array($customProductInformation['certificate_reports'])) {
+            foreach ($customProductInformation['certificate_reports'] as $report) {
+                if (!empty($report['title']) || !empty($report['image'])) {
+                    $reports[] = [
+                        'title' => $report['title'] ?? 'Lab Certificate Report',
+                        'short_desc' => $report['short_desc'] ?? 'Certified',
+                        'image_url' => !empty($report['image']) ? route('media.file', ['path' => $report['image']]) : null,
+                    ];
+                }
+            }
+        }
+        if (empty($reports) && !empty($clinicalReportPath)) {
+            $reports[] = [
+                'title' => 'Clinically Tested Claims',
+                'short_desc' => !empty($customProductInformation['clinically_tested']) ? \Illuminate\Support\Str::limit($customProductInformation['clinically_tested'], 35) : 'Certified',
+                'image_url' => route('media.file', ['path' => $clinicalReportPath]),
+            ];
+        }
+
         $productInformation = array_filter([
             'product_type' => $customProductInformation['product_type'] ?? $this->category?->name,
             'shelf_life' => $customProductInformation['shelf_life'] ?? '12 Months',
             'ingredient' => $customProductInformation['ingredient'] ?? ('Pure ' . $this->name),
             'packaging_type' => $customProductInformation['packaging_type'] ?? 'Food Grade Standing Pouch',
             'storage' => $customProductInformation['storage'] ?? 'Store in dry, airtight container',
-        ], fn ($value) => filled($value));
+            'what_is_it' => $customProductInformation['what_is_it'] ?? null,
+            'how_it_works' => $customProductInformation['how_it_works'] ?? null,
+            'key_ingredients' => $customProductInformation['key_ingredients'] ?? null,
+            'how_to_use' => $customProductInformation['how_to_use'] ?? null,
+            'full_ingredients_list' => $customProductInformation['full_ingredients_list'] ?? null,
+            'certificate_reports' => $reports,
+            'clinically_tested' => $customProductInformation['clinically_tested'] ?? null,
+            'clinical_report_image' => $clinicalReportPath ? route('media.file', ['path' => $clinicalReportPath]) : null,
+            'faqs' => $customProductInformation['faqs'] ?? null,
+        ], fn ($value) => filled($value) || (is_array($value) && count($value) > 0));
 
         $images = array_slice(array_values(array_unique($images)), 0, 7);
 
@@ -57,6 +88,8 @@ class ProductResource extends JsonResource
             }
         }
 
+        $activeOffer = app(\App\Services\ProductOfferService::class)->getOfferForProduct($this->id);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -69,6 +102,15 @@ class ProductResource extends JsonResource
             'price' => $displayPrice,
             'regular_price' => (float) $this->price,
             'sale_price' => $this->sale_price ? (float) $this->sale_price : null,
+            'offer' => $activeOffer ? [
+                'has_offer' => true,
+                'title' => $activeOffer['title'],
+                'type' => $activeOffer['offer_type'],
+                'discount_val' => $activeOffer['discount_val'],
+                'buy_qty' => $activeOffer['buy_qty'],
+                'get_qty' => $activeOffer['get_qty'],
+                'badge' => $activeOffer['badge_text'],
+            ] : null,
             'stock_status' => $this->available_stock > 0 ? 'in_stock' : 'out_of_stock',
             'available_stock' => (int) $this->available_stock,
             'featured' => (bool) ($this->featured ?? false),

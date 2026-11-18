@@ -212,6 +212,13 @@ class CustomerOrderApiController extends Controller
             ], 404);
         }
 
+        if ($order->pay_status !== 'paid') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tax invoice cannot be generated until payment has been received.',
+            ], 422);
+        }
+
         return $invoiceService->downloadPdf($order);
     }
 }

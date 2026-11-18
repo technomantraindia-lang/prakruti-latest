@@ -15,6 +15,9 @@ class AdminMiddleware
         }
 
         if (! auth()->user()->isAdmin()) {
+            if (auth()->user()->isConsultant()) {
+                return redirect()->route('doctor.appointments')->with('error', 'Access Denied: Doctor accounts cannot access the Admin panel.');
+            }
             abort(403, 'Unauthorized access to admin panel.');
         }
 

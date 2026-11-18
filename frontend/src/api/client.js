@@ -8,6 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 const TOKEN_KEY = 'prakruti_customer_token';
 const USER_KEY = 'prakruti_customer_user';
 const SESSION_KEY = 'prakruti_cart_session';
+const VISITOR_KEY = 'prakruti_visitor_id';
 
 export const getAuthToken = () => localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
 
@@ -57,12 +58,24 @@ export const setCartSessionId = (sessionId) => {
   }
 };
 
+export const getVisitorId = () => {
+  let visitorId = localStorage.getItem(VISITOR_KEY);
+  if (!visitorId) {
+    visitorId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `visitor_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem(VISITOR_KEY, visitorId);
+  }
+  return visitorId;
+};
+
 export async function apiClient(endpoint, options = {}) {
   const token = getAuthToken();
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers = {
     'Accept': 'application/json',
     'X-Session-ID': getCartSessionId(),
+    'X-Visitor-ID': getVisitorId(),
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...options.headers,

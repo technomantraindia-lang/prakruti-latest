@@ -310,40 +310,47 @@
   margin-bottom: 28px;
 }
 
-/* Features Highlights Grid */
+/* Features Highlights Grid (Hyphen Style) */
 .features-highlight-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 36px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+  margin-bottom: 24px;
 }
 
 .feature-card-item {
-  background-color: var(--color-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  padding: 12px 16px;
+  background-color: #f7faee;
+  border: 1.5px dashed #c0d894;
+  border-radius: 12px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card-item:hover {
+  border-color: #9abf5c;
+  transform: translateY(-2px);
 }
 
 .feature-icon {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  width: 42px;
-  height: 42px;
+  background-color: #ffffff;
+  border: 1px solid #dbe6c4;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .feature-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   color: var(--color-primary);
   stroke-width: 2.1;
 }
@@ -351,13 +358,16 @@
 .feature-text h4 {
   font-size: 0.8rem;
   font-weight: 800;
-  color: var(--color-primary-dark);
+  color: #1e293b;
+  margin: 0 0 2px 0;
+  line-height: 1.25;
 }
 
 .feature-text p {
   font-size: 0.72rem;
-  color: var(--color-text-light);
-  margin-top: 1px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.25;
   font-weight: 500;
 }
 
@@ -1585,6 +1595,148 @@
   max-width: 110px;
 }
 
+.product-extra-details {
+  max-width: 1280px;
+  margin: 0 auto 54px;
+  border-top: 1px solid #d8d1c4;
+}
+
+.product-extra-accordion {
+  border-bottom: 1px solid #d8d1c4;
+}
+
+.product-extra-accordion summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 12px;
+  color: #263b35;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.product-extra-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.product-extra-accordion summary::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+.product-extra-accordion[open] summary::after {
+  transform: rotate(225deg) translate(-2px, -1px);
+}
+
+.product-extra-content {
+  padding: 0 14px 22px;
+  color: #48564f;
+  font-size: 0.96rem;
+  line-height: 1.75;
+}
+
+.product-extra-content p {
+  margin: 0;
+}
+
+.product-extra-content ul {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.clinical-report-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  border: 1px solid #2d5a27;
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: #fff;
+  color: #24532a;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.clinical-report-button:hover {
+  background: #f1f6ee;
+}
+
+.clinical-report-modal-backdrop {
+  position: fixed;
+  z-index: 15000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 25, 22, 0.72);
+}
+
+.clinical-report-modal {
+  position: relative;
+  width: min(100%, 1050px);
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 22px 80px rgba(0, 0, 0, 0.3);
+}
+
+.clinical-report-modal img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(90vh - 36px);
+  object-fit: contain;
+}
+
+.clinical-report-close {
+  position: absolute;
+  z-index: 1;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: #243b2d;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+}
+
+@media (max-width: 640px) {
+  .product-extra-accordion summary {
+    padding: 16px 8px;
+    font-size: 0.82rem;
+  }
+
+  .clinical-report-modal-backdrop {
+    padding: 12px;
+  }
+
+  .clinical-report-modal {
+    padding: 10px;
+  }
+}
+
 @media (max-width: 1200px) {
   .product-trust-accreditations-wrap {
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
@@ -1623,5 +1775,371 @@
   .product-trust-accreditations-wrap .trust-logos-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ==========================================================================
+   HYPHEN-STYLE ACCORDION & CERTIFICATE REPORTS (Prakruti Brand Palette)
+   ========================================================================== */
+
+.hyphen-accordion-wrapper {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.hyphen-accordion-item {
+  border-bottom: 1px solid var(--color-border, #e3ddcf);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.hyphen-accordion-item:first-child {
+  border-top: 1px solid var(--color-border, #e3ddcf);
+}
+
+/* Header when closed - Image 1 reference */
+.hyphen-accordion-header {
+  background: transparent;
+  color: var(--color-primary-dark, #193a15);
+  padding: 15px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, color 0.2s ease, padding 0.2s ease;
+}
+
+.hyphen-accordion-header:hover {
+  background: rgba(45, 90, 39, 0.04);
+}
+
+.hyphen-header-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-dark, #193a15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hyphen-header-icon {
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  color: var(--color-primary, #2d5a27);
+  transition: color 0.2s ease;
+}
+
+/* Header when OPEN - Image 2 reference (Solid Prakruti Green Banner) */
+.hyphen-accordion-header.open {
+  background: var(--color-primary, #2d5a27);
+  color: #ffffff;
+  border-radius: 6px 6px 0 0;
+  padding: 13px 18px;
+  margin-top: 6px;
+  box-shadow: 0 2px 6px rgba(45, 90, 39, 0.12);
+}
+
+.hyphen-accordion-header.open .hyphen-header-title {
+  color: #ffffff;
+}
+
+.hyphen-accordion-header.open .hyphen-header-icon {
+  color: #ffffff;
+}
+
+.hyphen-accordion-content {
+  padding: 18px 20px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  border: 1px solid #dce8cb;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.05);
+  animation: hyphenSlideDown 0.22s ease-out;
+}
+
+@keyframes hyphenSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pills for What is it / How it does */
+.hyphen-pills-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.hyphen-pill-btn {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.hyphen-pill-btn:hover {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.hyphen-pill-btn.active {
+  background: #d8e9a8; /* Prakruti signature soft lime herbal */
+  border-color: #b8d474;
+  color: #193a15;
+  font-weight: 750;
+}
+
+/* Formatted Bullets */
+.hyphen-bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hyphen-bullet-list li {
+  position: relative;
+  padding-left: 20px;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.hyphen-bullet-list li::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  top: -1px;
+  color: var(--color-primary, #2d5a27);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.hyphen-text-paragraph {
+  margin: 0;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+/* Certificate Reports Box Grid (Hyphen Style - Prakruti Green Palette) */
+.hyphen-reports-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.hyphen-report-card {
+  flex: 0 1 220px;
+  width: 220px;
+  max-width: 100%;
+  background: #eef5dc; /* Prakruti natural soft lime herbal tint */
+  border: 1.5px solid #cce0a5;
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(45, 90, 39, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hyphen-report-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(45, 90, 39, 0.14);
+}
+
+.hyphen-report-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.hyphen-report-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #193a15;
+  line-height: 1.25;
+}
+
+.hyphen-report-shield-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hyphen-report-shield-badge svg path:first-child {
+  fill: #2d5a27;
+}
+
+.hyphen-report-card-desc {
+  margin: 0 0 16px 0;
+  font-size: 0.84rem;
+  color: #4b5563;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.hyphen-report-check-btn {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid #2d5a27;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #193a15;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.hyphen-report-check-btn:hover {
+  background: #2d5a27;
+  color: #ffffff;
+}
+
+/* Modal Popup for Certificate Report (Image 2) */
+.hyphen-report-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: hyphenFadeIn 0.2s ease;
+}
+
+@keyframes hyphenFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hyphen-report-modal-dialog {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: hyphenScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hyphenScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hyphen-report-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8faf5;
+}
+
+.hyphen-report-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hyphen-report-modal-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #193a15;
+}
+
+.hyphen-report-modal-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #eef7e1;
+  color: #2d5a27;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 3px;
+  border: 1px solid #c9dda5;
+}
+
+.hyphen-report-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.hyphen-report-modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.hyphen-report-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+  text-align: center;
+  background: #f8faf5;
+}
+
+.hyphen-report-modal-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
+}
+
+.hyphen-report-empty {
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 0.95rem;
 }
 

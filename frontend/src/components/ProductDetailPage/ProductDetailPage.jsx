@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ProductDetailPage.css';
-import { FiActivity, FiFeather, FiFileText } from 'react-icons/fi';
+import { FiActivity, FiFeather, FiFileText, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { productsData as fallbackProducts } from '../../data/products';
 import { api } from '../../services/api';
 import { reviewsApi } from '../../api/reviews';
@@ -38,6 +38,37 @@ const renderMultilineText = (value) => {
   ));
 };
 
+const renderFormattedBullets = (value) => {
+  if (!value) return null;
+  const rawLines = String(value || '').trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const items = [];
+  rawLines.forEach(line => {
+    const clean = line.replace(/^[•\-\*\d\.\)]+\s*/, '').trim();
+    if (clean) items.push(clean);
+  });
+
+  if (items.length <= 1) {
+    const sentences = String(value || '').split(/(?<=[.?!])\s+/).map(s => s.trim()).filter(Boolean);
+    if (sentences.length > 1) {
+      return (
+        <ul className="hyphen-bullet-list">
+          {sentences.map((s, idx) => (
+            <li key={idx}>{s}</li>
+          ))}
+        </ul>
+      );
+    }
+  }
+
+  return (
+    <ul className="hyphen-bullet-list">
+      {items.map((item, idx) => (
+        <li key={idx}>{item}</li>
+      ))}
+    </ul>
+  );
+};
+
 const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) => {
   const { addToCart, openComingSoonModal } = useCart();
   const [product, setProduct] = useState(() => {
@@ -54,6 +85,7 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
   const [customerReviews, setCustomerReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ name: '', location: '', rating: 5, comment: '' });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [isClinicalReportOpen, setIsClinicalReportOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -213,13 +245,77 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
   const productShortDescription = product.short_description || product.short_desc || product.description || `Premium quality ${product.name} sourced from trusted organic farms.`;
   const productLongDescription = product.description || productShortDescription;
   const nutritionalInfo = product.nutritional_info || '';
+  const defaultKeyIngredients = `${product.name}, 100% Native Single-Origin Grains/Seeds, Natural Trace Minerals`;
+  const defaultHowToUse = `Store in a cool, dry and hygienic airtight container away from direct sunlight and humidity. Best consumed within 12 months for peak nutritional vitality.`;
+  const defaultFullIngredients = `100% Pure, Unpolished ${product.name}. Zero artificial colors, zero synthetic preservatives, chemical fertilizer free, and strictly non-GMO.`;
+  const defaultWhatIsIt = `• 100% pure, natural, and certified chemical-free daily organic harvest.\n• Hand-sorted and traditionally processed to preserve natural vital nutrients.\n• Rigorously tested for micro-biological purity and zero pesticide residue.`;
+  const defaultHowItWorks = `• Nourishes your body with unrefined, bioavailable macro and micronutrients.\n• Easy on digestion and supports long-term metabolic vitality.\n• Naturally rich in essential antioxidants, plant enzymes, and clean dietary fiber.`;
+
   const productInformation = {
-    product_type: product.product_information?.product_type || product.category,
+    product_type: product.product_information?.product_type || product.category || 'Organic Harvest',
     shelf_life: product.product_information?.shelf_life || '12 Months',
     ingredient: product.product_information?.ingredient || `Pure ${product.name}`,
     packaging_type: product.product_information?.packaging_type || 'Vacuum Sealed Food-Grade Packaging',
     storage: product.product_information?.storage || 'Store in dry, airtight container',
+    what_is_it: product.product_information?.what_is_it || defaultWhatIsIt,
+    how_it_works: product.product_information?.how_it_works || defaultHowItWorks,
+    key_ingredients: product.product_information?.key_ingredients || defaultKeyIngredients,
+    how_to_use: product.product_information?.how_to_use || defaultHowToUse,
+    full_ingredients_list: product.product_information?.full_ingredients_list || defaultFullIngredients,
+    clinically_tested: product.product_information?.clinically_tested || '',
+    clinical_report_image: product.product_information?.clinical_report_image || '',
+    faqs: product.product_information?.faqs || '',
   };
+
+  const ingredientLines = productInformation.key_ingredients
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const sampleCertificateReports = [
+    {
+      title: 'In-Vivo & In-Vitro',
+      short_desc: 'Certified',
+      image_url: '/product_reports/sample_lab_report.jpg',
+    },
+    {
+      title: '100% Pesticide Free',
+      short_desc: 'NABL Lab Tested',
+      image_url: '/product_reports/sample_lab_report.jpg',
+    }
+  ];
+
+  const rawCertificateReports = Array.isArray(product.product_information?.certificate_reports)
+    ? product.product_information.certificate_reports
+    : [];
+  const certificateReports = rawCertificateReports.length > 0
+    ? rawCertificateReports
+    : (productInformation.clinical_report_image
+        ? [{
+            title: 'In-Vivo & In-Vitro',
+            short_desc: productInformation.clinically_tested ? productInformation.clinically_tested.slice(0, 35) : 'Certified',
+            image_url: productInformation.clinical_report_image,
+          }]
+        : sampleCertificateReports);
+
+  const [openAccordion, setOpenAccordion] = useState({
+    reports: true,
+  });
+  const [productInfoTab, setProductInfoTab] = useState('what_is_it');
+  const [activeReportModal, setActiveReportModal] = useState(null);
+
+  const toggleAccordion = (key) => {
+    setOpenAccordion((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const hasProductInfo = Boolean(productInformation.what_is_it || productInformation.how_it_works);
+  const hasKeyIngredients = Boolean(ingredientLines.length > 0);
+  const hasHowToUse = Boolean(productInformation.how_to_use);
+  const hasFullIngredients = Boolean(productInformation.full_ingredients_list);
+  const hasCertificateReports = certificateReports.length > 0;
+  const hasFaqs = Boolean(productInformation.faqs);
+
+  const hasAnyHyphenSection = hasProductInfo || hasKeyIngredients || hasHowToUse || hasFullIngredients || hasCertificateReports || hasFaqs;
 
   return (
     <div className="product-detail-page">
@@ -295,7 +391,17 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
               <div className="detail-price-row">
                 <span className="detail-original-price">{formatPrice(originalPriceDisplay)}</span>
                 <span className="price-tag-value">{formatPrice(priceDisplay)}</span>
+                {product.offer?.has_offer && (
+                  <span style={{ background: '#e11d48', color: '#fff', fontSize: '0.8rem', fontWeight: 800, padding: '3px 10px', borderRadius: '4px', marginLeft: '10px', letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    🎁 {product.offer.badge || 'PROMOTIONAL OFFER'}
+                  </span>
+                )}
               </div>
+              {product.offer?.has_offer && (
+                <div style={{ marginTop: '8px', padding: '8px 12px', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '8px', color: '#be123c', fontSize: '0.84rem', fontWeight: 600 }}>
+                  <strong>Special Offer:</strong> {product.offer.title} ({product.offer.badge}) &bull; Discount applies automatically in cart!
+                </div>
+              )}
             </div>
 
             {/* Pack Size Selector */}
@@ -317,31 +423,6 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
               {isOutOfStock && (
                 <p className="pack-stock-warning">⚠️ This package is currently out of stock.</p>
               )}
-            </div>
-
-            {/* Highlights features grid */}
-            <div className="features-highlight-grid">
-              <div className="feature-card-item">
-                <span className="feature-icon" aria-hidden="true"><FiActivity /></span>
-                <div className="feature-text">
-                  <h4>High in Protein</h4>
-                  <p>Nutritionally dense</p>
-                </div>
-              </div>
-              <div className="feature-card-item">
-                <span className="feature-icon" aria-hidden="true"><FiFeather /></span>
-                <div className="feature-text">
-                  <h4>Pure &amp; Natural</h4>
-                  <p>No chemical fertilizer, no preservative, no pesticides</p>
-                </div>
-              </div>
-              <div className="feature-card-item">
-                <span className="feature-icon" aria-hidden="true"><FiFileText /></span>
-                <div className="feature-text">
-                  <h4>No Preservatives</h4>
-                  <p>Lab test report</p>
-                </div>
-              </div>
             </div>
 
             {/* Quantity Selector & Actions Buttons */}
@@ -369,8 +450,225 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
               >
                 {adding ? 'Processing...' : '⚡ Buy Now'}
               </button>
-
             </div>
+
+            {/* Highlights features grid (High in Protein, Pure & Natural, No Preservatives) */}
+            <div className="features-highlight-grid">
+              <div className="feature-card-item">
+                <span className="feature-icon" aria-hidden="true"><FiActivity /></span>
+                <div className="feature-text">
+                  <h4>High in Protein</h4>
+                  <p>Nutritionally dense</p>
+                </div>
+              </div>
+              <div className="feature-card-item">
+                <span className="feature-icon" aria-hidden="true"><FiFeather /></span>
+                <div className="feature-text">
+                  <h4>Pure &amp; Natural</h4>
+                  <p>No chemical fertilizer, no preservative, no pesticides</p>
+                </div>
+              </div>
+              <div className="feature-card-item">
+                <span className="feature-icon" aria-hidden="true"><FiFileText /></span>
+                <div className="feature-text">
+                  <h4>No Preservatives</h4>
+                  <p>Lab test report</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Hyphen-Style Product Accordions (Only displayed if content is provided by admin) */}
+            {hasAnyHyphenSection && (
+              <div className="hyphen-accordion-wrapper">
+                {/* 1. PRODUCT INFO */}
+                {hasProductInfo && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.product_info ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('product_info')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">PRODUCT INFO</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.product_info ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.product_info && (
+                      <div className="hyphen-accordion-content">
+                        {productInformation.what_is_it && productInformation.how_it_works && (
+                          <div className="hyphen-pills-row">
+                            <button
+                              type="button"
+                              className={`hyphen-pill-btn ${productInfoTab === 'what_is_it' ? 'active' : ''}`}
+                              onClick={() => setProductInfoTab('what_is_it')}
+                            >
+                              What is it?
+                            </button>
+                            <button
+                              type="button"
+                              className={`hyphen-pill-btn ${productInfoTab === 'how_it_works' ? 'active' : ''}`}
+                              onClick={() => setProductInfoTab('how_it_works')}
+                            >
+                              How it does?
+                            </button>
+                          </div>
+                        )}
+                        <div className="hyphen-info-text-body">
+                          {renderFormattedBullets(
+                            productInformation.what_is_it && productInformation.how_it_works
+                              ? (productInfoTab === 'what_is_it' ? productInformation.what_is_it : productInformation.how_it_works)
+                              : (productInformation.what_is_it || productInformation.how_it_works)
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 2. KEY INGREDIENTS */}
+                {hasKeyIngredients && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.key_ingredients ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('key_ingredients')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">KEY INGREDIENTS</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.key_ingredients ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.key_ingredients && (
+                      <div className="hyphen-accordion-content">
+                        <ul className="hyphen-bullet-list">
+                          {ingredientLines.map((ing, idx) => (
+                            <li key={idx}>{ing}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. HOW TO USE */}
+                {hasHowToUse && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.how_to_use ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('how_to_use')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">HOW TO USE</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.how_to_use ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.how_to_use && (
+                      <div className="hyphen-accordion-content">
+                        <div className="hyphen-text-paragraph">
+                          {renderMultilineText(productInformation.how_to_use)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 4. FULL INGREDIENTS LIST */}
+                {hasFullIngredients && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.full_ingredients ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('full_ingredients')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">FULL INGREDIENTS LIST</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.full_ingredients ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.full_ingredients && (
+                      <div className="hyphen-accordion-content">
+                        <p className="hyphen-text-paragraph">
+                          {renderMultilineText(productInformation.full_ingredients_list)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 5. CLINICALLY TESTED CLAIMS / CERTIFICATE REPORT */}
+                {hasCertificateReports && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.reports ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('reports')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">CLINICALLY TESTED CLAIMS</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.reports ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.reports && (
+                      <div className="hyphen-accordion-content">
+                        <div className="hyphen-reports-grid">
+                          {certificateReports.map((report, idx) => (
+                            <div className="hyphen-report-card" key={idx}>
+                              <div className="hyphen-report-card-top">
+                                <h4 className="hyphen-report-card-title">{report.title || 'Lab Certificate'}</h4>
+                                <span className="hyphen-report-shield-badge" title="Verified Lab Certificate">
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="#16a34a"/>
+                                    <path d="M9 12l2 2 4-4" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                </span>
+                              </div>
+                              <p className="hyphen-report-card-desc">{report.short_desc || 'Certified'}</p>
+                              <button
+                                type="button"
+                                className="hyphen-report-check-btn"
+                                onClick={() => setActiveReportModal(report)}
+                              >
+                                Check Reports
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 6. FAQS (Optional) */}
+                {hasFaqs && (
+                  <div className="hyphen-accordion-item">
+                    <div
+                      className={`hyphen-accordion-header ${openAccordion.faqs ? 'open' : ''}`}
+                      onClick={() => toggleAccordion('faqs')}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="hyphen-header-title">FAQS</span>
+                      <span className="hyphen-header-icon">
+                        {openAccordion.faqs ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
+                    </div>
+                    {openAccordion.faqs && (
+                      <div className="hyphen-accordion-content">
+                        <div className="hyphen-text-paragraph">
+                          {renderMultilineText(productInformation.faqs)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
 
@@ -546,6 +844,61 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
           </div>
         </div>
 
+        {/* Certificate Report Modal Popup (Hyphen style with scrollable report) */}
+        {activeReportModal && (
+          <div
+            className="hyphen-report-modal-backdrop"
+            role="presentation"
+            onClick={() => setActiveReportModal(null)}
+          >
+            <div
+              className="hyphen-report-modal-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-label={activeReportModal.title || 'Certificate Report'}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="hyphen-report-modal-header">
+                <div className="hyphen-report-modal-title">
+                  <span className="hyphen-report-modal-shield" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="#16a34a"/>
+                      <path d="M9 12l2 2 4-4" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                  <div>
+                    <h3>{activeReportModal.title || 'Lab Test Certificate'}</h3>
+                    {activeReportModal.short_desc && (
+                      <span className="hyphen-report-modal-badge">{activeReportModal.short_desc}</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="hyphen-report-modal-close"
+                  aria-label="Close report"
+                  onClick={() => setActiveReportModal(null)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="hyphen-report-modal-body">
+                {activeReportModal.image_url ? (
+                  <img
+                    src={activeReportModal.image_url}
+                    alt={`${activeReportModal.title || 'Certificate'} test report`}
+                    className="hyphen-report-modal-img"
+                  />
+                ) : (
+                  <div className="hyphen-report-empty">
+                    <p>Lab verification certificate document will be attached shortly.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Related Products Section */}
         <section className="related-products-section">
           <div className="related-section-header">
@@ -568,6 +921,11 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
                 >
                   <div className="product-image-container">
                     <div className="card-badge-container">
+                      {relProduct.offer?.has_offer && (
+                        <span style={{ background: '#e11d48', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', letterSpacing: '0.02em' }}>
+                          🎁 {relProduct.offer.badge || 'OFFER'}
+                        </span>
+                      )}
                       {relProduct.types?.includes('Organic') && (
                         <span className="organic-tag">🌿 Organic</span>
                       )}

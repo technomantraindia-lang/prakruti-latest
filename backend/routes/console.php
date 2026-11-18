@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 use App\Models\FamilyPack;
 use App\Notifications\FamilyPackReminderNotification;
+use App\Models\User;
+use App\Models\WebsiteVisit;
+use App\Notifications\SystemAlertNotification;
+use App\Notifications\VisitorPurchaseFollowUpNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Notifications\AnonymousNotifiable;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -143,3 +149,81 @@ Artisan::command('family-packs:send-test-email {email=dhruvparekh605@gmail.com}'
 Schedule::command('family-packs:send-reminders')->dailyAt('09:00');
 Schedule::command('prakruti:quarantine-expired-stock')->dailyAt('00:05');
 Schedule::command('prakruti:check-reorder-levels')->hourly();
+
+Artisan::command('website-visits:send-daily-summary', function () {
+    $date = today();
+    $visits = WebsiteVisit::whereDate('visit_date', $date)->get();
+    $guestCount = $visits->whereNull('user_id')->count();
+    $registeredCount = $visits->whereNotNull('user_id')->count();
+    $pageViews = (int) $visits->sum('visit_count');
+
+    User::with('role')
+        ->where('status', 'active')
+        ->get()
+        ->filter(fn (User $user) => $user->isAdmin())
+        ->each(fn (User $admin) => $admin->notifyNow(new SystemAlertNotification(
+            'Daily website visitor report',
+            "{$visits->count()} unique visitor(s) visited today ({$guestCount} guest, {$registeredCount} registered; {$pageViews} page view(s)).",
+            'info',
+            route('admin.visitors.index', ['date' => $date->toDateString()]),
+            [
+                'visit_date' => $date->toDateString(),
+                'unique_visitors' => $visits->count(),
+                'guest_visitors' => $guestCount,
+                'registered_visitors' => $registeredCount,
+                'page_views' => $pageViews,
+            ]
+        )));
+
+    $this->info("Daily visitor summary sent for {$date->toDateString()}.");
+})->purpose('Send the daily website visitor summary to active administrators.');
+
+Schedule::command('website-visits:send-daily-summary')->dailyAt('23:55');
+
+Artisan::command('website-visits:follow-up-non-buyers', function () {
+    $latestVisitIds = WebsiteVisit::query()
+        ->selectRaw('MAX(id)')
+        ->groupBy('visitor_key');
+
+    $sent = 0;
+    WebsiteVisit::with('user')
+        ->whereIn('id', $latestVisitIds)
+        ->where('marketing_consent', true)
+        ->whereNotNull('visitor_email')
+        ->whereNotNull('contact_submitted_at')
+        ->whereNull('follow_up_sent_at')
+        ->where('last_seen_at', '<=', now()->subDay())
+        ->whereDoesntHave('user.orders')
+        ->whereNotExists(function ($query) {
+            $query->select(DB::raw(1))
+                ->from('orders')
+                ->join('users', 'users.id', '=', 'orders.user_id')
+                ->whereColumn('users.email', 'website_visits.visitor_email');
+        })
+        ->orderBy('id')
+        ->chunkById(100, function ($leads) use (&$sent) {
+            foreach ($leads as $lead) {
+                $email = $lead->display_email;
+                if (! $email || ! $lead->marketing_consent) {
+                    continue;
+                }
+
+                try {
+                    (new AnonymousNotifiable())
+                        ->route('mail', $email)
+                        ->notifyNow(new VisitorPurchaseFollowUpNotification($lead->display_name));
+
+                    WebsiteVisit::where('visitor_key', $lead->visitor_key)
+                        ->update(['follow_up_sent_at' => now()]);
+                    $sent++;
+                } catch (Throwable $exception) {
+                    report($exception);
+                    $this->error("Could not send follow-up for visitor record #{$lead->id}.");
+                }
+            }
+        });
+
+    $this->info("Sent {$sent} opted-in non-purchaser follow-up email(s).");
+})->purpose('Send a single follow-up email to opted-in visitors who have not purchased.');
+
+Schedule::command('website-visits:follow-up-non-buyers')->dailyAt('10:00');

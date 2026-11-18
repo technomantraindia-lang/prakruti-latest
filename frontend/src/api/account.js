@@ -22,4 +22,22 @@ export const accountApi = {
       body: JSON.stringify(addressData),
     });
   },
+
+  getConsultations: async () => {
+    return await apiClient('/customer/consultations');
+  },
+
+  trackConsultation: async (ref) => {
+    return await apiClient(`/consultation-requests/track?ref=${encodeURIComponent(ref)}`);
+  },
+
+  getNotifications: async () => {
+    return await apiClient('/customer/notifications');
+  },
+
+  markNotificationRead: async (id) => {
+    return await apiClient(`/customer/notifications/${id}/read`, {
+      method: 'POST',
+    });
+  },
 };

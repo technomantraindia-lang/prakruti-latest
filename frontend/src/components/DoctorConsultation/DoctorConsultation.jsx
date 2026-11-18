@@ -15,10 +15,24 @@ const HEALTH_GOALS = [
   'Immunity & Detox'
 ]
 
-const createInitialForm = (user = null) => ({
+const DEFAULT_DOCTOR = {
+  id: null,
+  name: 'Dr. Varsha Shah',
+  specialization: 'Lifestyle Medicine',
+  qualification: 'DCH, DNB (Pediatrics), MBBS · PGDLM (Lifestyle Medicine)',
+  phone: '+91 92746 83460',
+  email: 'support@prakruticorp.org',
+  experience: '12+ Yrs Exp',
+  location: 'Vadodara, Gujarat, India',
+  bio: 'Lifestyle medicine consultant passionate about nutrition, disease reversal, and helping families build healthier everyday routines.',
+  image: doctorImg,
+}
+
+const createInitialForm = (user = null, doctorProfileId = '') => ({
   name: user?.name || '',
   phone: user?.phone || '',
   email: user?.email || '',
+  doctor_profile_id: doctorProfileId ? String(doctorProfileId) : '',
   contact_method: 'whatsapp',
   age_range: '26-35',
   dietary_preference: 'vegetarian',
@@ -38,6 +52,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
   const [dummyCardCvv, setDummyCardCvv] = useState('789')
   const [dummyBank, setDummyBank] = useState('HDFC Bank')
   const [paymentReceipt, setPaymentReceipt] = useState(null)
+  const [doctors, setDoctors] = useState([DEFAULT_DOCTOR])
   
   const [form, setForm] = useState(() => createInitialForm(currentUser))
 
@@ -45,6 +60,28 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
   const [status, setStatus] = useState({ type: '', message: '', referenceNo: '' })
   const [isDoctorBioOpen, setIsDoctorBioOpen] = useState(false)
   const [isDoctorImageOpen, setIsDoctorImageOpen] = useState(false)
+
+  const selectedDoctor = doctors.find((doctor) => String(doctor.id) === String(form.doctor_profile_id)) || doctors[0] || DEFAULT_DOCTOR
+
+  useEffect(() => {
+    let isMounted = true
+    api.getDoctorProfiles()
+      .then((profiles) => {
+        if (!isMounted || !Array.isArray(profiles) || profiles.length === 0) return
+        setDoctors(profiles)
+        setForm((prev) => ({
+          ...prev,
+          doctor_profile_id: prev.doctor_profile_id || String(profiles[0].id),
+        }))
+      })
+      .catch(() => {
+        // Keep the existing profile available if the API is temporarily unavailable.
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!currentUser) return
@@ -142,6 +179,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
       name: form.name.trim(),
       phone: form.phone.trim(),
       email: form.email.trim() || undefined,
+      doctor_profile_id: form.doctor_profile_id || undefined,
       contact_method: form.contact_method,
       specialist_type: 'Life style Medicine Expert',
       session_type: sessionType,
@@ -186,7 +224,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
       })
 
       setCurrentStep('confirmed')
-      setForm(createInitialForm(currentUser))
+      setForm(createInitialForm(currentUser, doctors[0]?.id))
     } catch (err) {
       setIsSubmitting(false)
       setStatus({
@@ -237,7 +275,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 role="button"
                 aria-haspopup="dialog"
                 aria-expanded={isDoctorBioOpen}
-                aria-label="Open Dr. Varsha Shah's profile photo"
+                aria-label={`Open ${selectedDoctor.name}'s profile photo`}
                 onMouseEnter={() => setIsDoctorBioOpen(true)}
                 onFocus={() => setIsDoctorBioOpen(true)}
                 onClick={() => {
@@ -253,8 +291,8 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 }}
               >
                 <img 
-                  src={doctorImg} 
-                  alt="Dr. Varsha Shah"
+                  src={selectedDoctor.image || doctorImg}
+                  alt={selectedDoctor.name}
                   className="doctor-photo"
                 />
                 <div className="doctor-verified-badge">
@@ -263,14 +301,14 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 <div
                   className={`doctor-bio-overlay${isDoctorBioOpen ? ' is-open' : ''}`}
                   role="dialog"
-                  aria-label="Dr. Varsha Shah biography"
+                  aria-label={`${selectedDoctor.name} biography`}
                   onMouseEnter={() => setIsDoctorBioOpen(true)}
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button
                     type="button"
                     className="doctor-bio-close"
-                    aria-label="Close Dr. Varsha Shah biography"
+                    aria-label={`Close ${selectedDoctor.name} biography`}
                     onClick={(event) => {
                       event.stopPropagation()
                       setIsDoctorBioOpen(false)
@@ -278,39 +316,29 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                   >
                     <span aria-hidden="true">&times;</span>
                   </button>
-                  <strong>Dr. Varsha Shah</strong>
-                  <span>DCH, DNB (Pediatrics), MBBS</span>
-                  <span>PGDLM (Lifestyle Medicine)</span>
+                  <strong>{selectedDoctor.name}</strong>
+                  <span>{selectedDoctor.qualification || 'Qualified wellness professional'}</span>
+                  <span>{selectedDoctor.specialization || 'Lifestyle Medicine'}</span>
                   <hr />
                   <div className="doctor-bio-contact">
-                    <span>Email: drvarshas@yahoo.com</span>
-                    <span>Phone: +91 99090 26338</span>
+                    <span>Care Support: +91 92746 83460</span>
+                    <span>Support Email: support@prakruticorp.org</span>
                     <span>Location: Vadodara, Gujarat, India</span>
-                    <span>Date of Birth: 30 October 1977</span>
                   </div>
                   <h4>Professional Summary</h4>
-                  <p>Ex-Professor at SBKS Medical Institute and Research Centre.</p>
-                  <p>Medical Consultant (online) at SHARAN, an organisation working in disease reversal.</p>
-                  <p>Consultant at PRAKRUTI HEAL, a centre for holistic health through lifestyle.</p>
-                  <p>Special interest in Lifestyle Medicine. Passionate about nutrition, disease reversal, and holistic health. Known for delivering effective health talks and lifestyle transformation programs for individuals and groups.</p>
-                  <h4>Memberships</h4>
-                  <ul>
-                    <li>IAP (Indian Academy of Pediatrics)</li>
-                    <li>ISLM (Indian Society of Lifestyle Medicine)</li>
-                    <li>PAN (Physician Association for Nutrition)</li>
-                  </ul>
+                  <p>{selectedDoctor.bio || 'Available for personalized dietary and lifestyle guidance.'}</p>
                 </div>
               </div>
 
               <div className="doctor-details">
                 <div className="doc-role-row">
-                  <span className="doc-role-chip">Lifestyle Medicine</span>
-                  <span className="doc-exp-badge">12+ Yrs Exp</span>
+                  <span className="doc-role-chip">{selectedDoctor.specialization || 'Lifestyle Medicine'}</span>
+                  <span className="doc-exp-badge">{selectedDoctor.experience || 'Experienced'}</span>
                 </div>
-                <h3 className="doctor-name">Dr. Varsha Shah</h3>
-                <p className="doctor-qualifications">DCH, DNB (Pediatrics), MBBS · PGDLM (Lifestyle Medicine)</p>
+                <h3 className="doctor-name">{selectedDoctor.name}</h3>
+                <p className="doctor-qualifications">{selectedDoctor.qualification || selectedDoctor.specialization || 'Qualified wellness professional'}</p>
                 <p className="doctor-bio">
-                  Lifestyle medicine consultant passionate about nutrition, disease reversal, and helping families build healthier everyday routines.
+                  {selectedDoctor.bio || 'Personalized nutrition and lifestyle guidance for healthier everyday routines.'}
                 </p>
 
                 {/* Upfront Consultation Fee Highlight */}
@@ -377,7 +405,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
               className="doctor-photo-modal"
               role="dialog"
               aria-modal="true"
-              aria-label="Dr. Varsha Shah full-size photo"
+              aria-label={`${selectedDoctor.name} full-size photo`}
               onMouseDown={(event) => {
                 if (event.target === event.currentTarget) {
                   setIsDoctorImageOpen(false)
@@ -393,8 +421,8 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
-                <img src={doctorImg} alt="Dr. Varsha Shah" className="doctor-photo-large" />
-                <p>Dr. Varsha Shah · Lifestyle Medicine Expert</p>
+                <img src={selectedDoctor.image || doctorImg} alt={selectedDoctor.name} className="doctor-photo-large" />
+                <p>{selectedDoctor.name} · {selectedDoctor.specialization || 'Lifestyle Medicine Expert'}</p>
               </div>
             </div>,
             document.body
@@ -465,26 +493,26 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 </div>
 
                 <div className="doc-next-steps">
-                  <h5>What Happens Next?</h5>
+                  <h5>What Happens Next? (WhatsApp &amp; Live Video Consultation)</h5>
                   <div className="step-chain">
                     <div className="step-point">
                       <span className="step-num">1</span>
-                      <p><strong>Health History Review:</strong> Our Life style Medicine Expert reviews your wellness goals and dietary profile.</p>
+                      <p><strong>Admin Review &amp; Doctor Assignment:</strong> Our medical administration verifies your health profile, approves the case, and assigns a specialist doctor from our registered panel.</p>
                     </div>
                     <div className="step-point">
                       <span className="step-num">2</span>
-                      <p><strong>1-on-1 Session:</strong> We will reach out via WhatsApp / phone to coordinate and conduct your consultation.</p>
+                      <p><strong>WhatsApp Zoom Meeting Link:</strong> You will receive a WhatsApp message on your registered mobile number with your confirmed appointment date &amp; time and direct Zoom video call link.</p>
                     </div>
                     <div className="step-point">
                       <span className="step-num">3</span>
-                      <p><strong>Therapeutic Blueprint:</strong> Receive your customized daily meal chart and organic pantry transition blueprint.</p>
+                      <p><strong>Direct Video Consultation:</strong> Join your consultation smoothly via the Zoom link sent on your WhatsApp, or click the <strong>"Join Video Call"</strong> button directly in your Customer Account Dashboard.</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="doc-success-actions">
                   <button type="button" className="btn-book-another" onClick={handleReset}>
-                    Book Another Consultation
+                    Book Another Session
                   </button>
                   {onShopClick && (
                     <button type="button" className="btn-explore-organic" onClick={onShopClick}>
@@ -787,6 +815,18 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                     <small>Your account details are filled automatically</small>
                   </summary>
                 <div className="form-fields-grid">
+
+                  <div className="input-group input-group-full doctor-assigned-notice">
+                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '1.5rem' }}>🩺</span>
+                      <div>
+                        <strong style={{ color: '#166534', fontSize: '0.92rem', display: 'block' }}>Specialist Doctor Assigned by Healthcare Desk</strong>
+                        <span style={{ color: '#15803d', fontSize: '0.82rem' }}>
+                          Our medical administration reviews your health profile and assigns a registered Lifestyle Medicine doctor. Your appointment time and Zoom link will be sent directly to your WhatsApp.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                   
                   <div className="input-group">
                     <label htmlFor="patient-name">

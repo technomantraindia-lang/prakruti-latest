@@ -11,6 +11,7 @@ use App\Services\ProcurementService;
 use App\Services\InwardStockImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class GoodsReceivedNoteController extends Controller
@@ -60,7 +61,7 @@ class GoodsReceivedNoteController extends Controller
 
     public function downloadImportTemplate()
     {
-        $path = storage_path('app/templates/inward-stock-import-template.xlsx');
+        $path = $this->importService->ensureTemplateExists();
         abort_unless(is_file($path), 404, 'Import template is not available.');
 
         return response()->download($path, 'prakruti-inward-stock-import-template.xlsx');
@@ -98,6 +99,7 @@ class GoodsReceivedNoteController extends Controller
                 'id' => $variation->id,
                 'label' => $variation->attr_val,
                 'sku' => $variation->sku,
+                'weight' => $this->variationWeight($variation),
                 'mrp' => (float) $variation->price,
             ])->values()->all(),
         ]])->all();
@@ -152,6 +154,10 @@ class GoodsReceivedNoteController extends Controller
             }
         }
 
+        if (empty($validated['vendor_invoice_no'])) {
+            $validated['vendor_invoice_no'] = GoodsReceivedNote::generateVendorInvoiceNumber();
+        }
+
         try {
             $grn = $this->procurementService->processGoodsReceivedNote($validated, Auth::user());
 
@@ -174,6 +180,83 @@ class GoodsReceivedNoteController extends Controller
         ]);
 
         return view('admin.inward.show', compact('grn'));
+    }
+
+    public function edit(GoodsReceivedNote $grn)
+    {
+        $grn->load(['vendor', 'receiver', 'items.product', 'items.variation', 'items.batch', 'purchaseBill']);
+
+        return view('admin.inward.edit', compact('grn'));
+    }
+
+    public function update(Request $request, GoodsReceivedNote $grn)
+    {
+        $validated = $request->validate([
+            'vendor_invoice_no' => 'nullable|string|max:100',
+            'invoice_date' => 'nullable|date',
+            'received_date' => 'required|date',
+            'payment_status' => 'required|in:paid,unpaid',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|integer',
+            'items.*.batch_number' => 'required|string|max:100',
+            'items.*.mfg_date' => 'nullable|date',
+            'items.*.expiry_date' => 'nullable|date',
+            'items.*.rejection_reason' => 'nullable|string|max:255',
+        ]);
+
+        $grn->load(['items.batch', 'purchaseBill']);
+        $existingItems = $grn->items->keyBy('id');
+        $submittedIds = collect($validated['items'])->pluck('id')->map(fn ($id) => (int) $id)->sort()->values()->all();
+        $existingIds = $existingItems->keys()->map(fn ($id) => (int) $id)->sort()->values()->all();
+
+        if ($submittedIds !== $existingIds) {
+            throw ValidationException::withMessages([
+                'items' => 'All existing inward stock lines must be submitted. Quantities and packages remain locked after stock is inwarded.',
+            ]);
+        }
+
+        DB::transaction(function () use ($validated, $grn, $existingItems) {
+            $grn->update([
+                'vendor_invoice_no' => $validated['vendor_invoice_no'] ?? null,
+                'invoice_date' => $validated['invoice_date'] ?? null,
+                'received_date' => $validated['received_date'],
+                'payment_status' => $validated['payment_status'],
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            foreach ($validated['items'] as $row) {
+                $item = $existingItems->get((int) $row['id']);
+                $item->update([
+                    'batch_number' => $row['batch_number'],
+                    'mfg_date' => $row['mfg_date'] ?? null,
+                    'expiry_date' => $row['expiry_date'] ?? null,
+                    'rejection_reason' => $row['rejection_reason'] ?? null,
+                ]);
+
+                if ($item->batch) {
+                    $item->batch->update([
+                        'batch_number' => $row['batch_number'],
+                        'mfg_date' => $row['mfg_date'] ?? null,
+                        'expiry_date' => $row['expiry_date'] ?? null,
+                    ]);
+                }
+            }
+
+            if ($grn->purchaseBill) {
+                $grn->purchaseBill->update([
+                    'vendor_invoice_no' => $validated['vendor_invoice_no'] ?? null,
+                    'invoice_date' => $validated['invoice_date'] ?? null,
+                    'payment_status' => $validated['payment_status'],
+                    'paid_amount' => $validated['payment_status'] === 'paid'
+                        ? $grn->purchaseBill->total_amount
+                        : 0,
+                ]);
+            }
+        });
+
+        return redirect()->route('admin.inward.show', $grn)
+            ->with('success', "GRN #{$grn->grn_number} updated successfully. Stock quantities and package assignments were kept unchanged.");
     }
 
     public function print(GoodsReceivedNote $grn)
@@ -214,5 +297,15 @@ class GoodsReceivedNoteController extends Controller
     {
         $vendorProducts = $vendor->vendorProducts()->with('product')->get();
         return response()->json($vendorProducts);
+    }
+
+    private function variationWeight(ProductVariation $variation): ?string
+    {
+        if ($variation->net_qty !== null) {
+            $quantity = rtrim(rtrim(number_format((float) $variation->net_qty, 3, '.', ''), '0'), '.');
+            return trim($quantity . ' ' . ($variation->net_unit ?: 'g'));
+        }
+
+        return $variation->attr_val ?: null;
     }
 }

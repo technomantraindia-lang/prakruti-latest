@@ -20,16 +20,27 @@ class CustomerAuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:20'],
+            'profession' => ['required', 'string', 'max:120'],
+            'gender' => ['required', 'string', 'max:30'],
+            'terms_accepted' => ['accepted'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'phone.required' => 'Mobile number is required.',
+            'profession.required' => 'Please provide your profession.',
+            'gender.required' => 'Please select your gender.',
+            'terms_accepted.accepted' => 'You must agree to the Terms & Conditions, Return, Breakage & Opened Goods Policy to register.',
         ]);
 
         $customerRoleId = Role::where('name', 'Customer')->value('id');
 
         $user = new User();
         $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->phone = $validated['phone'] ?? null;
+        $user->email = strtolower(trim($validated['email']));
+        $user->phone = trim($validated['phone']);
+        $user->profession = trim($validated['profession']);
+        $user->gender = trim($validated['gender']);
+        $user->terms_accepted_at = now();
         $user->password = Hash::make($validated['password']);
 
         // Customer role

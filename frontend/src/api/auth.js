@@ -15,7 +15,7 @@ export const authApi = {
     return res;
   },
 
-  register: async ({ name, email, password, phone }) => {
+  register: async ({ name, email, password, phone, profession, gender, terms_accepted = true }) => {
     const res = await apiClient('/register', {
       method: 'POST',
       body: JSON.stringify({
@@ -24,6 +24,9 @@ export const authApi = {
         password,
         password_confirmation: password,
         phone,
+        profession,
+        gender,
+        terms_accepted,
       }),
     });
 

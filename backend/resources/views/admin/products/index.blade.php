@@ -40,7 +40,7 @@
 
 <div class="card"><div class="card-body table-responsive">
     <table class="table table-hover align-middle">
-        <thead><tr><th>Image</th><th>Product</th><th>Category</th><th>MRP</th><th>Stock</th><th>Nearest Expiry</th><th>Status</th><th>Best Seller</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Image</th><th>Product</th><th>Category</th><th>Regular Price</th><th>Stock</th><th>Nearest Expiry</th><th>Status</th><th>Best Seller</th><th>Actions</th></tr></thead>
         <tbody>
             @forelse($products as $product)
             <tr>

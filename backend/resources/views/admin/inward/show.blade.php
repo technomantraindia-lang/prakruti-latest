@@ -226,6 +226,9 @@
         <a href="{{ route('admin.inward.create') }}" class="btn btn-outline-primary">
             <i class="fas fa-plus me-1"></i> New Inward Entry
         </a>
+        <a href="{{ route('admin.inward.edit', $grn) }}" class="btn btn-outline-warning">
+            <i class="fas fa-edit me-1"></i> Edit Inward Entry
+        </a>
         <a href="{{ route('admin.inward.print', $grn) }}" target="_blank" class="btn btn-outline-secondary">
             <i class="fas fa-external-link-alt me-1"></i> Fullscreen Voucher
         </a>
@@ -366,13 +369,20 @@
                 <tbody>
                     @foreach($grn->items as $idx => $item)
                     <tr>
+                        @php
+                            $variationSku = $item->variation?->sku ?: $item->product?->sku;
+                            $packWeight = $item->variation?->net_qty !== null
+                                ? rtrim(rtrim(number_format((float) $item->variation->net_qty, 3, '.', ''), '0'), '.') . ' ' . ($item->variation->net_unit ?: 'g')
+                                : ($item->variation?->attr_val ?: '-');
+                        @endphp
                         <td class="text-center text-muted fw-bold">{{ $idx + 1 }}</td>
                         <td>
                             <strong>{{ $item->product?->name }}</strong>
                             @if($item->variation)
-                                <div class="small text-muted">Var: {{ $item->variation->name ?? $item->variation->weight }}</div>
+                                <div class="small text-muted">Pack size: {{ $item->variation->attr_val ?: '-' }}</div>
                             @endif
-                            <div class="small text-muted font-monospace">SKU: {{ $item->product?->sku ?? '-' }}</div>
+                            <div class="small text-muted">Weight: {{ $packWeight }}</div>
+                            <div class="small text-muted font-monospace">SKU: {{ $variationSku ?? '-' }}</div>
                         </td>
                         <td class="text-center">
                             <span class="badge bg-light text-dark border font-monospace">{{ $item->batch_number }}</span>

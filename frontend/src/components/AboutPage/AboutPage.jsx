@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './AboutPage.css';
+import { FaLeaf, FaUserDoctor, FaFlask } from 'react-icons/fa6';
+import { FiUserCheck, FiShoppingBag } from 'react-icons/fi';
 
 // Import Assets
 import aboutPurityImg from '../../assets/images/NEWST ABOT.png';
@@ -177,31 +179,38 @@ const AboutPage = ({ onShopClick }) => {
 
               <div className="story-highlights-grid">
                 <div className="story-hl-card">
-                  <span className="hl-icon">🌱</span>
+                  <span className="hl-icon"><FaLeaf /></span>
                   <div>
-                    <h4>Chemical-Free Soil</h4>
-                    <p>Zero synthetic pesticides, non-GMO heirloom seeds.</p>
+                    <h4>Pure &amp; Authentic</h4>
+                    <p>Quality-conscious grocery selection.</p>
                   </div>
                 </div>
                 <div className="story-hl-card">
-                  <span className="hl-icon">🏺</span>
+                  <span className="hl-icon"><FaFlask /></span>
                   <div>
-                    <h4>Traditional Slow Cold-Press</h4>
-                    <p>Wooden Ghani extraction below 40°C to keep enzymes intact.</p>
+                    <h4>Science-Based</h4>
+                    <p>Nutrition planning based on individual requirements.</p>
                   </div>
                 </div>
                 <div className="story-hl-card">
-                  <span className="hl-icon">🤝</span>
+                  <span className="hl-icon"><FiUserCheck /></span>
                   <div>
-                    <h4>Direct Farmer Trade</h4>
-                    <p>Fair compensation empowering 500+ rural farm families.</p>
+                    <h4>Personalised</h4>
+                    <p>Age, activity, health condition and lifestyle considered.</p>
                   </div>
                 </div>
                 <div className="story-hl-card">
-                  <span className="hl-icon">🔬</span>
+                  <span className="hl-icon"><FaUserDoctor /></span>
                   <div>
-                    <h4>NABL Lab Verified</h4>
-                    <p>Every single batch certified for purity and safety.</p>
+                    <h4>Expert-Connected</h4>
+                    <p>Access to Lifestyle Medicine professionals.</p>
+                  </div>
+                </div>
+                <div className="story-hl-card story-hl-card-wide">
+                  <span className="hl-icon"><FiShoppingBag /></span>
+                  <div>
+                    <h4>Convenient</h4>
+                    <p>Monthly grocery basket automatically generated.</p>
                   </div>
                 </div>
               </div>

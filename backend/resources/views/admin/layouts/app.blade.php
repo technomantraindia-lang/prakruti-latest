@@ -21,10 +21,31 @@
     $lastSeenOrdersAt = $safeSeenAt('orders');
     $lastSeenInquiriesAt = $safeSeenAt('inquiries');
     $lastSeenReviewsAt = $safeSeenAt('reviews');
-    $lowStockCount = \App\Models\Product::whereColumn('stock_qty', '<=', 'low_stock_qty')->count();
+    // 15% Warehouse Low Stock Alert calculation
+    $warehouseLowBatches = \Illuminate\Support\Facades\Schema::hasTable('product_batches')
+        ? \App\Models\ProductBatch::with('product')
+            ->where('status', 'active')
+            ->where('current_qty', '>', 0)
+            ->whereRaw('current_qty <= (initial_qty * 0.15)')
+            ->get()
+        : collect();
+
+    $warehouseLowProducts = \App\Models\Product::where('status', 'active')
+        ->where(function($q) {
+            $q->whereColumn('stock_qty', '<=', 'low_stock_qty')
+              ->orWhere('stock_qty', '<=', 5);
+        })
+        ->get();
+
+    $warehouseLowStockCount = $warehouseLowBatches->count() + $warehouseLowProducts->count();
+    $warehouseLowStockList = $warehouseLowBatches->map(fn($b) => ($b->product?->name ?? 'Product') . ' (Batch ' . $b->batch_number . ': ' . $b->current_qty . '/' . $b->initial_qty . ' left)')
+        ->concat($warehouseLowProducts->map(fn($p) => $p->name . ' (' . $p->stock_qty . ' in stock)'))
+        ->unique()
+        ->values();
+
+    $lowStockCount = $warehouseLowStockCount;
     $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count();
     $pendingInquiriesCount = \App\Models\Inquiry::where('status', 'pending')->count();
-    $newConsultationsCount = \Illuminate\Support\Facades\Schema::hasTable('consultation_requests') ? \App\Models\ConsultationRequest::whereIn('status', ['new', 'not_sent'])->count() : 0;
     $pendingProductReviewsCount = \Illuminate\Support\Facades\Schema::hasTable('product_reviews') ? \App\Models\ProductReview::where('status', 'pending')->count() : 0;
     $pendingTestimonialsCount = \Illuminate\Support\Facades\Schema::hasTable('testimonials') ? \App\Models\Testimonial::where('status', 'pending')->count() : 0;
     $pendingReviewsCount = $pendingProductReviewsCount + $pendingTestimonialsCount;
@@ -49,7 +70,19 @@
     if ($pendingTestimonialsCount > 0 && $newReviewsMenuCount === 0) {
         $newReviewsMenuCount = $pendingTestimonialsCount;
     }
-    $totalNotifications = $lowStockCount + $pendingOrdersCount + $pendingInquiriesCount + $newConsultationsCount + $pendingReviewsCount;
+    $lastSeenConsultationsAt = $safeSeenAt('consultations');
+    $pendingConsultationsCount = \Illuminate\Support\Facades\Schema::hasTable('consultation_requests')
+        ? \App\Models\ConsultationRequest::where('admin_approved', false)->count()
+        : 0;
+    $newConsultationsMenuCount = \Illuminate\Support\Facades\Schema::hasTable('consultation_requests')
+        ? \App\Models\ConsultationRequest::where('admin_approved', false)
+            ->when($lastSeenConsultationsAt, fn ($query) => $query->where('created_at', '>', $lastSeenConsultationsAt))
+            ->count()
+        : 0;
+    if ($pendingConsultationsCount > 0 && $newConsultationsMenuCount === 0) {
+        $newConsultationsMenuCount = $pendingConsultationsCount;
+    }
+    $totalNotifications = $lowStockCount + $pendingOrdersCount + $pendingInquiriesCount + $pendingReviewsCount + $pendingConsultationsCount;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -63,6 +96,27 @@
         :root {
             --sidebar-bg: linear-gradient(135deg, #2d5a27 0%, #193a15 100%);
             --theme-btn-bg: linear-gradient(135deg, #2d5a27 0%, #193a15 100%);
+        }
+        @keyframes flashBorderPulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        @keyframes pulseBellIcon {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            20% { transform: scale(1.1) rotate(12deg); }
+            40% { transform: scale(1.1) rotate(-12deg); }
+            60% { transform: scale(1.1) rotate(6deg); }
+            80% { transform: scale(1) rotate(-6deg); }
+        }
+        .flash-low-stock-banner {
+            animation: flashBorderPulse 2.2s infinite;
+            border-left: 6px solid #dc3545 !important;
+            background: linear-gradient(90deg, #fff5f5 0%, #fffbf0 100%) !important;
+        }
+        .flash-pulse-icon {
+            display: inline-block;
+            animation: pulseBellIcon 2.2s infinite ease-in-out;
         }
         body { background: #faf8f3; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; overflow-x: hidden; }
         .sidebar { 
@@ -146,8 +200,8 @@
         .admin-main-column { min-width: 0; padding-left: 0; padding-right: 0; }
         .main-content { padding: clamp(16px, 2.2vw, 30px); }
         .mobile-menu-toggle, .sidebar-backdrop { display: none; }
-        .admin-brand-logo { width: 36px; height: 42px; object-fit: contain; vertical-align: middle; }
-        .admin-navbar-logo { width: 30px; height: 36px; object-fit: contain; vertical-align: middle; }
+        .admin-brand-logo { width: 48px; height: 60px; flex: 0 0 48px; padding: 4px; border-radius: 13px; object-fit: contain; vertical-align: middle; background: #fff7d9; box-shadow: 0 8px 18px rgba(0,0,0,.16); image-rendering: auto; }
+        .admin-navbar-logo { width: 38px; height: 48px; flex: 0 0 38px; padding: 3px; border-radius: 11px; object-fit: contain; vertical-align: middle; background: #fff7d9; box-shadow: 0 5px 12px rgba(45,90,39,.16); image-rendering: auto; }
         .btn-primary { background-color: #2d5a27 !important; border-color: #2d5a27 !important; }
         .btn-primary:hover { background-color: #193a15 !important; border-color: #193a15 !important; }
         .btn-outline-primary { color: #2d5a27 !important; border-color: #2d5a27 !important; }
@@ -232,13 +286,16 @@
                     <span class="sidebar-link-label"><i class="fas fa-comments"></i> Inquiries</span>
                     @if($newInquiriesMenuCount > 0)<span class="menu-new-badge" title="{{ $newInquiriesMenuCount }} new inquiry(s)">{{ $newInquiriesMenuCount }}</span>@endif
                 </a>
-                <a href="{{ route('admin.consultations.index') }}" class="@if(request()->routeIs('admin.consultations.*')) active @endif">
-                    <span class="sidebar-link-label"><i class="fas fa-user-md"></i> Consultations</span>
-                    @if($newConsultationsCount > 0)<span class="menu-new-badge" title="{{ $newConsultationsCount }} new consultation(s)">{{ $newConsultationsCount }}</span>@endif
-                </a>
                 <a href="{{ route('admin.reviews.index') }}" class="@if(request()->routeIs('admin.reviews.*')) active @endif">
                     <span class="sidebar-link-label"><i class="fas fa-star"></i> Reviews</span>
                     @if($newReviewsMenuCount > 0)<span class="menu-new-badge" title="{{ $newReviewsMenuCount }} new review(s)">{{ $newReviewsMenuCount }}</span>@endif
+                </a>
+                <a href="{{ route('admin.consultations.index') }}" class="@if(request()->routeIs('admin.consultations.*')) active @endif">
+                    <span class="sidebar-link-label"><i class="fas fa-stethoscope text-success"></i> Consultations</span>
+                    @if($newConsultationsMenuCount > 0)<span class="menu-new-badge" title="{{ $newConsultationsMenuCount }} new consultation(s)">{{ $newConsultationsMenuCount }}</span>@endif
+                </a>
+                <a href="{{ route('admin.doctor-profiles.index') }}" class="@if(request()->routeIs('admin.doctor-profiles.*')) active @endif">
+                    <i class="fas fa-user-md text-info"></i> Doctor Profiles
                 </a>
 
                 <!-- Inventory & Procurement -->
@@ -288,6 +345,12 @@
 
                 <!-- System & Settings -->
                 <div class="sidebar-heading">System</div>
+                <a href="{{ route('admin.visitors.index') }}" class="@if(request()->routeIs('admin.visitors.*')) active @endif">
+                    <i class="fas fa-user-clock"></i> Website Visitors
+                </a>
+                <a href="{{ route('admin.discounts.index') }}" class="@if(request()->routeIs('admin.discounts.*')) active @endif">
+                    <i class="fas fa-tags"></i> Discounts &amp; Delivery
+                </a>
                 <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) active @endif">
                     <i class="fas fa-cog"></i> Settings
                 </a>
@@ -349,6 +412,17 @@
                                         <span class="badge bg-primary rounded-pill">{{ $totalNotifications }} Alert(s)</span>
                                     </div>
                                     <div class="list-group list-group-flush" style="max-height: 280px; overflow-y: auto;">
+                                        @if($warehouseLowStockCount > 0)
+                                            <a href="{{ route('admin.inward.create') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3" style="background: #fff5f5;">
+                                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                                    <i class="fas fa-triangle-exclamation"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="small fw-bold text-danger">⚠️ Warehouse Low Stock (&le;15%)</div>
+                                                    <div class="text-muted small">{{ $warehouseLowStockCount }} item(s) below 15% stock. Reorder reminder!</div>
+                                                </div>
+                                            </a>
+                                        @endif
                                         @if($pendingOrdersCount > 0)
                                             <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
                                                 <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
@@ -371,14 +445,14 @@
                                                 </div>
                                             </a>
                                         @endif
-                                        @if($newConsultationsCount > 0)
-                                            <a href="{{ route('admin.consultations.index', ['status' => 'not_sent']) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
-                                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                                                    <i class="fas fa-user-md"></i>
+                                        @if($pendingConsultationsCount > 0)
+                                            <a href="{{ route('admin.consultations.index') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                                    <i class="fas fa-stethoscope"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <div class="small fw-semibold text-dark">Unsent Consultation Requests</div>
-                                                    <div class="text-muted small">You have {{ $newConsultationsCount }} unsent consultation request(s)</div>
+                                                    <div class="small fw-semibold text-dark">Pending Consultations</div>
+                                                    <div class="text-muted small">You have {{ $pendingConsultationsCount }} consultation(s) awaiting doctor assignment</div>
                                                 </div>
                                             </a>
                                         @endif
@@ -429,6 +503,39 @@
                             @endforeach
                         </ol>
                     </nav>
+
+                    @if($warehouseLowStockCount > 0)
+                        <!-- Auto Flash Alert: Low Warehouse Stock (<=15%) Reminder for New Purchase -->
+                        <div class="alert flash-low-stock-banner shadow-sm mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2 py-3 px-3 rounded-3" role="alert">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="flash-pulse-icon text-danger fs-3">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                </span>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <strong class="text-danger fw-bold fs-6">AUTO FLASH ALERT: Warehouse Stock &le; 15%</strong>
+                                        <span class="badge bg-danger rounded-pill">{{ $warehouseLowStockCount }} Item(s) Need Reorder</span>
+                                    </div>
+                                    <div class="small text-dark mt-1">
+                                        Reminder: Warehouse stock is down to critical levels (&le;15% remaining). Initiate a new purchase entry / GRN to replenish inventory.
+                                    </div>
+                                    @if(!empty($warehouseLowStockList) && $warehouseLowStockList->count() > 0)
+                                        <div class="small text-muted mt-1">
+                                            <strong>Critical Items:</strong> {{ $warehouseLowStockList->take(4)->join(', ') }}{{ $warehouseLowStockList->count() > 4 ? ' and ' . ($warehouseLowStockList->count() - 4) . ' more...' : '' }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="{{ route('admin.inward.create') }}" class="btn btn-sm btn-success fw-bold shadow-sm px-3">
+                                    <i class="fas fa-boxes-packing me-1"></i> + New Purchase Entry (GRN)
+                                </a>
+                                <a href="{{ route('admin.inventory.batches') }}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-eye me-1"></i> Check Inventory
+                                </a>
+                            </div>
+                        </div>
+                    @endif
 
                     @include('admin.partials.alert')
                     @yield('content')
@@ -552,6 +659,7 @@
             }
         });
     </script>
+    @yield('scripts')
     @stack('scripts')
 </body>
 </html>

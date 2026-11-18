@@ -20,7 +20,15 @@ class CustomerAuthApiController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
+            'profession' => 'required|string|max:120',
+            'gender' => 'required|string|max:30',
+            'terms_accepted' => 'accepted',
+        ], [
+            'phone.required' => 'Mobile number is required for customer registration.',
+            'profession.required' => 'Please select or enter your profession.',
+            'gender.required' => 'Please select your gender.',
+            'terms_accepted.accepted' => 'You must agree to the Terms & Conditions, Return, Breakage & Opened Goods Policy to register.',
         ]);
 
         if ($validator->fails()) {
@@ -35,10 +43,13 @@ class CustomerAuthApiController extends Controller
         $customerRole = Role::firstOrCreate(['name' => 'Customer'], ['guard_name' => 'web']);
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => trim($request->name),
             'email' => strtolower(trim($request->email)),
             'password' => Hash::make($request->password),
-            'phone' => $request->phone,
+            'phone' => trim($request->phone),
+            'profession' => trim($request->profession),
+            'gender' => trim($request->gender),
+            'terms_accepted_at' => now(),
             'role_id' => $customerRole->id,
             'status' => 'active',
         ]);
@@ -258,6 +269,41 @@ class CustomerAuthApiController extends Controller
             'success' => true,
             'message' => 'Profile updated successfully.',
             'data' => new CustomerResource($user),
+        ]);
+    }
+
+    public function notifications(Request $request)
+    {
+        $user = auth()->user();
+        $notifications = $user->notifications()->latest()->take(25)->get()->map(function ($notif) {
+            return [
+                'id' => $notif->id,
+                'type' => class_basename($notif->type),
+                'data' => $notif->data,
+                'read_at' => $notif->read_at,
+                'created_at' => $notif->created_at ? $notif->created_at->format('d M Y, h:i A') : null,
+                'created_at_human' => $notif->created_at ? $notif->created_at->diffForHumans() : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $notifications,
+            'unread_count' => $user->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function markNotificationRead(Request $request, string $id)
+    {
+        $user = auth()->user();
+        $notification = $user->notifications()->where('id', $id)->first();
+        if ($notification) {
+            $notification->markAsRead();
+        }
+
+        return response()->json([
+            'success' => true,
+            'unread_count' => $user->unreadNotifications()->count(),
         ]);
     }
 }

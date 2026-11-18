@@ -2122,3 +2122,18 @@
   }
 }
 
+.doctor-select-field {
+  grid-column: 1 / -1;
+}
+
+.doctor-select-field select {
+  border-color: rgba(45, 90, 39, 0.28);
+  background: #fbfdf9;
+  font-weight: 700;
+}
+
+.doctor-select-help {
+  color: var(--color-text-light);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}

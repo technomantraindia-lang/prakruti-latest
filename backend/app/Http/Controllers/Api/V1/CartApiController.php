@@ -36,15 +36,24 @@ class CartApiController extends Controller
 
                 if ($guestCart) {
                     foreach ($guestCart->items as $item) {
+                        $item->loadMissing(['product', 'variation']);
+                        $stockItem = $item->variation ?: $item->product;
+                        $availableStock = $stockItem ? (int) $stockItem->available_stock : 0;
                         $existing = CartItem::where('cart_id', $cart->id)
                             ->where('product_id', $item->product_id)
                             ->where('var_id', $item->var_id)
                             ->first();
 
+                        if ($availableStock <= 0) {
+                            $item->delete();
+                            continue;
+                        }
+
                         if ($existing) {
-                            $existing->update(['qty' => $existing->qty + $item->qty]);
+                            $existing->update(['qty' => min($availableStock, $existing->qty + $item->qty)]);
                             $item->delete();
                         } else {
+                            $item->update(['qty' => min($availableStock, (int) $item->qty)]);
                             $item->update(['cart_id' => $cart->id]);
                         }
                     }
@@ -87,13 +96,19 @@ class CartApiController extends Controller
     {
         $cart->load(['items.product.category', 'items.product.subCategory', 'items.product.subSubCategory', 'items.product.variations', 'items.variation']);
 
-        $items = $cart->items->map(function ($item) {
+        $offerService = app(\App\Services\ProductOfferService::class);
+
+        $items = $cart->items->map(function ($item) use ($offerService) {
             $product = $item->product;
             $displayVariation = $item->variation ?: $product?->variations?->where('status', 'active')->first();
             $price = $this->unitPrice($item);
             $gstPct = $product ? app(GstService::class)->productGstPercentage($product) : 0;
             $packageLabel = $displayVariation?->attr_val
                 ?: ($displayVariation?->weight ? rtrim(rtrim(number_format((float) $displayVariation->weight, 2, '.', ''), '0'), '.') . ' kg' : null);
+
+            $offerResult = $offerService->applyToItem($item->product_id, $price, (int) $item->qty);
+            $effectivePrice = $offerResult['effective_unit_price'];
+            $lineTotal = round($effectivePrice * $item->qty, 2);
 
             return [
                 'id' => $item->id,
@@ -104,22 +119,30 @@ class CartApiController extends Controller
                 'name' => $product ? $product->name : 'Product',
                 'product_name' => $product ? $product->name : 'Product',
                 'image' => $product?->image_url,
-                'price' => $price,
+                'price' => $effectivePrice,
+                'original_price' => $price,
+                'has_product_offer' => $offerResult['has_offer'],
+                'item_discount' => $offerResult['total_discount'],
+                'free_qty' => $offerResult['free_qty'],
+                'offer_badge' => $offerResult['badge'] ?? null,
+                'offer_label' => $offerResult['offer_label'] ?? null,
                 'qty' => (int) $item->qty,
                 'quantity' => (int) $item->qty,
-                'line_total' => round($price * $item->qty, 2),
+                'line_total' => $lineTotal,
                 'gst_pct' => $gstPct,
                 'stock_qty' => $displayVariation ? (int) $displayVariation->available_stock : ($product ? (int) $product->available_stock : 0),
             ];
         })->values();
 
         $subtotal = round($items->sum('line_total'), 2);
+        $productOfferSavings = round($items->sum('item_discount'), 2);
         $discountRule = app(BillDiscountService::class)->calculate($subtotal);
         $discount = round((float) $discountRule['discount'], 2);
         $taxableSubtotal = max(0, $subtotal - $discount);
         $gstAmt = app(GstService::class)->calculateTotal($items->all(), $subtotal, $discount);
         $shipping = app(ShippingChargeService::class)->calculate($subtotal);
         $shipCharge = $shipping['charge'];
+        $totalSavings = round($discount + $productOfferSavings, 2);
 
         return [
             'id' => $cart->id,
@@ -128,6 +151,8 @@ class CartApiController extends Controller
             'subtotal' => $subtotal,
             'discount' => $discount,
             'discount_rule' => $discountRule,
+            'product_offer_savings' => $productOfferSavings,
+            'total_savings' => $totalSavings,
             'taxable_subtotal' => round($taxableSubtotal, 2),
             'gst_amt' => $gstAmt,
             'ship_charge' => $shipCharge,
