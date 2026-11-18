@@ -38,8 +38,9 @@
         ->get();
 
     $warehouseLowStockCount = $warehouseLowBatches->count() + $warehouseLowProducts->count();
-    $warehouseLowStockList = $warehouseLowBatches->map(fn($b) => ($b->product?->name ?? 'Product') . ' (Batch ' . $b->batch_number . ': ' . $b->current_qty . '/' . $b->initial_qty . ' left)')
+    $warehouseLowStockList = collect($warehouseLowBatches->map(fn($b) => ($b->product?->name ?? 'Product') . ' (Batch ' . $b->batch_number . ': ' . $b->current_qty . '/' . $b->initial_qty . ' left)'))
         ->concat($warehouseLowProducts->map(fn($p) => $p->name . ' (' . $p->stock_qty . ' in stock)'))
+        ->toBase()
         ->unique()
         ->values();
 
