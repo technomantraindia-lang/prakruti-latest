@@ -189,7 +189,10 @@
                         <label for="password" class="form-label">Password * (Min 8 chars)</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••" style="border-right: none;">
+                            <button class="btn btn-outline-secondary" type="button" style="border: 1.5px solid var(--border-color); border-left: none; background-color: var(--bg-sand); color: #637765; border-top-right-radius: 12px; border-bottom-right-radius: 12px;" onclick="togglePasswordVisibility('password', 'togglePassIcon1')" title="Show / Hide Password">
+                                <i class="fas fa-eye" id="togglePassIcon1"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -197,7 +200,10 @@
                         <label for="password_confirmation" class="form-label">Confirm Password *</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-check-double"></i></span>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="••••••••">
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="••••••••" style="border-right: none;">
+                            <button class="btn btn-outline-secondary" type="button" style="border: 1.5px solid var(--border-color); border-left: none; background-color: var(--bg-sand); color: #637765; border-top-right-radius: 12px; border-bottom-right-radius: 12px;" onclick="togglePasswordVisibility('password_confirmation', 'togglePassIcon2')" title="Show / Hide Password">
+                                <i class="fas fa-eye" id="togglePassIcon2"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -223,5 +229,22 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>
