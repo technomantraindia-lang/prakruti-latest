@@ -57,7 +57,7 @@
             <div class="d-flex gap-2 flex-wrap">
                 @if(session('launch_whatsapp'))
                     <a href="{{ session('launch_whatsapp') }}" target="_blank" class="btn btn-success fw-bold shadow-sm">
-                        <i class="fab fa-whatsapp me-1"></i> Open WhatsApp Web Now
+                        <i class="fab fa-whatsapp me-1"></i> Send Text to Customer
                     </a>
                 @endif
                 @if(session('whatsapp_message'))
@@ -381,7 +381,7 @@
                         <i class="fas fa-save me-1"></i> Save Details
                     </button>
                     <button type="button" id="modalOpenWebWhatsAppBtn" class="btn btn-success btn-sm fw-bold shadow-sm" onclick="modalSubmitAndOpenWebWhatsApp()">
-                        <i class="fab fa-whatsapp me-1"></i> Open Web WhatsApp
+                        <i class="fab fa-whatsapp me-1"></i> Send Text to Customer
                     </button>
                 </div>
             </form>

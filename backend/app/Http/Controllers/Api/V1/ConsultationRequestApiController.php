@@ -35,6 +35,9 @@ class ConsultationRequestApiController extends Controller
             'payment_amount' => 'required|numeric|min:0',
             'consent' => 'accepted',
             'doctor_profile_id' => 'nullable|integer|exists:doctor_profiles,id',
+            'patient_intake_data' => 'nullable',
+            'lab_reports' => 'nullable',
+            'lab_reports.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,doc,docx|max:15360',
         ]);
 
         if ($validator->fails()) {
@@ -149,6 +152,39 @@ class ConsultationRequestApiController extends Controller
             ], 201);
         }
 
+        // Process patient intake data
+        $intakeData = $request->input('patient_intake_data');
+        if (is_string($intakeData)) {
+            $decoded = json_decode($intakeData, true);
+            if (is_array($decoded)) {
+                $intakeData = $decoded;
+            }
+        }
+
+        // Process laboratory reports file uploads
+        $savedLabReports = [];
+        if ($request->hasFile('lab_reports')) {
+            $files = is_array($request->file('lab_reports')) ? $request->file('lab_reports') : [$request->file('lab_reports')];
+            $destDir = public_path('consultations/lab_reports');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
+            }
+            foreach ($files as $file) {
+                if ($file && $file->isValid()) {
+                    $origName = $file->getClientOriginalName();
+                    $ext = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+                    $safeName = 'lab_' . date('Ymd_His') . '_' . Str::random(8) . '.' . $ext;
+                    $file->move($destDir, $safeName);
+                    $savedLabReports[] = [
+                        'name' => $origName,
+                        'file_path' => 'consultations/lab_reports/' . $safeName,
+                        'url' => asset('consultations/lab_reports/' . $safeName),
+                        'size' => @filesize($destDir . DIRECTORY_SEPARATOR . $safeName) ?: null,
+                    ];
+                }
+            }
+        }
+
         $consultation = ConsultationRequest::create([
             'reference_no' => $reference,
             'user_id' => $user->id,
@@ -157,6 +193,8 @@ class ConsultationRequestApiController extends Controller
             'phone' => $request->phone,
             'preferred_contact_method' => $request->contact_method,
             'concern' => $fullConcern,
+            'patient_intake_data' => $intakeData,
+            'lab_reports' => !empty($savedLabReports) ? $savedLabReports : null,
             'age_range' => $request->age_range,
             'dietary_preference' => $request->dietary_preference,
             'preferred_time' => $request->preferred_time,
@@ -220,6 +258,8 @@ class ConsultationRequestApiController extends Controller
                 'customer_whatsapp_url' => $customerWaUrl,
                 'payment_status' => $consultation->payment_status,
                 'doctor_profile_id' => $consultation->doctor_profile_id,
+                'patient_intake_data' => $consultation->patient_intake_data,
+                'lab_reports' => $consultation->lab_reports,
             ],
         ], 201);
     }
@@ -272,6 +312,8 @@ class ConsultationRequestApiController extends Controller
                     'doctor_notes' => $item->doctor_notes,
                     'payment_status' => $item->payment_status,
                     'payment_amount' => $item->payment_amount,
+                    'patient_intake_data' => $item->patient_intake_data,
+                    'lab_reports' => $item->lab_reports,
                     'created_at' => $item->created_at ? $item->created_at->format('d M Y') : null,
                 ];
             });

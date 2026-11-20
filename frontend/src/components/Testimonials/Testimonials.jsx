@@ -8,6 +8,7 @@ const defaultTestimonials = [
   {
     id: 'def-1',
     name: 'Priya Sharma',
+    profession: 'Nutritionist & Wellness Coach',
     location: 'Bengaluru, Karnataka',
     rating: 5,
     review: 'The quality of the A2 Bilona Ghee is simply unmatched. The aroma reminds me of the traditional ghee my grandmother made in our village. Truly pure and authentic.',
@@ -19,6 +20,7 @@ const defaultTestimonials = [
   {
     id: 'def-2',
     name: 'Rohit Mehta',
+    profession: 'Software Consultant',
     location: 'Pune, Maharashtra',
     rating: 5,
     review: 'Switched our complete grocery pantry to Prakruti three months ago. The unpolished pulses cook so much better and the difference in family health is noticeable.',
@@ -30,6 +32,7 @@ const defaultTestimonials = [
   {
     id: 'def-3',
     name: 'Ananya Kulkarni',
+    profession: 'Ayurvedic Practitioner',
     location: 'Hyderabad, Telangana',
     rating: 5,
     review: 'Received the pantry pack in premium biodegradable packaging. The wood-pressed oils have a rich golden hue and smell incredibly fresh.',
@@ -41,6 +44,7 @@ const defaultTestimonials = [
   {
     id: 'def-4',
     name: 'Meera Deshmukh',
+    profession: 'Homemaker',
     location: 'Mumbai, Maharashtra',
     rating: 5,
     review: 'Honest, pesticide-free staples delivered with genuine care. Prakruti has earned our lifelong trust. Highly recommended for every health-conscious family.',
@@ -52,6 +56,7 @@ const defaultTestimonials = [
   {
     id: 'def-5',
     name: 'Karan Verma',
+    profession: 'Culinary Specialist',
     location: 'Ahmedabad, Gujarat',
     rating: 5,
     review: 'Their raw organic spices have transformed our cooking. Pure flavours without any artificial additives or preservatives.',
@@ -83,7 +88,7 @@ const Testimonials = () => {
   const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth <= 768 : false))
 
   // Form State
-  const [form, setForm] = useState({ name: '', location: '', rating: 5, review: '' })
+  const [form, setForm] = useState({ name: '', profession: '', location: '', rating: 5, review: '' })
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [videoFile, setVideoFile] = useState(null)
@@ -288,6 +293,9 @@ const Testimonials = () => {
 
     const formData = new FormData()
     formData.append('name', form.name.trim())
+    if (form.profession.trim()) {
+      formData.append('profession', form.profession.trim())
+    }
     formData.append('location', form.location.trim() || 'Verified Customer')
     formData.append('rating', Number(form.rating) || 5)
     if (form.review.trim()) {
@@ -312,7 +320,7 @@ const Testimonials = () => {
         })
 
         // Reset form
-        setForm({ name: '', location: '', rating: 5, review: '' })
+        setForm({ name: '', profession: '', location: '', rating: 5, review: '' })
         removeImage()
         removeVideo()
       } else {
@@ -476,6 +484,16 @@ const Testimonials = () => {
                       value={form.name}
                       onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                       required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="client-profession">Profession / Occupation</label>
+                    <input
+                      id="client-profession"
+                      type="text"
+                      placeholder="e.g. Doctor, Nutritionist, Homemaker"
+                      value={form.profession}
+                      onChange={(e) => setForm((prev) => ({ ...prev, profession: e.target.value }))}
                     />
                   </div>
                   <div className="input-group">
@@ -721,6 +739,9 @@ const Testimonials = () => {
                     </div>
                     <div className="author-details">
                       <h4 className="author-name">{item.name}</h4>
+                      {item.profession && (
+                        <span className="author-profession">{item.profession}</span>
+                      )}
                       <p className="author-location">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px' }}>
                           <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -821,6 +842,9 @@ const Testimonials = () => {
                 <div className="lightbox-author-row">
                   <div>
                     <h4 className="lightbox-name">{activeLightbox.name}</h4>
+                    {activeLightbox.profession && (
+                      <span className="lightbox-profession">{activeLightbox.profession}</span>
+                    )}
                     <span className="lightbox-location">{activeLightbox.location || 'Verified Buyer'}</span>
                   </div>
                   <div className="lightbox-stars">

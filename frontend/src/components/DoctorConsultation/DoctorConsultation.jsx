@@ -4,6 +4,7 @@ import './DoctorConsultation.css'
 import { api } from '../../services/api'
 import doctorImg from '../../assets/images/docotr iamge.png'
 import { FaClipboardCheck } from 'react-icons/fa'
+import ConsultationIntakeModal from './ConsultationIntakeModal'
 
 const HEALTH_GOALS = [
   'Gut Health & Acidity',
@@ -38,6 +39,8 @@ const createInitialForm = (user = null, doctorProfileId = '') => ({
   dietary_preference: 'vegetarian',
   preferred_time: 'Evening (4 PM - 8 PM)',
   concern: '',
+  patient_intake_data: null,
+  lab_reports: [],
   consent: true
 })
 
@@ -60,6 +63,7 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
   const [status, setStatus] = useState({ type: '', message: '', referenceNo: '' })
   const [isDoctorBioOpen, setIsDoctorBioOpen] = useState(false)
   const [isDoctorImageOpen, setIsDoctorImageOpen] = useState(false)
+  const [isIntakeOpen, setIsIntakeOpen] = useState(false)
 
   const selectedDoctor = doctors.find((doctor) => String(doctor.id) === String(form.doctor_profile_id)) || doctors[0] || DEFAULT_DOCTOR
 
@@ -125,6 +129,38 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
     if (status.type === 'error') {
       setStatus({ type: '', message: '', referenceNo: '' })
     }
+  }
+
+  const openIntakeForm = () => {
+    if (!currentUser) {
+      setStatus({ type: 'error', message: 'Please log in before booking a consultation.' })
+      onLoginClick?.()
+      return
+    }
+    setStatus({ type: '', message: '', referenceNo: '' })
+    setIsIntakeOpen(true)
+  }
+
+  const handleIntakeComplete = ({ intakeData, labReports }) => {
+    const currentProblems = intakeData.current_situation || []
+    const concern = [intakeData.goals, ...currentProblems].filter(Boolean).join('\n\n')
+    setSelectedGoals(intakeData.goals ? ['Personalized lifestyle plan'] : ['Gut Health & Acidity'])
+    setForm((previous) => ({
+      ...previous,
+      name: intakeData.name,
+      phone: intakeData.phone,
+      email: intakeData.email,
+      contact_method: intakeData.contact_method,
+      age_range: intakeData.age ? `Age ${intakeData.age}` : previous.age_range,
+      dietary_preference: intakeData.dietary_preference,
+      preferred_time: intakeData.preferred_time,
+      concern: concern || 'Lifestyle medicine consultation',
+      patient_intake_data: intakeData,
+      lab_reports: labReports,
+    }))
+    setIsIntakeOpen(false)
+    setCurrentStep('payment')
+    window.setTimeout(() => document.querySelector('.doc-form-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
   }
 
   // Step 1: Validate patient details & proceed to payment
@@ -197,8 +233,20 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
       consent: true
     }
 
+    const requestPayload = new FormData()
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value === undefined || value === null) return
+      if (key === 'health_goals' && Array.isArray(value)) {
+        value.forEach((goal) => requestPayload.append('health_goals[]', goal))
+        return
+      }
+      requestPayload.append(key, Array.isArray(value) ? JSON.stringify(value) : String(value))
+    })
+    requestPayload.append('patient_intake_data', JSON.stringify(form.patient_intake_data || {}))
+    ;(form.lab_reports || []).forEach((file) => requestPayload.append('lab_reports[]', file))
+
     try {
-      const res = await api.submitConsultation(payload)
+      const res = await api.submitConsultation(requestPayload)
       setIsSubmitting(false)
 
       const refNo = res.data?.reference_no || ('CONS-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).substring(2, 7).toUpperCase())
@@ -737,8 +785,23 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
 
               </div>
             ) : (
-              /* Step 1: Patient Information & Slot Booking Form */
-              <form className="doc-form-card" onSubmit={handleProceedToPayment} noValidate>
+              <>
+                <div className="doc-intake-launch-card">
+                  <div className="doc-intake-launch-icon" aria-hidden="true">✦</div>
+                  <span className="doc-login-eyebrow">PERSONALIZED HEALTH INTAKE</span>
+                  <h3 className="doc-login-title">Tell us your complete health story</h3>
+                  <p className="doc-login-text">
+                    Complete the guided consultation form in five short sections. You can include your medicines, history, routine, meal plan, and recent laboratory reports.
+                  </p>
+                  <div className="doc-intake-launch-meta"><span>5 guided steps</span><span>Private &amp; secure</span><span>₹1,500 consultation</span></div>
+                  <button type="button" className="doc-primary-btn doc-login-btn" onClick={openIntakeForm}>
+                    Start consultation form <span className="btn-arrow-icon">→</span>
+                  </button>
+                  <p className="doc-login-note">Your answers are shared with the Lifestyle Medicine Expert who prepares for your consultation.</p>
+                </div>
+
+              {/* Detailed form is retained for compatibility with the existing payment flow and replaced by the guided popup above. */}
+              <form className="legacy-inline-form" onSubmit={handleProceedToPayment} noValidate>
                 
                 <div className="form-card-header">
                   <div className="step-indicator-row">
@@ -1009,10 +1072,22 @@ export default function DoctorConsultation({ onShopClick, currentUser, onLoginCl
                 </div>
 
               </form>
+              </>
             )}
           </div>
 
         </div>
+
+        {isIntakeOpen && createPortal(
+          <ConsultationIntakeModal
+            isOpen={isIntakeOpen}
+            onClose={() => setIsIntakeOpen(false)}
+            onComplete={handleIntakeComplete}
+            currentUser={currentUser}
+            initialData={form.patient_intake_data}
+          />,
+          document.body
+        )}
 
       </div>
     </section>

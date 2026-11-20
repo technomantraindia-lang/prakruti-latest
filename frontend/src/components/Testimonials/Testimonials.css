@@ -516,6 +516,18 @@
   text-overflow: ellipsis;
 }
 
+.author-profession {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2d5a27;
+  line-height: 1.25;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .author-location {
   font-size: 0.76rem;
   font-weight: 600;
@@ -699,8 +711,8 @@
 /* Inputs */
 .form-inputs-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   margin-bottom: 18px;
 }
 
@@ -985,6 +997,14 @@
   font-weight: 800;
   color: var(--color-primary-dark, #1b3b18);
   margin: 0;
+}
+
+.lightbox-profession {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2d5a27;
+  margin: 2px 0;
 }
 
 .lightbox-location {

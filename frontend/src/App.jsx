@@ -26,6 +26,7 @@ import DoctorConsultation from './components/DoctorConsultation/DoctorConsultati
 import GuidelinesPage from './components/GuidelinesPage/GuidelinesPage'
 import ComingSoonModal from './components/ComingSoonModal/ComingSoonModal'
 import HomeUspHighlights from './components/HomeUspHighlights/HomeUspHighlights'
+import OrganicTrustBar from './components/OrganicTrustBar/OrganicTrustBar'
 import WebsiteVisitTracker from './components/WebsiteVisitTracker/WebsiteVisitTracker'
 
 import { api, getStoredUser } from './services/api'
@@ -184,16 +185,16 @@ function AppShell() {
   const homeRevealVariants = {
     hidden: (direction) => {
       const offsets = {
-        left: { x: -56, y: 0 },
-        right: { x: 56, y: 0 },
-        up: { x: 0, y: 44 },
-        down: { x: 0, y: -36 },
-        scale: { x: 0, y: 24, scale: 0.96 },
+        left: { x: 0, y: 24 },
+        right: { x: 0, y: 24 },
+        up: { x: 0, y: 32 },
+        down: { x: 0, y: -24 },
+        scale: { x: 0, y: 20, scale: 0.98 },
       }
       const offset = offsets[direction] || offsets.up
       return {
         opacity: 0,
-        x: shouldReduceMotion ? 0 : offset.x,
+        x: 0,
         y: shouldReduceMotion ? 0 : offset.y,
         scale: shouldReduceMotion ? 1 : offset.scale || 1,
       }
@@ -216,7 +217,7 @@ function AppShell() {
       custom={direction}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.18 }}
+      viewport={{ once: true, amount: 'some', margin: '0px 0px -40px 0px' }}
       variants={homeRevealVariants}
     >
       {children}
@@ -257,6 +258,7 @@ function AppShell() {
         {currentPage === 'home' && (
           <>
             <HeroBanner />
+            <OrganicTrustBar />
             {revealHomeSection(
               <HomeUspHighlights
                 onNavigateToFamilyPack={() => handleNavigate('family-pack')}

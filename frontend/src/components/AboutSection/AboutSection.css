@@ -147,6 +147,9 @@
    3. Official Quality Accreditations (Big & Prominent)
    ========================================================================== */
 .trust-accreditations-wrap {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid #e7dfd1;
   border-radius: 24px;
@@ -175,6 +178,8 @@
 
 .trust-accreditations-copy {
   position: relative;
+  min-width: 0;
+  width: 100%;
   padding: 8px 0 8px 34px;
   border-left: 1px solid #e5dac8;
 }
@@ -185,6 +190,8 @@
   font-weight: 700;
   color: var(--color-primary-dark, #173826);
   line-height: 1.22;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   margin: 0 0 16px;
 }
 
@@ -303,6 +310,13 @@
     border-top: 1px solid #e5dac8;
   }
 
+  .trust-accreditations-copy h3,
+  .trust-accreditations-copy p {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
   .trust-logos-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
@@ -316,6 +330,10 @@
 
   .trust-title {
     font-size: 2.1rem;
+  }
+
+  .trust-title em {
+    white-space: normal;
   }
 
   .trust-minimal-grid {
@@ -345,6 +363,21 @@
 @media (max-width: 480px) {
   .trust-title {
     font-size: 1.85rem;
+  }
+
+  .trust-accreditations-wrap {
+    padding: 22px 14px;
+    border-radius: 18px;
+  }
+
+  .trust-accreditations-copy h3 {
+    font-size: 1.45rem;
+    line-height: 1.28;
+  }
+
+  .trust-accreditations-copy p {
+    font-size: .86rem;
+    line-height: 1.6;
   }
 
   .trust-logos-grid {

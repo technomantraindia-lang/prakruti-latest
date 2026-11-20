@@ -73,7 +73,7 @@
             <div class="d-flex gap-2 flex-wrap">
                 @if(session('launch_whatsapp'))
                     <a href="{{ session('launch_whatsapp') }}" target="_blank" class="btn btn-success fw-bold shadow-sm px-3 py-2">
-                        <i class="fab fa-whatsapp me-1 fs-5"></i> Open WhatsApp Web Now
+                        <i class="fab fa-whatsapp me-1 fs-5"></i> Send Text to Customer
                     </a>
                 @endif
                 @if(session('whatsapp_message'))
@@ -301,7 +301,7 @@
                         </div>
                         <div class="col-sm-6">
                             <button type="button" id="btnOpenWebWhatsApp" class="btn btn-success fw-bold w-100 py-2.5 shadow-sm" onclick="submitAndOpenWebWhatsApp()">
-                                <i class="fab fa-whatsapp me-1.5 fs-5"></i> Open Web WhatsApp
+                                <i class="fab fa-whatsapp me-1.5 fs-5"></i> Send Text to Customer
                             </button>
                         </div>
                     </div>
@@ -335,7 +335,7 @@
                             </div>
                             @if($consultation->customer_whatsapp_url)
                                 <a href="{{ $consultation->customer_whatsapp_url }}" target="_blank" class="btn btn-xs btn-outline-success py-0 px-2 fw-bold">
-                                    <i class="fab fa-whatsapp me-1"></i> Re-send
+                                    <i class="fab fa-whatsapp me-1"></i> Send Text Again
                                 </a>
                             @endif
                         </div>
@@ -366,6 +366,355 @@
                     <small class="text-success"><i class="fas fa-check-circle me-1"></i>Dispatched to Doctor WhatsApp on {{ $consultation->doctor_whatsapp_sent_at->format('d M Y, h:i A') }}</small>
                 @endif
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- PATIENT CLINICAL INTAKE DOSSIER (PATIENT DATA FORM FOR CONSULTATIONS) -->
+<div class="card shadow-sm border-0 mb-4" style="border-top: 4px solid #0d6efd !important;">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-file-medical text-primary me-2"></i>Patient Clinical Intake Form (Consultation Dossier)
+            </h5>
+            <small class="text-muted">Official Patient Data Form for Consultations submitted post-payment</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success text-white px-2.5 py-1.5 fw-bold">
+                <i class="fas fa-check-circle me-1"></i> Paid ₹{{ number_format((float) ($consultation->payment_amount ?: 1500), 0) }}
+            </span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print Dossier
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        @php
+            $intake = $consultation->patient_intake_data ?? [];
+            $demo = $intake['demographics'] ?? $intake;
+            $goalsData = $intake['goals'] ?? [];
+            $problems = $intake['current_situation']['problems'] ?? ($intake['current_situation'] ?? []);
+            $meds = $intake['medications']['list'] ?? ($intake['medications'] ?? []);
+            $otherTherapy = $intake['medications']['other_therapies'] ?? ($intake['other_therapy'] ?? ($intake['other_therapies'] ?? null));
+            $history = $intake['past_history'] ?? $intake;
+            $meals = $intake['daily_meal_plan'] ?? ($intake['meal_plan'] ?? []);
+            $labFiles = $consultation->lab_reports ?? ($intake['lab_reports'] ?? []);
+        @endphp
+
+        <!-- Section 1: Demographics & Consultation Info -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-user-circle me-1"></i> 1. Consultation &amp; Patient Demographics
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Consultation Package:</span>
+                    <strong class="text-dark">{{ $demo['package'] ?? 'Lifestyle Medicine Consultation (₹1,500)' }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Consultation Date:</span>
+                    <strong class="text-dark">{{ $demo['consultation_date'] ?? $consultation->created_at?->format('d M Y') }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Referred By:</span>
+                    <strong class="text-dark">{{ $demo['referred_by'] ?? ($intake['referred_by'] ?? 'Self / Direct') }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Full Name:</span>
+                    <strong class="text-dark">{{ $demo['name'] ?? $consultation->name }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Gender:</span>
+                    <strong class="text-dark">{{ ucfirst($demo['gender'] ?? ($intake['gender'] ?? 'Not specified')) }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Date of Birth &amp; Age:</span>
+                    <strong class="text-dark">
+                        {{ $demo['dob'] ?? ($intake['date_of_birth'] ?? ($intake['dob'] ?? 'N/A')) }} 
+                        @if(!empty($demo['age']) || !empty($intake['age']))
+                            ({{ $demo['age'] ?? $intake['age'] }} yrs)
+                        @elseif($consultation->age_range)
+                            ({{ $consultation->age_range }})
+                        @endif
+                    </strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Height &amp; Weight:</span>
+                    <strong class="text-dark">
+                        {{ $demo['height'] ?? ($intake['height'] ?? '-') }} cm / ft &bull; 
+                        {{ $demo['weight'] ?? ($intake['weight'] ?? '-') }} kg
+                    </strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Phone / WhatsApp:</span>
+                    <strong class="text-dark">{{ $demo['phone'] ?? $consultation->phone }}</strong>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <span class="text-muted small d-block">Email Address:</span>
+                    <strong class="text-dark">{{ $demo['email'] ?? ($consultation->email ?: 'N/A') }}</strong>
+                </div>
+                <div class="col-12">
+                    <span class="text-muted small d-block">Residential Address:</span>
+                    <div class="p-2 bg-light rounded text-dark">{{ $demo['address'] ?? ($intake['address'] ?? 'Not specified') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Patient Goals -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-bullseye me-1"></i> 2. Patient Goals
+            </h6>
+            <div class="p-3 bg-light rounded border text-dark" style="white-space: pre-wrap; line-height: 1.6;">
+                <strong>What do you hope to achieve from this consultation?</strong>
+                <p class="mb-0 mt-1">{{ is_array($goalsData) ? ($goalsData['achieve'] ?? ($goalsData['hopes_to_achieve'] ?? ($consultation->patient_display_concern ?: 'No specific goals written.'))) : $goalsData }}</p>
+            </div>
+        </div>
+
+        <!-- Section 3: Current Situation (Problems 1 to 10) -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-list-ol me-1"></i> 3. Current Situation (Chronological Health Problems)
+            </h6>
+            <p class="small text-muted mb-2">Problems listed from oldest to latest with symptoms and onset history:</p>
+            @if(is_array($problems) && count($problems) > 0)
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;" class="text-center">#</th>
+                                <th>Problem / Condition</th>
+                                <th style="width: 160px;">Duration / Since When</th>
+                                <th>Symptoms</th>
+                                <th>How It Began</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($problems as $idx => $prob)
+                                @if(is_array($prob))
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $idx + 1 }}</td>
+                                        <td class="fw-semibold text-dark">{{ $prob['problem'] ?? ($prob['title'] ?? '-') }}</td>
+                                        <td>{{ $prob['duration'] ?? '-' }}</td>
+                                        <td>{{ $prob['symptoms'] ?? '-' }}</td>
+                                        <td>{{ $prob['how_began'] ?? ($prob['how_it_began'] ?? '-') }}</td>
+                                    </tr>
+                                @elseif(!empty($prob))
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $idx + 1 }}</td>
+                                        <td colspan="4" class="text-dark">{{ $prob }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-3 bg-light rounded text-muted">
+                    {{ $consultation->patient_display_concern ?: 'No chronological problems listed separately.' }}
+                </div>
+            @endif
+        </div>
+
+        <!-- Section 4: Current Medications & Supplements -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-pills me-1"></i> 4. Current Medications &amp; Supplements
+            </h6>
+            @if(is_array($meds) && count($meds) > 0)
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Medication / Supplement Taken</th>
+                                <th>For What Condition</th>
+                                <th>Dosage (mg, ml, etc.)</th>
+                                <th>Timing</th>
+                                <th>Since How Long</th>
+                                <th>Any Problems / Side Effects?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($meds as $med)
+                                @if(is_array($med) && (!empty($med['name']) || !empty($med['medication'])))
+                                    <tr>
+                                        <td class="fw-semibold text-dark">{{ $med['name'] ?? ($med['medication'] ?? '-') }}</td>
+                                        <td>{{ $med['for_what'] ?? ($med['reason'] ?? '-') }}</td>
+                                        <td>{{ $med['dosage'] ?? '-' }}</td>
+                                        <td>{{ $med['timing'] ?? ($med['time'] ?? '-') }}</td>
+                                        <td>{{ $med['duration'] ?? ($med['since'] ?? ($med['since_how_long'] ?? '-')) }}</td>
+                                        <td>{{ $med['problems'] ?? ($med['side_effects'] ?? 'None') }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-2 bg-light rounded text-muted small mb-3">No regular medications or supplements specified.</div>
+            @endif
+
+            <div class="p-2.5 bg-light rounded border">
+                <span class="small fw-bold text-muted d-block">Other Therapies or Treatments (besides medicines):</span>
+                <span class="text-dark">{{ $otherTherapy ?: ($history['other_therapies'] ?? 'None reported.') }}</span>
+            </div>
+        </div>
+
+        <!-- Section 5: Past Medical History & Lifestyle -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-history me-1"></i> 5. Past Medical History &amp; Lifestyle
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Major past health problems or surgeries:</span>
+                        <span class="text-dark">{{ $history['past_problems_surgeries'] ?? ($history['past_health_problems'] ?? ($history['surgeries'] ?? 'None reported')) }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Major allergies or food aggravations:</span>
+                        <span class="text-dark">{{ $history['allergies_food_aggravations'] ?? ($history['allergies'] ?? 'None reported') }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Emergency treatments needed in the past:</span>
+                        <span class="text-dark">{{ $history['emergency_treatments'] ?? 'None reported' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Past hospitalizations &amp; conditions:</span>
+                        <span class="text-dark">{{ $history['hospitalizations'] ?? ($history['past_hospitalization'] ?? 'None reported') }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Regular exercise &amp; time devoted:</span>
+                        <span class="text-dark">{{ $history['regular_exercise'] ?? ($history['exercise'] ?? 'None reported') }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Sleep Pattern:</span>
+                        <span class="text-dark">
+                            <strong>Quality:</strong> {{ $history['sleep_quality'] ?? 'Normal' }} &bull;
+                            <strong>Difficulty:</strong> {{ $history['sleep_difficulty'] ?? 'N/A' }} &bull;
+                            <strong>Bedtime:</strong> {{ $history['sleep_bedtime'] ?? ($history['bedtime'] ?? 'N/A') }} &bull;
+                            <strong>Wake-up:</strong> {{ $history['sleep_waketime'] ?? ($history['sleep_wake_time'] ?? ($history['wake_time'] ?? 'N/A')) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Major stress &amp; details:</span>
+                        <span class="text-dark">{{ $history['stress_details'] ?? ($history['major_stress'] ?? 'None reported') }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-2.5 bg-light rounded border h-100">
+                        <span class="small fw-bold text-muted d-block">Habits or addictions (tea, coffee, alcohol, smoking, etc.):</span>
+                        <span class="text-dark">{{ $history['habits_addictions'] ?? ($history['habits'] ?? 'None reported') }}</span>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-2.5 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Family Medical History:</span>
+                        <span class="text-dark">{{ $history['family_history'] ?? 'No significant family history noted.' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Daily Meal Plan (24-Hour Diet Recall) -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-utensils me-1"></i> 6. Daily Meal Plan (24-Hour Diet Recall)
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Wake up:</span>
+                        <span class="text-dark">{{ $meals['wake_up'] ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Breakfast:</span>
+                        <span class="text-dark">{{ $meals['breakfast'] ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Mid-Morning Snack:</span>
+                        <span class="text-dark">{{ $meals['snack'] ?? ($meals['snack_morning'] ?? ($meals['mid_morning_snack'] ?? '-')) }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Lunch:</span>
+                        <span class="text-dark">{{ $meals['lunch'] ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Dinner:</span>
+                        <span class="text-dark">{{ $meals['dinner'] ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Bedtime:</span>
+                        <span class="text-dark">{{ $meals['bedtime'] ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 bg-light rounded border">
+                        <span class="small fw-bold text-muted d-block">Anything in between:</span>
+                        <span class="text-dark">{{ $meals['anything_in_between'] ?? ($meals['in_between'] ?? '-') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Laboratory Scans & Reports -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                <i class="fas fa-file-invoice me-1"></i> 7. Laboratory Tests &amp; Diagnostic Scans
+            </h6>
+            @if(is_array($labFiles) && count($labFiles) > 0)
+                <div class="row g-2">
+                    @foreach($labFiles as $report)
+                        @php
+                            $reportUrl = is_array($report) ? ($report['url'] ?? asset($report['file_path'] ?? '')) : asset($report);
+                            $reportName = is_array($report) ? ($report['name'] ?? basename($report['file_path'] ?? 'Report')) : basename($report);
+                        @endphp
+                        <div class="col-md-4 col-sm-6">
+                            <div class="p-2.5 bg-light rounded border d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center text-truncate me-2">
+                                    <i class="fas fa-file-pdf text-danger fs-5 me-2"></i>
+                                    <span class="text-truncate fw-semibold small text-dark" title="{{ $reportName }}">{{ $reportName }}</span>
+                                </div>
+                                <a href="{{ $reportUrl }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2 flex-shrink-0" title="Open / Download Report">
+                                    <i class="fas fa-download"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="p-3 bg-light rounded text-muted small">
+                    <i class="fas fa-info-circle me-1"></i> No lab report files uploaded yet by the patient.
+                </div>
+            @endif
+        </div>
+
+        <!-- Disclaimer Notice -->
+        <div class="p-2.5 bg-light-subtle rounded border small text-muted">
+            <i class="fas fa-shield-alt text-secondary me-1"></i>
+            <strong>Legal / Medical Disclaimer:</strong> Doctors / Nutritionists shall not be held responsible for any consequences of receiving wrong information.
         </div>
     </div>
 </div>

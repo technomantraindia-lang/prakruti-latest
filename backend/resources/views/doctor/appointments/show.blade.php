@@ -198,4 +198,6 @@
         </div>
     </div>
 </div>
+
+@include('doctor.appointments._patient_dossier', ['consultation' => $consultation])
 @endsection

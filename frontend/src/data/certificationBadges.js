@@ -1,3 +1,5 @@
+import jaivikBharat from '../assets/images/jaivik-bharat-logo.png'
+import indocert from '../assets/images/indocert-logo.png'
 import isoCompany from '../assets/images/certification_badges_transparent_png/01_ISO_Company.png'
 import haccpFoodSafety from '../assets/images/certification_badges_transparent_png/02_HACCP_Food_Safety_Certified.png'
 import apedaRegistration from '../assets/images/certification_badges_transparent_png/03_APEDA_Registration.png'
@@ -12,6 +14,8 @@ import glutenFree from '../assets/images/certification_badges_transparent_png/11
 import gmoFree from '../assets/images/certification_badges_transparent_png/12_GMO_Free.png'
 
 const certificationBadges = [
+  { image: jaivikBharat, label: 'Jaivik Bharat (India Organic)' },
+  { image: indocert, label: 'INDOCERT Certified Organic' },
   { image: isoCompany, label: 'ISO Certified Company' },
   { image: haccpFoodSafety, label: 'HACCP Food Safety Certified' },
   { image: apedaRegistration, label: 'APEDA Registration' },

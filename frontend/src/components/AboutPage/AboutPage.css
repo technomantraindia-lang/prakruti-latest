@@ -770,6 +770,9 @@
 }
 
 .about-certifications-section .trust-accreditations-wrap {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid #e7dfd1;
   border-radius: 24px;
@@ -798,6 +801,8 @@
 
 .about-certifications-section .trust-accreditations-copy {
   position: relative;
+  min-width: 0;
+  width: 100%;
   padding: 8px 0 8px 34px;
   border-left: 1px solid #e5dac8;
 }
@@ -808,6 +813,8 @@
   font-weight: 700;
   color: var(--color-primary-dark, #173826);
   line-height: 1.22;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   margin: 0 0 16px;
 }
 
@@ -888,6 +895,13 @@
     padding: 26px 0 0;
     border-left: 0;
     border-top: 1px solid #e5dac8;
+  }
+
+  .about-certifications-section .trust-accreditations-copy h3,
+  .about-certifications-section .trust-accreditations-copy p {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .about-certifications-section .trust-logos-grid {
@@ -1290,6 +1304,21 @@
 }
 
 @media (max-width: 480px) {
+  .about-certifications-section .trust-accreditations-wrap {
+    padding: 22px 14px;
+    border-radius: 18px;
+  }
+
+  .about-certifications-section .trust-accreditations-copy h3 {
+    font-size: 1.45rem;
+    line-height: 1.28;
+  }
+
+  .about-certifications-section .trust-accreditations-copy p {
+    font-size: .86rem;
+    line-height: 1.6;
+  }
+
   .about-certifications-section .trust-logos-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;

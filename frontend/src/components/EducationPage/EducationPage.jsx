@@ -6,7 +6,7 @@ import { apiClient } from '../../api/client'
 
 // Import assets
 import bannerBg from '../../assets/images/nutrition_banner.jpg'
-import healthyPlateImg from '../../assets/videos for ghee/final power plate.jpeg'
+import healthyPlateImg from '../../assets/videos for ghee/image.png'
 import healthyPlateBanner from '../../assets/images/healthy_food_plate.jpg'
 import junkPlateBanner from '../../assets/images/junk_food_plate.jpg'
 import breakfastImg from '../../assets/images/brakfast.png'
@@ -66,22 +66,10 @@ const FOOD_GROUPS = [
     examples: 'Moong, masoor, unpolished tuvar, chana, rajma, black urad, cowpeas (chawli)'
   },
   {
-    iconPosition: '0% 100%',
-    title: 'Dairy / Fermented Milk',
-    role: 'High biological value protein, calcium & gut probiotics',
-    examples: 'A2 cow milk, fresh curd (dahi), homemade buttermilk (chaas), paneer'
-  },
-  {
     iconPosition: '33.333% 100%',
     title: 'Nuts & Seeds',
     role: 'Healthy unsaturated fats, vitamin E, zinc & magnesium',
     examples: 'Groundnuts, almonds, walnuts, white/black sesame, flaxseeds, pumpkin seeds'
-  },
-  {
-    iconPosition: '66.666% 100%',
-    title: 'Quality Proteins',
-    role: 'Complete amino acid profile for muscle maintenance & vitality',
-    examples: 'Sprouted moong & pulses, fresh organic paneer, homemade curd, chana, and rajma'
   },
   {
     iconPosition: '100% 100%',
@@ -857,7 +845,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             >
               <div className="contrast-col-head head-green">
                 <span className="col-icon"></span>
-                <h3>Eat More (Daily Staples)</h3>
+                <h3>Eat More Living Food</h3>
               </div>
               <div className="contrast-card-media-box">
                 <img
@@ -903,7 +891,7 @@ export default function EducationPage({ onShopClick, onNavigate }) {
             >
               <div className="contrast-col-head head-amber">
                 <span className="col-icon"></span>
-                <h3>Eat Less (Occasional Treats)</h3>
+                <h3>Eat Less (Avoid/Minimize)</h3>
               </div>
               <div className="contrast-card-media-box">
                 <img
@@ -1065,6 +1053,9 @@ export default function EducationPage({ onShopClick, onNavigate }) {
                 <span className="dd-source-badge badge-nin">ICMR - NIN Report 2024 ↗</span>
               </div>
               <h4>Learn to Read the Food Label</h4>
+              <div className="dd-punchline-pill">
+                <span className="dd-punchline-hindi">“पैकेट उठाओ, पता लगाओ”</span>
+              </div>
               <p>The front of the box is advertising; the back label is reality. Always check the ingredients list and watch out for added sugars, palm oil, artificial flavors, and elevated sodium levels before buying packaged items.</p>
             </motion.a>
           </motion.div>

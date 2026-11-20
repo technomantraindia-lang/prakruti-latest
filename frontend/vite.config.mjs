@@ -21,10 +21,10 @@ export default defineConfig({
       allow: [projectRoot],
       strict: false,
     },
-    // The nested Windows path causes Vite's config watcher to resolve the
-    // protected parent directory and restart in a loop. HMR is not needed
-    // for the running storefront, so keep the dev server stable.
-    watch: null,
+    watch: {
+      usePolling: true,
+      interval: 800,
+    },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',

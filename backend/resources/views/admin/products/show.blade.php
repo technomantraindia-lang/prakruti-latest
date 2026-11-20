@@ -26,12 +26,12 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <a href="{{ route('admin.products.index') }}" class="text-decoration-none small text-muted"><i class="fas fa-arrow-left"></i> Back to Products</a>
+        <a href="{{ route('admin.products.index', request()->query() ?: session('admin_products_filters', [])) }}" class="text-decoration-none small text-muted"><i class="fas fa-arrow-left"></i> Back to Products</a>
         <h2 class="mb-0 mt-1">{{ $product->name }}</h2>
     </div>
     <div class="d-flex gap-2">
-        <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Product</a>
-        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Back</a>
+        <a href="{{ route('admin.products.edit', array_merge(['product' => $product->id], request()->query() ?: session('admin_products_filters', []))) }}" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Product</a>
+        <a href="{{ route('admin.products.index', request()->query() ?: session('admin_products_filters', [])) }}" class="btn btn-secondary">Back</a>
     </div>
 </div>
 

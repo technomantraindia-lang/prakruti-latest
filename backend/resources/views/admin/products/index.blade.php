@@ -13,7 +13,7 @@
 @if(request()->boolean('low_stock'))
     <div class="alert alert-danger d-flex justify-content-between align-items-center gap-3">
         <span><i class="fas fa-arrow-trend-down me-2"></i>Showing products at or below their available-stock threshold.</span>
-        <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-outline-danger">Clear filter</a>
+        <a href="{{ route('admin.products.index', ['reset' => 1]) }}" class="btn btn-sm btn-outline-danger">Clear filter</a>
     </div>
 @endif
 
@@ -34,7 +34,7 @@
                 <option value="inactive" @selected(request('status')==='inactive')>Inactive</option>
             </select>
         </div>
-        <div class="col-md-3"><button class="btn btn-primary">Filter</button> <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Reset</a></div>
+        <div class="col-md-3"><button class="btn btn-primary">Filter</button> <a href="{{ route('admin.products.index', ['reset' => 1]) }}" class="btn btn-secondary">Reset</a></div>
     </form>
 </div></div>
 
@@ -94,9 +94,9 @@
                     </form>
                 </td>
                 <td>
-                    <a href="{{ route('admin.products.show', $product) }}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
-                    <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
-                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')">@csrf @method('DELETE')
+                    <a href="{{ route('admin.products.show', array_merge(['product' => $product->id], request()->query())) }}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('admin.products.edit', array_merge(['product' => $product->id], request()->query())) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                    <form action="{{ route('admin.products.destroy', array_merge(['product' => $product->id], request()->query())) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')">@csrf @method('DELETE')
                         <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>

@@ -92,9 +92,10 @@ export const api = {
     };
   },
   submitConsultation: async (data) => {
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
     return apiClient('/consultation-requests', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
     });
   },
   getCustomerConsultations: async () => {

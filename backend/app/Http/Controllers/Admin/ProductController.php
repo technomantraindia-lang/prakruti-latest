@@ -37,6 +37,31 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
+        if ($request->has('reset')) {
+            session()->forget('admin_products_filters');
+            return redirect()->route('admin.products.index');
+        }
+
+        $filterKeys = ['search', 'category_id', 'status', 'low_stock', 'page'];
+        $hasFilterParam = $request->hasAny(['search', 'category_id', 'status', 'low_stock']);
+
+        if ($hasFilterParam) {
+            $activeFilters = array_filter(
+                $request->only($filterKeys),
+                fn ($val) => $val !== null && $val !== ''
+            );
+            if (!empty($activeFilters)) {
+                session(['admin_products_filters' => $activeFilters]);
+            } else {
+                session()->forget('admin_products_filters');
+            }
+        } elseif (!$request->has('page') && session()->has('admin_products_filters')) {
+            $savedFilters = session('admin_products_filters');
+            if (!empty($savedFilters)) {
+                return redirect()->route('admin.products.index', $savedFilters);
+            }
+        }
+
         $lowStockOnly = $request->boolean('low_stock');
         $query = Product::with([
             'category',
@@ -292,11 +317,27 @@ class ProductController extends Controller
             $this->inventoryService->adjustStock($product, $targetStock, 'admin_product_update');
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        $returnFilters = array_filter(
+            $request->only(['search', 'category_id', 'status', 'low_stock', 'page']),
+            fn ($val) => $val !== null && $val !== ''
+        );
+        if (empty($returnFilters)) {
+            $returnFilters = session('admin_products_filters', []);
+        }
+
+        return redirect()->route('admin.products.index', $returnFilters)->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product)
     {
+        $returnFilters = array_filter(
+            request()->only(['search', 'category_id', 'status', 'low_stock', 'page']),
+            fn ($val) => $val !== null && $val !== ''
+        );
+        if (empty($returnFilters)) {
+            $returnFilters = session('admin_products_filters', []);
+        }
+
         try {
             $mainImage = $product->image;
             $galleryImages = $product->images()->pluck('image')->filter()->all();
@@ -337,11 +378,11 @@ class ProductController extends Controller
             }
         } catch (QueryException) {
             return redirect()
-                ->route('admin.products.index')
+                ->route('admin.products.index', $returnFilters)
                 ->with('error', 'This product could not be deleted because it is linked to protected records. Please remove linked records and try again.');
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('admin.products.index', $returnFilters)->with('success', 'Product deleted successfully.');
     }
 
     public function bulkCreate()

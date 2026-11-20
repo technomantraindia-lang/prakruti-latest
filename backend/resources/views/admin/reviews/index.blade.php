@@ -98,6 +98,11 @@
                                     @endif
                                     <div>
                                         <strong class="text-dark d-block">{{ $testimonial->name ?: 'Anonymous Customer' }}</strong>
+                                        @if($testimonial->profession)
+                                            <div class="small text-success fw-medium">
+                                                <i class="fas fa-user-tie me-1"></i>{{ $testimonial->profession }}
+                                            </div>
+                                        @endif
                                         <div class="small text-muted">
                                             <i class="fas fa-map-marker-alt text-secondary me-1"></i>{{ $testimonial->location ?: 'Verified Customer' }}
                                         </div>

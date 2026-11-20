@@ -50,6 +50,8 @@ class ConsultationRequest extends Model
         'order_id',
         'consultant_notes',
         'doctor_notes',
+        'patient_intake_data',
+        'lab_reports',
     ];
 
     protected function casts(): array
@@ -67,6 +69,8 @@ class ConsultationRequest extends Model
             'customer_whatsapp_sent_at' => 'datetime',
             'doctor_whatsapp_sent_at' => 'datetime',
             'is_order_followup' => 'boolean',
+            'patient_intake_data' => 'array',
+            'lab_reports' => 'array',
         ];
     }
 

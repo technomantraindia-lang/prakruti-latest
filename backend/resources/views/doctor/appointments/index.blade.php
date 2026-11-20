@@ -269,9 +269,9 @@
                             <i class="fas fa-notes-medical"></i> Clinical Notes
                         </button>
 
-                        <button type="button" class="btn btn-sm btn-outline-info fw-bold flex-fill d-flex align-items-center justify-content-center gap-1" data-bs-toggle="modal" data-bs-target="#profileModal{{ $item->id }}">
-                            <i class="fas fa-id-card"></i> View Profile
-                        </button>
+                        <a href="{{ route('doctor.appointments.show', $item) }}" class="btn btn-sm btn-outline-info fw-bold flex-fill d-flex align-items-center justify-content-center gap-1">
+                            <i class="fas fa-id-card"></i> Patient Details
+                        </a>
 
                         @if($item->video_status !== 'completed')
                             <form method="POST" action="{{ route('doctor.appointments.complete', $item) }}" class="flex-fill" onsubmit="return confirm('Complete meeting with {{ addslashes($item->name) }} and remove from active workspace?');">

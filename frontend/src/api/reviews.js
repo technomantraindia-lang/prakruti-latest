@@ -10,10 +10,11 @@ export const reviewsApi = {
     if (typeof FormData !== 'undefined' && payload instanceof FormData) {
       body = payload;
     } else {
-      const { name, location, rating, review, image, video } = payload;
+      const { name, location, profession, rating, review, image, video } = payload;
       const formData = new FormData();
       if (name) formData.append('name', name);
       if (location) formData.append('location', location);
+      if (profession) formData.append('profession', profession);
       formData.append('rating', rating || 5);
       if (review) formData.append('review', review);
       if (image) formData.append('image', image);

@@ -24,9 +24,8 @@
 }
 
 .post-image-wrap {
-  width: 100%;
-  height: 100%;
-  position: relative;
+  position: absolute;
+  inset: 0;
 }
 
 .post-image,
@@ -51,6 +50,9 @@
 }
 
 .instagram-feed-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
   border: 0;
   pointer-events: none;
   display: block;
@@ -221,6 +223,7 @@
 @media (max-width: 768px) {
   .instagram-row {
     display: flex;
+    align-items: flex-start;
     overflow-x: auto;
     padding-bottom: 16px;
     gap: 12px;
@@ -229,6 +232,8 @@
   }
   .instagram-post, .instagram-follow-card {
     min-width: 130px;
+    min-height: 0;
+    height: auto;
     flex: 0 0 auto;
     scroll-snap-align: start;
   }
@@ -244,6 +249,7 @@
   }
   .instagram-post, .instagram-follow-card {
     min-width: 110px;
+    min-height: 0;
     border-radius: 10px;
   }
   .instagram-icon {

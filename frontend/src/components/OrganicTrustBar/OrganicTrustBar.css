@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Organic Trust Bar - Primary USP Certification Component
+   ========================================================================== */
+
+.organic-trust-bar-section {
+  width: 100%;
+  background: linear-gradient(180deg, #fbf9f4 0%, #f6f1e5 100%);
+  border-top: 1px solid #ebd9c2;
+  border-bottom: 1px solid #ebd9c2;
+  padding: 28px 0;
+  position: relative;
+  z-index: 5;
+  box-shadow: 0 4px 18px rgba(45, 90, 39, 0.04);
+}
+
+.organic-trust-bar-card {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  align-items: center;
+  gap: 40px;
+  background: #ffffff;
+  border: 1px solid #e5ded2;
+  border-radius: 20px;
+  padding: 24px 36px;
+  box-shadow: 0 10px 30px rgba(45, 90, 39, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle organic corner accent line */
+.organic-trust-bar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2d5a27 0%, #83ab73 40%, #d9a05b 100%);
+}
+
+/* ---- Left: Certification Seals Column ---- */
+.otb-badges-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px dashed #e3dacd;
+  padding-right: 32px;
+}
+
+.otb-badge-heading {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  color: #2d5a27;
+  text-transform: uppercase;
+}
+
+.otb-logos-pair {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.otb-seal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  flex: 1;
+  transition: transform 0.28s ease;
+}
+
+.otb-seal-item:hover {
+  transform: translateY(-2px);
+}
+
+.otb-seal-avatar {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #e2dacd;
+  box-shadow: 0 6px 16px rgba(45, 90, 39, 0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.otb-seal-item:hover .otb-seal-avatar {
+  border-color: #2d5a27;
+  box-shadow: 0 8px 22px rgba(45, 90, 39, 0.16);
+}
+
+.otb-seal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.otb-seal-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.otb-seal-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #193a15;
+  line-height: 1.2;
+}
+
+.otb-seal-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6a6a6a;
+  line-height: 1.2;
+}
+
+.otb-seal-divider {
+  color: #d9a05b;
+  font-size: 0.9rem;
+  margin-top: -24px;
+  opacity: 0.8;
+}
+
+/* ---- Middle / Right: Info Column ---- */
+.otb-info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.otb-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #edf5ea;
+  color: #2d5a27;
+  border: 1px solid #cce2c6;
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  width: fit-content;
+}
+
+.otb-sparkle {
+  color: #d9a05b;
+  font-size: 0.75rem;
+}
+
+.otb-title {
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1a2f18;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.otb-description {
+  font-size: 0.92rem;
+  color: #4b4b4b;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 780px;
+}
+
+.otb-description strong {
+  color: #193a15;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .organic-trust-bar-card {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 22px 20px;
+    border-radius: 16px;
+  }
+
+  .otb-badges-column {
+    border-right: none;
+    border-bottom: 1px dashed #e3dacd;
+    padding-right: 0;
+    padding-bottom: 18px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .otb-logos-pair {
+    width: 100%;
+    justify-content: center;
+    gap: 28px;
+  }
+
+  .otb-seal-avatar {
+    width: 74px;
+    height: 74px;
+  }
+
+  .otb-title {
+    font-size: 1.3rem;
+  }
+
+  .otb-description {
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .organic-trust-bar-section {
+    padding: 16px 0;
+  }
+
+  .otb-logos-pair {
+    gap: 16px;
+  }
+
+  .otb-seal-avatar {
+    width: 66px;
+    height: 66px;
+  }
+
+  .otb-title {
+    font-size: 1.18rem;
+  }
+}

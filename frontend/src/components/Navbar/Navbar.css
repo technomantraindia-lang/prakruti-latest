@@ -3,6 +3,10 @@
    ========================================================================== */
 
 .navbar {
+  width: 100%;
+  min-height: var(--nav-height, 74px);
+  max-height: var(--nav-height, 74px);
+  overflow: visible;
   background-color: var(--color-white);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
@@ -18,6 +22,9 @@
   margin: 0 auto;
   padding: 0 28px;
   height: var(--nav-height, 74px);
+  min-height: var(--nav-height, 74px);
+  max-height: var(--nav-height, 74px);
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,13 +38,20 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  max-width: min(360px, 42vw);
+  height: 100%;
+  overflow: hidden;
   text-decoration: none;
   min-width: auto;
 }
 
 .logo-img {
-  width: 48px;
-  height: 48px;
+  flex: 0 0 48px;
+  width: 48px !important;
+  height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  display: block;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
@@ -49,6 +63,8 @@
 .logo-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  max-width: 290px;
   line-height: 1.2;
 }
 
@@ -66,6 +82,8 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- Nav Links ---- */
@@ -415,8 +433,11 @@
     gap: 10px;
   }
   .logo-img {
-    width: 38px;
-    height: 38px;
+    flex-basis: 38px;
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
   }
   .logo-name {
     font-size: 1.1rem;
@@ -453,8 +474,11 @@
     gap: 6px;
   }
   .logo-img {
-    width: 34px;
-    height: 34px;
+    flex-basis: 34px;
+    width: 34px !important;
+    height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
   }
   .logo-name {
     font-size: 0.98rem;

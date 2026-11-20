@@ -39,6 +39,7 @@ class ReviewApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:120',
             'location' => 'nullable|string|max:120',
+            'profession' => 'nullable|string|max:120',
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'nullable|string|max:1200',
             'msg' => 'nullable|string|max:1200',
@@ -64,6 +65,7 @@ class ReviewApiController extends Controller
         $testimonial = Testimonial::create([
             'name' => $validated['name'],
             'location' => $validated['location'] ?? null,
+            'profession' => $validated['profession'] ?? null,
             'rating' => (int) ($validated['rating'] ?? 5),
             'msg' => $reviewText,
             'img' => $imagePath,
@@ -161,6 +163,7 @@ class ReviewApiController extends Controller
             'id' => $testimonial->id,
             'name' => $testimonial->name,
             'location' => $testimonial->location ?: 'Verified Customer',
+            'profession' => $testimonial->profession ?: '',
             'rating' => (int) $testimonial->rating,
             'review' => $testimonial->msg,
             'image' => $testimonial->image_url,

@@ -11,8 +11,8 @@ const pillars = [
     image: certifiedOrganicImage,
     title: 'Certified Organic Farmlands',
     titleLines: ['Certified Organic', 'Farmlands'],
-    subtitle: 'Scope Certificate',
-    desc: 'Cultivated in pesticide-free soils using non-GMO native seeds nurtured with natural bio-compost across 500+ farmer cooperatives.'
+    subtitle: 'Scope Certificate • INDOCERT & Jaivik Bharat',
+    desc: 'Certified by INDOCERT under Jaivik Bharat (NPOP) standards. Cultivated in pesticide-free soils using non-GMO native seeds across generational organic farmlands.'
   },
     {
     image: laboratoryImage,
