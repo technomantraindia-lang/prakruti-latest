@@ -160,6 +160,8 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
           price: salePrice ?? regularPrice,
           regularPrice,
           availableStock: Number(variation.available_stock || 0),
+          netQty: variation.net_qty ?? null,
+          netUnit: variation.net_unit ?? null,
         };
       });
     }
@@ -408,17 +410,28 @@ const ProductDetailPage = ({ productId, onBack, onNavigateProduct, onBuyNow }) =
             <div className="pack-size-section">
               <span className="section-small-title">Pack Size</span>
               <div className="sizes-btn-row">
-                {packageOptions.map(option => (
-                  <button 
-                    key={option.key}
-                    type="button"
-                    className={`size-select-btn ${packSize === option.key ? 'active' : ''} ${option.availableStock <= 0 ? 'pack-out-of-stock' : ''}`}
-                    onClick={() => setPackSize(option.key)}
-                  >
-                    <span>{option.label} {option.availableStock <= 0 ? '(Out of Stock)' : ''}</span>
-                    <small>{formatPrice(option.price)}</small>
-                  </button>
-                ))}
+                {packageOptions.map(option => {
+                  const isFamily = /family/i.test(option.label) || /\b(?:5kg|10kg|5\s*litre|15\s*litre)\b/i.test(option.label);
+                  return (
+                    <button 
+                      key={option.key}
+                      type="button"
+                      className={`size-select-btn ${packSize === option.key ? 'active' : ''} ${option.availableStock <= 0 ? 'pack-out-of-stock' : ''}`}
+                      onClick={() => setPackSize(option.key)}
+                    >
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {option.label}
+                        {isFamily && (
+                          <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, border: '1px solid #86efac' }}>
+                            ⭐ Family
+                          </span>
+                        )}
+                        {option.availableStock <= 0 ? ' (Out of Stock)' : ''}
+                      </span>
+                      <small>{formatPrice(option.price)}</small>
+                    </button>
+                  );
+                })}
               </div>
               {isOutOfStock && (
                 <p className="pack-stock-warning">⚠️ This package is currently out of stock.</p>

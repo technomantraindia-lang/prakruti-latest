@@ -278,6 +278,25 @@ const BestSellers = ({ onViewProduct, onViewAll }) => {
                         <div className="product-info">
                           <h3 className="product-name">{product.displayName}</h3>
 
+                          {product.variations && product.variations.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '2px 0 6px 0' }}>
+                              <span style={{ fontSize: '0.72rem', background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                📦 {product.variations[0]?.label || product.weight || 'Pack'}
+                              </span>
+                              {product.variations.length > 1 && (
+                                <span style={{ fontSize: '0.72rem', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '1px 5px', borderRadius: '4px', fontWeight: 500 }}>
+                                  +{product.variations.length - 1}
+                                </span>
+                              )}
+                            </div>
+                          ) : product.weight ? (
+                            <div style={{ margin: '2px 0 6px 0' }}>
+                              <span style={{ fontSize: '0.72rem', background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                📦 {product.weight}
+                              </span>
+                            </div>
+                          ) : null}
+
                           <div className="product-rating">
                             <div className="stars">
                               {[...Array(product.rating || 5)].map((_, i) => (

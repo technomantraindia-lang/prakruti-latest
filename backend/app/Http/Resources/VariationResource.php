@@ -31,6 +31,8 @@ class VariationResource extends JsonResource
             'available_stock' => (int) $this->available_stock,
             'image' => $this->image ? route('media.file', ['path' => $this->image]) : null,
             'weight' => $this->weight ? (float) $this->weight : null,
+            'net_qty' => $this->net_qty ? (float) $this->net_qty : null,
+            'net_unit' => $this->net_unit ?: null,
             'attributes' => $attributes,
         ];
     }

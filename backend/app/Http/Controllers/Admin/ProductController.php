@@ -1220,6 +1220,7 @@ class ProductController extends Controller
             $packages[] = [
                 'id' => $row['id'] ?? null,
                 'label' => $label,
+                'sku' => !empty($row['sku']) ? trim($row['sku']) : null,
                 'price' => (float) ($row['price'] ?? 0),
                 'sale_price' => isset($row['sale_price']) && $row['sale_price'] !== '' ? (float) $row['sale_price'] : null,
                 'stock_qty' => max((int) ($row['stock_qty'] ?? 0), 0),
@@ -1362,6 +1363,23 @@ class ProductController extends Controller
 
             $targetStock = $package['stock_qty'];
             $packageSku = !empty($package['sku']) ? trim($package['sku']) : $this->generateVariationSku($product, $package['label'], $variation?->id);
+
+            $parsedSize = \App\Support\PackSize::parse($package['label']);
+            $weightInKg = null;
+            $netQty = null;
+            $netUnit = null;
+            if ($parsedSize) {
+                if ($parsedSize['grams'] !== null) {
+                    $weightInKg = round($parsedSize['grams'] / 1000, 3);
+                    $netQty = $parsedSize['grams'] >= 1000 ? round($parsedSize['grams'] / 1000, 3) : $parsedSize['grams'];
+                    $netUnit = $parsedSize['grams'] >= 1000 ? 'kg' : 'g';
+                } elseif ($parsedSize['ml'] !== null) {
+                    $weightInKg = round($parsedSize['ml'] / 1000, 3);
+                    $netQty = $parsedSize['ml'] >= 1000 ? round($parsedSize['ml'] / 1000, 3) : $parsedSize['ml'];
+                    $netUnit = $parsedSize['ml'] >= 1000 ? 'L' : 'ml';
+                }
+            }
+
             $payload = [
                 'product_id' => $product->id,
                 // Keep the variation's original attribute. The product edit
@@ -1373,6 +1391,9 @@ class ProductController extends Controller
                 'price' => $package['price'],
                 'sale_price' => $package['sale_price'],
                 'status' => $package['status'],
+                'weight' => $weightInKg ?? $variation?->weight ?? $product->weight,
+                'net_qty' => $netQty ?? $variation?->net_qty,
+                'net_unit' => $netUnit ?? $variation?->net_unit,
             ];
 
             if ($variation) {

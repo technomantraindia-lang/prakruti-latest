@@ -77,60 +77,168 @@
                 </div>
 
                 <div class="card border-success-subtle bg-light mb-4">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0">Package Size & Regular Price</h5>
-                            <small class="text-muted">Add options like 500g pack, 1kg pack, 5kg family pack.</small>
+                    <div class="card-header bg-white border-bottom pb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="mb-0 text-success fw-bold"><i class="fas fa-boxes me-2"></i>Package Size &amp; Regular Price</h5>
+                                <small class="text-muted">Configure available pack sizes (e.g. 500g pack, 1kg pack, 5kg family pack, 1 Litre bottle) and regular prices.</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-success px-3 shadow-sm" id="addPackageRow">
+                                <i class="fas fa-plus me-1"></i> Add Package
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-sm btn-success" id="addPackageRow">+ Add Package</button>
+                        <div class="d-flex flex-wrap align-items-center gap-2 p-2 mt-2 bg-light rounded-2 border">
+                            <span class="small text-dark fw-bold me-1">
+                                <i class="fas fa-magic text-warning me-1"></i>Quick Presets:
+                            </span>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 quick-add-size" data-size="500g pack" data-unit="g" style="font-size:0.8rem;">+ 500g Pack</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 quick-add-size" data-size="1kg pack" data-unit="kg" style="font-size:0.8rem;">+ 1kg Pack</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 quick-add-size" data-size="2kg pack" data-unit="kg" style="font-size:0.8rem;">+ 2kg Pack</button>
+                                <button type="button" class="btn btn-sm btn-outline-success py-1 px-2 quick-add-size fw-bold" data-size="5kg family pack" data-unit="family pack" style="font-size:0.8rem;">+ 5kg Family Pack ⭐</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 quick-add-size" data-size="10kg pack" data-unit="kg" style="font-size:0.8rem;">+ 10kg Pack</button>
+                                <button type="button" class="btn btn-sm btn-outline-info py-1 px-2 quick-add-size" data-size="500ml bottle" data-unit="ml" style="font-size:0.8rem;">+ 500ml Bottle</button>
+                                <button type="button" class="btn btn-sm btn-outline-info py-1 px-2 quick-add-size" data-size="1 Litre bottle" data-unit="Litre" style="font-size:0.8rem;">+ 1 Litre</button>
+                                <button type="button" class="btn btn-sm btn-outline-info py-1 px-2 quick-add-size" data-size="5 Litre can" data-unit="Litre" style="font-size:0.8rem;">+ 5 Litre Can</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         @error('packages')<div class="alert alert-danger py-2">{{ $message }}</div>@enderror
                         <div id="packageRows" class="vstack gap-3">
                             @foreach($packageRows as $index => $package)
-                                <div class="package-row border rounded-3 bg-white p-3">
+                                @php
+                                    $lbl = strtolower($package['label'] ?? '');
+                                    $presetMatch = '';
+                                    foreach (['500g pack', '1kg pack', '2kg pack', '5kg family pack', '10kg pack', '250g pack', '100g pack', '500ml bottle', '1 Litre bottle', '1 Litre', '2 Litre', '5 Litre can', '15 Litre tin', '1 Pack', '2 Pack Combo'] as $pOpt) {
+                                        if (trim(strtolower($pOpt)) === trim($lbl) || str_contains($lbl, str_replace([' bottle', ' can', ' tin', ' pack'], '', strtolower($pOpt)))) {
+                                            $presetMatch = $pOpt;
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                <div class="package-row border border-2 rounded-3 bg-white p-3 shadow-sm mb-2 position-relative">
                                     <input type="hidden" name="packages[{{ $index }}][id]" value="{{ $package['id'] ?? '' }}">
-                                    <div class="row g-2 align-items-end">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Package Size *</label>
-                                            <input type="text" name="packages[{{ $index }}][label]" class="form-control form-control-sm @error("packages.$index.label") is-invalid @enderror" value="{{ $package['label'] ?? '' }}" placeholder="500g / 1kg" required>
+                                    
+                                    <!-- Header of package box -->
+                                    <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-6 fw-semibold">
+                                                <i class="fas fa-box-open me-1"></i> Package Option #<span class="package-number">{{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="badge bg-light text-dark border px-2 py-1 package-preview-label fw-bold">
+                                                {{ $package['label'] ?? 'New Package' }}
+                                            </span>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-package-row py-1 px-3" title="Remove this package option">
+                                            <i class="fas fa-trash-alt me-1"></i> Remove
+                                        </button>
+                                    </div>
+
+                                    <!-- Tier 1: Size & Classification -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-lg-4 col-md-6 col-12">
+                                            <label class="form-label small fw-bold text-success mb-1">
+                                                <i class="fas fa-magic me-1"></i>Size Preset (Quick Pick)
+                                            </label>
+                                            <select class="form-select package-preset-select">
+                                                <option value="">-- Choose Preset Size --</option>
+                                                <optgroup label="🌱 Solids (Grams &amp; Kilograms)">
+                                                    <option value="100g pack" @selected($presetMatch === '100g pack')>100g pack</option>
+                                                    <option value="250g pack" @selected($presetMatch === '250g pack')>250g pack</option>
+                                                    <option value="500g pack" @selected($presetMatch === '500g pack' || $lbl === '500g')>500g pack</option>
+                                                    <option value="1kg pack" @selected($presetMatch === '1kg pack' || $lbl === '1kg')>1kg pack</option>
+                                                    <option value="2kg pack" @selected($presetMatch === '2kg pack' || $lbl === '2kg')>2kg pack</option>
+                                                    <option value="5kg pack" @selected($presetMatch === '5kg pack' || $lbl === '5kg')>5kg pack</option>
+                                                    <option value="5kg family pack" @selected(str_contains($lbl, 'family'))>5kg family pack ⭐</option>
+                                                    <option value="10kg pack" @selected($presetMatch === '10kg pack' || $lbl === '10kg')>10kg pack</option>
+                                                    <option value="25kg sack" @selected($presetMatch === '25kg sack')>25kg sack</option>
+                                                </optgroup>
+                                                <optgroup label="💧 Liquids (Litres &amp; Millilitres)">
+                                                    <option value="100ml bottle" @selected($presetMatch === '100ml bottle')>100ml bottle</option>
+                                                    <option value="250ml bottle" @selected($presetMatch === '250ml bottle')>250ml bottle</option>
+                                                    <option value="500ml bottle" @selected($presetMatch === '500ml bottle' || $lbl === '500ml')>500ml bottle</option>
+                                                    <option value="1 Litre bottle" @selected($presetMatch === '1 Litre bottle' || $lbl === '1 litre' || $lbl === '1l')>1 Litre bottle</option>
+                                                    <option value="2 Litre" @selected($presetMatch === '2 Litre')>2 Litre</option>
+                                                    <option value="5 Litre can" @selected($presetMatch === '5 Litre can')>5 Litre can</option>
+                                                    <option value="15 Litre tin" @selected($presetMatch === '15 Litre tin')>15 Litre tin</option>
+                                                </optgroup>
+                                                <optgroup label="📦 Counts &amp; Combos">
+                                                    <option value="1 Pack" @selected($presetMatch === '1 Pack')>1 Pack</option>
+                                                    <option value="2 Pack Combo" @selected($presetMatch === '2 Pack Combo')>2 Pack Combo</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <label class="form-label small fw-bold mb-1">
+                                                Package Size Display <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" name="packages[{{ $index }}][label]" class="form-control package-label-input @error("packages.$index.label") is-invalid @enderror" value="{{ $package['label'] ?? '' }}" placeholder="e.g. 500g pack / 1kg" required>
                                             @error("packages.$index.label")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-bold">Package SKU</label>
-                                            <input type="text" name="packages[{{ $index }}][sku]" class="form-control form-control-sm @error("packages.$index.sku") is-invalid @enderror" value="{{ $package['sku'] ?? '' }}" placeholder="Auto if empty">
+
+                                        <div class="col-lg-2 col-md-6 col-sm-6 col-12">
+                                            <label class="form-label small fw-bold mb-1">Packaging Unit</label>
+                                            <select class="form-select package-unit-select" title="Packaging Weight / Volume Type">
+                                                <option value="g" @selected(preg_match('/(?:\b|\d)g(?:m|s)?\b/i', $package['label'] ?? '') && !preg_match('/kg/i', $package['label'] ?? ''))>Grams (g)</option>
+                                                <option value="kg" @selected(preg_match('/(?:\b|\d)kg\b/i', $package['label'] ?? '') && !preg_match('/family/i', $package['label'] ?? ''))>Kilograms (kg)</option>
+                                                <option value="ml" @selected(preg_match('/(?:\b|\d)ml\b/i', $package['label'] ?? ''))>Millilitres (ml)</option>
+                                                <option value="Litre" @selected(preg_match('/(?:litre|ltr|\bl\b)/i', $package['label'] ?? ''))>Litres (Litre)</option>
+                                                <option value="family pack" @selected(preg_match('/family\s*pack/i', $package['label'] ?? ''))>Family Pack</option>
+                                                <option value="pack" @selected(preg_match('/pack\b/i', $package['label'] ?? '') && !preg_match('/family/i', $package['label'] ?? ''))>Pack</option>
+                                                <option value="pcs">Pieces (Pcs)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-3 col-md-6 col-12">
+                                            <label class="form-label small fw-bold mb-1">Package SKU</label>
+                                            <input type="text" name="packages[{{ $index }}][sku]" class="form-control @error("packages.$index.sku") is-invalid @enderror" value="{{ $package['sku'] ?? '' }}" placeholder="Auto if empty">
                                             @error("packages.$index.sku")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-bold">Regular Price *</label>
-                                            <input type="number" step="0.01" name="packages[{{ $index }}][price]" class="form-control form-control-sm @error("packages.$index.price") is-invalid @enderror" value="{{ $package['price'] ?? '' }}" placeholder="750" required>
+                                    </div>
+
+                                    <!-- Tier 2: Pricing, Inventory & Status -->
+                                    <div class="row g-3 p-3 rounded-2 bg-light border">
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                                            <label class="form-label small fw-bold mb-1 text-dark">Regular Price <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white fw-bold">₹</span>
+                                                <input type="number" step="0.01" name="packages[{{ $index }}][price]" class="form-control @error("packages.$index.price") is-invalid @enderror" value="{{ $package['price'] ?? '' }}" placeholder="750" required>
+                                            </div>
                                             @error("packages.$index.price")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-bold">Sale Price</label>
-                                            <input type="number" step="0.01" name="packages[{{ $index }}][sale_price]" class="form-control form-control-sm @error("packages.$index.sale_price") is-invalid @enderror" value="{{ $package['sale_price'] ?? '' }}" placeholder="675">
+
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                                            <label class="form-label small fw-bold mb-1 text-dark">Sale Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white fw-bold">₹</span>
+                                                <input type="number" step="0.01" name="packages[{{ $index }}][sale_price]" class="form-control @error("packages.$index.sale_price") is-invalid @enderror" value="{{ $package['sale_price'] ?? '' }}" placeholder="675">
+                                            </div>
                                             @error("packages.$index.sale_price")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-1">
-                                            <label class="form-label small fw-bold">Stock *</label>
-                                            <input type="number" name="packages[{{ $index }}][stock_qty]" class="form-control form-control-sm @error("packages.$index.stock_qty") is-invalid @enderror" value="{{ $package['stock_qty'] ?? 0 }}" min="0" required>
+
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                                            <label class="form-label small fw-bold mb-1 text-dark">Stock Quantity <span class="text-danger">*</span></label>
+                                            <input type="number" name="packages[{{ $index }}][stock_qty]" class="form-control @error("packages.$index.stock_qty") is-invalid @enderror" value="{{ $package['stock_qty'] ?? 0 }}" min="0" required>
                                             @error("packages.$index.stock_qty")<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="col-md-1">
-                                            <label class="form-label small fw-bold">Status</label>
-                                            <select name="packages[{{ $index }}][status]" class="form-select form-select-sm">
+
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                                            <label class="form-label small fw-bold mb-1 text-dark">Status</label>
+                                            <select name="packages[{{ $index }}][status]" class="form-select">
                                                 <option value="active" @selected(($package['status'] ?? 'active') === 'active')>Active</option>
                                                 <option value="inactive" @selected(($package['status'] ?? '') === 'inactive')>Inactive</option>
                                             </select>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
-                        <small class="text-muted d-block mt-3">The first active package becomes the product card price. Total package stock is synced as product stock. Existing custom options are kept unless you explicitly remove them here.</small>
+                        <div class="d-flex align-items-center gap-2 mt-3 p-2 bg-success-subtle rounded-2 text-success small border border-success-subtle">
+                            <i class="fas fa-info-circle fs-5"></i>
+                            <span>The first active package becomes the primary product price. Total package stock is synced automatically.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1087,40 +1195,130 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- 4. Package Rows Management ---
-    function packageRowTemplate(index) {
+    function detectUnitFromText(text) {
+        text = String(text || '').toLowerCase().trim();
+        if (text.includes('family')) return 'family pack';
+        if (/\b(?:kg|kgs|kilo|kilogram)\b/.test(text)) return 'kg';
+        if (/\b(?:ml)\b/.test(text)) return 'ml';
+        if (/\b(?:litre|liter|ltr|\bl\b)/.test(text)) return 'Litre';
+        if (/\b(?:g|gm|gms|gram|grams)\b/.test(text)) return 'g';
+        if (/\b(?:pcs|piece|pieces)\b/.test(text)) return 'pcs';
+        if (/\b(?:pack|combo|box)\b/.test(text)) return 'pack';
+        return 'g';
+    }
+
+    function packageRowTemplate(index, defaultSize = '', defaultUnit = '') {
+        const pSize = defaultSize || '';
+        const pUnit = defaultUnit || (defaultSize ? detectUnitFromText(defaultSize) : 'g');
         return `
-            <div class="package-row border rounded-3 bg-white p-3">
+            <div class="package-row border border-2 rounded-3 bg-white p-3 shadow-sm mb-2 position-relative">
                 <input type="hidden" name="packages[${index}][id]" value="">
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label small fw-bold">Package Size *</label>
-                        <input type="text" name="packages[${index}][label]" class="form-control form-control-sm" placeholder="500g / 1kg" required>
+                
+                <!-- Header of package box -->
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-6 fw-semibold">
+                            <i class="fas fa-box-open me-1"></i> Package Option #<span class="package-number">${index + 1}</span>
+                        </span>
+                        <span class="badge bg-light text-dark border px-2 py-1 package-preview-label fw-bold">
+                            ${pSize || 'New Package'}
+                        </span>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold">Package SKU</label>
-                        <input type="text" name="packages[${index}][sku]" class="form-control form-control-sm" placeholder="Auto if empty">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-package-row py-1 px-3" title="Remove this package option">
+                        <i class="fas fa-trash-alt me-1"></i> Remove
+                    </button>
+                </div>
+
+                <!-- Tier 1: Size & Classification -->
+                <div class="row g-3 mb-3">
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <label class="form-label small fw-bold text-success mb-1">
+                            <i class="fas fa-magic me-1"></i>Size Preset (Quick Pick)
+                        </label>
+                        <select class="form-select package-preset-select">
+                            <option value="">-- Choose Preset Size --</option>
+                            <optgroup label="🌱 Solids (Grams &amp; Kilograms)">
+                                <option value="100g pack" ${pSize === '100g pack' ? 'selected' : ''}>100g pack</option>
+                                <option value="250g pack" ${pSize === '250g pack' ? 'selected' : ''}>250g pack</option>
+                                <option value="500g pack" ${pSize === '500g pack' ? 'selected' : ''}>500g pack</option>
+                                <option value="1kg pack" ${pSize === '1kg pack' ? 'selected' : ''}>1kg pack</option>
+                                <option value="2kg pack" ${pSize === '2kg pack' ? 'selected' : ''}>2kg pack</option>
+                                <option value="5kg pack" ${pSize === '5kg pack' ? 'selected' : ''}>5kg pack</option>
+                                <option value="5kg family pack" ${pSize === '5kg family pack' ? 'selected' : ''}>5kg family pack ⭐</option>
+                                <option value="10kg pack" ${pSize === '10kg pack' ? 'selected' : ''}>10kg pack</option>
+                                <option value="25kg sack" ${pSize === '25kg sack' ? 'selected' : ''}>25kg sack</option>
+                            </optgroup>
+                            <optgroup label="💧 Liquids (Litres &amp; Millilitres)">
+                                <option value="100ml bottle" ${pSize === '100ml bottle' ? 'selected' : ''}>100ml bottle</option>
+                                <option value="250ml bottle" ${pSize === '250ml bottle' ? 'selected' : ''}>250ml bottle</option>
+                                <option value="500ml bottle" ${pSize === '500ml bottle' ? 'selected' : ''}>500ml bottle</option>
+                                <option value="1 Litre bottle" ${pSize === '1 Litre bottle' ? 'selected' : ''}>1 Litre bottle</option>
+                                <option value="2 Litre" ${pSize === '2 Litre' ? 'selected' : ''}>2 Litre</option>
+                                <option value="5 Litre can" ${pSize === '5 Litre can' ? 'selected' : ''}>5 Litre can</option>
+                                <option value="15 Litre tin" ${pSize === '15 Litre tin' ? 'selected' : ''}>15 Litre tin</option>
+                            </optgroup>
+                            <optgroup label="📦 Counts &amp; Combos">
+                                <option value="1 Pack" ${pSize === '1 Pack' ? 'selected' : ''}>1 Pack</option>
+                                <option value="2 Pack Combo" ${pSize === '2 Pack Combo' ? 'selected' : ''}>2 Pack Combo</option>
+                            </optgroup>
+                        </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold">Regular Price *</label>
-                        <input type="number" step="0.01" name="packages[${index}][price]" class="form-control form-control-sm" placeholder="750" required>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <label class="form-label small fw-bold mb-1">
+                            Package Size Display <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="packages[${index}][label]" class="form-control package-label-input" value="${pSize}" placeholder="e.g. 500g pack / 1kg" required>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold">Sale Price</label>
-                        <input type="number" step="0.01" name="packages[${index}][sale_price]" class="form-control form-control-sm" placeholder="675">
+
+                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
+                        <label class="form-label small fw-bold mb-1">Packaging Unit</label>
+                        <select class="form-select package-unit-select" title="Packaging Weight / Volume Type">
+                            <option value="g" ${pUnit === 'g' ? 'selected' : ''}>Grams (g)</option>
+                            <option value="kg" ${pUnit === 'kg' ? 'selected' : ''}>Kilograms (kg)</option>
+                            <option value="ml" ${pUnit === 'ml' ? 'selected' : ''}>Millilitres (ml)</option>
+                            <option value="Litre" ${pUnit === 'Litre' ? 'selected' : ''}>Litres (Litre)</option>
+                            <option value="family pack" ${pUnit === 'family pack' ? 'selected' : ''}>Family Pack</option>
+                            <option value="pack" ${pUnit === 'pack' ? 'selected' : ''}>Pack</option>
+                            <option value="pcs">Pieces (Pcs)</option>
+                        </select>
                     </div>
-                    <div class="col-md-1">
-                        <label class="form-label small fw-bold">Stock *</label>
-                        <input type="number" name="packages[${index}][stock_qty]" class="form-control form-control-sm" value="0" min="0" required>
+
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <label class="form-label small fw-bold mb-1">Package SKU</label>
+                        <input type="text" name="packages[${index}][sku]" class="form-control" placeholder="Auto if empty">
                     </div>
-                    <div class="col-md-1">
-                        <label class="form-label small fw-bold">Status</label>
-                        <select name="packages[${index}][status]" class="form-select form-select-sm">
+                </div>
+
+                <!-- Tier 2: Pricing, Inventory & Status -->
+                <div class="row g-3 p-3 rounded-2 bg-light border">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                        <label class="form-label small fw-bold mb-1 text-dark">Regular Price <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white fw-bold">₹</span>
+                            <input type="number" step="0.01" name="packages[${index}][price]" class="form-control" placeholder="750" required>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                        <label class="form-label small fw-bold mb-1 text-dark">Sale Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white fw-bold">₹</span>
+                            <input type="number" step="0.01" name="packages[${index}][sale_price]" class="form-control" placeholder="675">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                        <label class="form-label small fw-bold mb-1 text-dark">Stock Quantity <span class="text-danger">*</span></label>
+                        <input type="number" name="packages[${index}][stock_qty]" class="form-control" value="0" min="0" required>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6">
+                        <label class="form-label small fw-bold mb-1 text-dark">Status</label>
+                        <select name="packages[${index}][status]" class="form-select">
                             <option value="active" selected>Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-package-row" title="Remove package">×</button>
                     </div>
                 </div>
             </div>
@@ -1130,6 +1328,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function reindexPackageRows() {
         if (!packageRows) return;
         packageRows.querySelectorAll('.package-row').forEach((row, index) => {
+            const numSpan = row.querySelector('.package-number');
+            if (numSpan) numSpan.textContent = index + 1;
             row.querySelectorAll('input, select').forEach((field) => {
                 if (field.name) {
                     field.name = field.name.replace(/packages\[\d+\]/, `packages[${index}]`);
@@ -1141,6 +1341,101 @@ document.addEventListener('DOMContentLoaded', function () {
     addPackageRow?.addEventListener('click', function () {
         if (!packageRows) return;
         packageRows.insertAdjacentHTML('beforeend', packageRowTemplate(packageRows.querySelectorAll('.package-row').length));
+    });
+
+    // Preset select or Unit select changed
+    packageRows?.addEventListener('change', function (event) {
+        const presetSelect = event.target.closest('.package-preset-select');
+        if (presetSelect) {
+            const row = presetSelect.closest('.package-row');
+            const labelInput = row?.querySelector('.package-label-input');
+            const unitSelect = row?.querySelector('.package-unit-select');
+            const previewLabel = row?.querySelector('.package-preview-label');
+            const val = presetSelect.value;
+            if (val && labelInput) {
+                labelInput.value = val;
+                if (previewLabel) previewLabel.textContent = val;
+                if (unitSelect) {
+                    unitSelect.value = detectUnitFromText(val);
+                }
+            }
+            return;
+        }
+
+        const unitSelect = event.target.closest('.package-unit-select');
+        if (unitSelect) {
+            const row = unitSelect.closest('.package-row');
+            const labelInput = row?.querySelector('.package-label-input');
+            const previewLabel = row?.querySelector('.package-preview-label');
+            if (labelInput) {
+                const currentVal = labelInput.value.trim();
+                const selectedUnit = unitSelect.value;
+                const match = currentVal.match(/^(\d+(?:\.\d+)?)\s*(?:g|gm|gms|kg|kgs|ml|l|ltr|litre|liter|pack|pcs)?\s*(.*)$/i);
+                if (match) {
+                    const num = match[1];
+                    const extra = match[2].trim();
+                    let suffix = selectedUnit;
+                    if (selectedUnit === 'family pack') {
+                        suffix = num + 'kg family pack';
+                    } else if (selectedUnit === 'Litre') {
+                        suffix = num + ' Litre' + (extra ? ' ' + extra : ' bottle');
+                    } else if (selectedUnit === 'ml') {
+                        suffix = num + 'ml' + (extra ? ' ' + extra : ' bottle');
+                    } else if (selectedUnit === 'kg') {
+                        suffix = num + 'kg' + (extra ? ' ' + extra : ' pack');
+                    } else if (selectedUnit === 'g') {
+                        suffix = num + 'g' + (extra ? ' ' + extra : ' pack');
+                    } else {
+                        suffix = num + ' ' + selectedUnit;
+                    }
+                    labelInput.value = suffix;
+                    if (previewLabel) previewLabel.textContent = suffix;
+                }
+            }
+            return;
+        }
+    });
+
+    // Auto-detect unit and update live badge when user types in Package Size input
+    packageRows?.addEventListener('input', function (event) {
+        const labelInput = event.target.closest('.package-label-input');
+        if (labelInput) {
+            const row = labelInput.closest('.package-row');
+            const unitSelect = row?.querySelector('.package-unit-select');
+            const previewLabel = row?.querySelector('.package-preview-label');
+            if (previewLabel) previewLabel.textContent = labelInput.value.trim() || 'New Package';
+            if (unitSelect && labelInput.value.trim().length >= 2) {
+                const detected = detectUnitFromText(labelInput.value);
+                if (detected) unitSelect.value = detected;
+            }
+        }
+    });
+
+    // Quick Add Preset Buttons in card header
+    document.querySelectorAll('.quick-add-size').forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const size = this.dataset.size || '';
+            const unit = this.dataset.unit || detectUnitFromText(size);
+            if (!packageRows) return;
+
+            const rows = packageRows.querySelectorAll('.package-row');
+            if (rows.length === 1) {
+                const firstLabel = rows[0].querySelector('.package-label-input');
+                if (firstLabel && !firstLabel.value.trim()) {
+                    firstLabel.value = size;
+                    const uSel = rows[0].querySelector('.package-unit-select');
+                    if (uSel) uSel.value = unit;
+                    const pSel = rows[0].querySelector('.package-preset-select');
+                    if (pSel) pSel.value = size;
+                    const prevBadge = rows[0].querySelector('.package-preview-label');
+                    if (prevBadge) prevBadge.textContent = size;
+                    return;
+                }
+            }
+
+            const newIndex = rows.length;
+            packageRows.insertAdjacentHTML('beforeend', packageRowTemplate(newIndex, size, unit));
+        });
     });
 
     packageRows?.addEventListener('click', function (event) {

@@ -392,6 +392,26 @@ const CategoryPage = ({ initialCategory, clearInitialCategory, onShopClick, onVi
 
                               <h3 className="product-feed-name" title={product.name}>{product.name}</h3>
 
+                              {/* Package / Size options badge */}
+                              {product.variations && product.variations.length > 0 ? (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '4px 0 6px 0' }}>
+                                  <span style={{ fontSize: '0.72rem', background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                    📦 {product.variations[0]?.label || product.weight || 'Pack'}
+                                  </span>
+                                  {product.variations.length > 1 && (
+                                    <span style={{ fontSize: '0.72rem', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '1px 5px', borderRadius: '4px', fontWeight: 500 }}>
+                                      +{product.variations.length - 1} more
+                                    </span>
+                                  )}
+                                </div>
+                              ) : product.weight ? (
+                                <div style={{ margin: '4px 0 6px 0' }}>
+                                  <span style={{ fontSize: '0.72rem', background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                    📦 {product.weight}
+                                  </span>
+                                </div>
+                              ) : null}
+
                               <div className="product-pricing-row">
                                 <div className="pricing-left">
                                   <span className="price-val">{formatPrice(product.price)}</span>

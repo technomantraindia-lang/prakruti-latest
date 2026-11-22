@@ -79,7 +79,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        }
+        },
+        "cafile": "C:\\Users\\Admin\\Desktop\\techno mantra projects\\prakruti\\cacert_combined.pem"
     },
     "minimum-stability": "stable",
     "prefer-stable": true
